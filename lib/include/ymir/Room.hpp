@@ -91,98 +91,106 @@ std::vector<ymir::DungeonDoor<U>> getDoors(ymir::Map<T, U> &Room, T Ground,
 
   char RoomsExisting = 0;
 
-  const float DoorReplaceChance = 0.25f;
-  std::uniform_real_distribution<float> Uni(0, 1);
-  for (const auto &[P, Dir, Used] : DoorCandidates) {
-    (void)Used;
-    if (Dir & RoomsExisting) {
-      if (Uni(RndEng) < DoorReplaceChance) {
-        std::replace_if(
-            Doors.begin(), Doors.end(),
-            [Dir](const ymir::DungeonDoor<U> &Door) { return Door.Dir == Dir; },
-            ymir::DungeonDoor<U>{P, Dir});
-        continue;
-      } else {
-        continue;
-      }
-    }
+  Doors = DoorCandidates;
+  (void)RndEng;
+  (void)RoomsExisting;
+  //const float DoorReplaceChance = 0.25f;
+  //std::uniform_real_distribution<float> Uni(0, 1);
+  //for (const auto &[P, Dir, Used] : DoorCandidates) {
+  //  (void)Used;
+  //  if (Dir & RoomsExisting) {
+  //    if (Uni(RndEng) < DoorReplaceChance) {
+  //      std::replace_if(
+  //          Doors.begin(), Doors.end(),
+  //          [Dir](const ymir::DungeonDoor<U> &Door) { return Door.Dir == Dir; },
+  //          ymir::DungeonDoor<U>{P, Dir});
+  //      continue;
+  //    } else {
+  //      continue;
+  //    }
+  //  }
 
-    RoomsExisting |= Dir;
-    Doors.push_back({P, Dir});
-  }
+  //  RoomsExisting |= Dir;
+  //  Doors.push_back({P, Dir});
+  //}
 
-  for (const auto &Door : Doors) {
-    switch (Door.Dir) {
-    case Dir2d::DOWN:
-      Room.setTile(Door.Pos, 'v');
-      break;
-    case Dir2d::UP:
-      Room.setTile(Door.Pos, '^');
-      break;
-    case Dir2d::RIGHT:
-      Room.setTile(Door.Pos, '>');
-      break;
-    case Dir2d::LEFT:
-      Room.setTile(Door.Pos, '<');
-      break;
-    default:
-      break;
-    }
-  }
+  //for (const auto &Door : Doors) {
+  //  switch (Door.Dir) {
+  //  case Dir2d::DOWN:
+  //    Room.setTile(Door.Pos, 'v');
+  //    break;
+  //  case Dir2d::UP:
+  //    Room.setTile(Door.Pos, '^');
+  //    break;
+  //  case Dir2d::RIGHT:
+  //    Room.setTile(Door.Pos, '>');
+  //    break;
+  //  case Dir2d::LEFT:
+  //    Room.setTile(Door.Pos, '<');
+  //    break;
+  //  default:
+  //    break;
+  //  }
+  //}
 
   return Doors;
 }
 
 template <typename U, typename T, typename RE>
-ymir::Map<T, U> generateRoom(T Ground, T Wall, RE &RndEng) {
-  const auto RoomSize =
-      ymir::randomSize2d<U>(ymir::Rect2d<U>{{5, 5}, {10, 10}}, RndEng);
-  ymir::Map<T, U> Room(RoomSize);
+Map<T, U> generateMultiRectRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
+  Map<T, U> Room(Size);
   Room.fillRect(Wall);
 
   for (int L = 0; L < 2; L++) {
-    const auto SizeRange =
-        ymir::Rect2d<U>{{3, 3}, {RoomSize.W - 4, RoomSize.H - 4}};
-    const auto RandomSubSize = ymir::randomSize2d<U>(SizeRange, RndEng);
+    const auto SizeRange = Rect2d<U>{{3, 3}, {Size.W - 4, Size.H - 4}};
+    const auto RandomSubSize = randomSize2d<U>(SizeRange, RndEng);
 
-    const auto PosRange = ymir::Rect2d<U>{
-        {1, 1},
-        {RoomSize.W - RandomSubSize.W - 1, RoomSize.H - RandomSubSize.H - 1}};
-    const auto RandomSubPos = ymir::randomPoint2d<U>(PosRange, RndEng);
+    const auto PosRange = Rect2d<U>{
+        {1, 1}, {Size.W - RandomSubSize.W - 1, Size.H - RandomSubSize.H - 1}};
+    const auto RandomSubPos = randomPoint2d<U>(PosRange, RndEng);
 
-    const ymir::Rect2d<U> FirstRoom = {RandomSubPos, RandomSubSize};
+    const Rect2d<U> FirstRoom = {RandomSubPos, RandomSubSize};
     Room.fillRect(Ground, FirstRoom);
   }
 
   return Room;
 }
+
 template <typename U, typename T, typename RE>
-ymir::Map<T, U> generateCaveRoom(T Ground, T Wall, RE &RndEng) {
-  const auto RoomSize =
-      ymir::randomSize2d<U>(ymir::Rect2d<U>{{5, 5}, {10, 10}}, RndEng);
-  ymir::Map<T, U> Room(RoomSize);
+Map<T, U> generateCaveRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
+  Map<T, U> Room(Size);
   Room.fillRect(Wall);
 
   // Generate initial ground tiles
   const float GroundChance = 0.85f;
-  ymir::fillRectRandom(
-      Room, Ground, GroundChance, RndEng,
-      ymir::Rect2d<U>{{1, 1}, {RoomSize.W - 2, RoomSize.H - 2}});
+  fillRectRandom(Room, Ground, GroundChance, RndEng,
+                 Rect2d<U>{{1, 1}, {Size.W - 2, Size.H - 2}});
 
   // Run replacement
   const std::size_t ReplaceThres = 4, Iterations = 6;
   for (std::size_t Idx = 0; Idx < Iterations; Idx++) {
-    ymir::celat::replace(Room, Ground, Wall, ReplaceThres);
+    celat::replace(Room, Ground, Wall, ReplaceThres);
   }
 
   // Smooth generation
   const std::size_t SmoothThres = 5;
-  ymir::celat::generate(Room, Ground, SmoothThres);
+  celat::generate(Room, Ground, SmoothThres);
 
   // Kill isolated ground
-  ymir::celat::generate(Room, Wall, 8);
+  celat::generate(Room, Wall, 8);
 
   return Room;
+}
+
+template <typename U, typename T, typename RE>
+Map<T, U> generateRandomRoom(T Ground, T Wall, RE &RndEng,
+                             Rect2d<U> RoomMinMax = {{5, 5}, {10, 10}}) {
+  const auto RoomSize = ymir::randomSize2d<U>(RoomMinMax, RndEng);
+  std::uniform_int_distribution Uni(0, 1);
+  if (Uni(RndEng)) {
+    return generateMultiRectRoom(Ground, Wall, RoomSize, RndEng);
+  }
+  return generateCaveRoom(Ground, Wall, RoomSize, RndEng);
 }
 
 } // namespace ymir

@@ -1,9 +1,9 @@
 #ifndef YMIR_DUNGEON_BUILDER_HPP
 #define YMIR_DUNGEON_BUILDER_HPP
 
-#include "Room.hpp"
 #include <vector>
 #include <ymir/Map.hpp>
+#include <ymir/Room.hpp>
 
 namespace ymir {
 
@@ -29,16 +29,35 @@ public:
     return Doors;
   }
 
-  void generateInitialRoom(T Ground, T Wall) {
+  DungeonRoom<T, U> getNewRoom(T Ground, T Wall) {
     (void)Wall;
-    auto InitialRoomMap = generateRoom<U>(Ground, '-', RndEng);
-    auto InitialRoomDoors = getDoors(InitialRoomMap, Ground, RndEng);
+    for (int Attempts = 0; Attempts < 100; Attempts++) {
+      auto RoomMap = generateRandomRoom<U>(Ground, '-', RndEng);
+      auto RoomDoors = getDoors(RoomMap, Ground, RndEng);
+      if (!RoomDoors.empty()) {
+        return {std::move(RoomMap), std::move(RoomDoors)};
+      }
+    }
+    throw std::runtime_error("Could not generate new room");
+  }
+
+  void generateLoops(T Ground, T Wall) {
+    for (auto const &Room : Rooms) {
+      for (auto const &Door : Room.Doors) {
+        (void)Door;
+      }
+      (void)Room;
+    }
+  }
+
+  void generateInitialRoom(T Ground, T Wall) {
+    auto NewRoom = getNewRoom(Ground, Wall);
+    const auto Size = NewRoom.M.Size;
     const auto PosRange =
-        ymir::Rect2d<U>{{1, 1},
-                        {M.Size.W - InitialRoomMap.Size.W - 1,
-                         M.Size.H - InitialRoomMap.Size.H - 1}};
-    const auto RandomSubPos = ymir::randomPoint2d<U>(PosRange, RndEng);
-    Rooms.push_back({InitialRoomMap, InitialRoomDoors, RandomSubPos});
+        ymir::Rect2d<U>{{1, 1}, {M.Size.W - Size.W - 1, M.Size.H - Size.H - 1}};
+    NewRoom.Pos = ymir::randomPoint2d<U>(PosRange, RndEng);
+    std::cerr << "initial room: " << std::endl << NewRoom.M << std::endl;
+    Rooms.push_back(std::move(NewRoom));
   }
 
   void generate(T Ground, T Wall, unsigned NewRoomAttempts = 30) {
@@ -49,17 +68,8 @@ public:
     generateInitialRoom(Ground, Wall);
 
     do {
-      // TODO randomize room kind that is generated
-      // TODO create room with doors in one step
-      auto RoomMap = generateCaveRoom<U>(Ground, '-', RndEng);
-      auto RoomDoors = getDoors(RoomMap, Ground, RndEng);
-
-      // TODO check if room empty => equal to no doors?
-      if (RoomDoors.empty()) {
-        continue;
-      }
-      ymir::DungeonRoom<T, U> NewRoom = {RoomMap, RoomDoors};
-      std::cerr << "new room: " << std::endl << RoomMap << std::endl;
+      ymir::DungeonRoom<T, U> NewRoom = getNewRoom(Ground, Wall);
+      std::cerr << "new room: " << std::endl << NewRoom.M << std::endl;
 
       // Select a suitable room and door randomly from all available
       auto SuitableDoors = getSuitableDoors(NewRoom);
@@ -75,16 +85,18 @@ public:
       while (!SuitableDoors.empty() && !Inserted) {
         auto [TargetRoom, Door] = SuitableDoors.back();
         SuitableDoors.pop_back();
-        std::cerr << "picked: " << *Door << std::endl;
+        //std::cerr << "picked: " << *Door << std::endl;
 
         // get matching door
         auto *RoomDoor = NewRoom.getDoor(Door->Dir.opposing());
         assert(RoomDoor && "No room door found foor suitable door");
-        std::cerr << "found: " << *RoomDoor << std::endl;
-        auto Tile = RoomMap.getTile(RoomDoor->Pos);
-        RoomMap.setTile(RoomDoor->Pos, '*');
-        std::cerr << RoomMap << std::endl;
-        RoomMap.setTile(RoomDoor->Pos, Tile);
+
+        // DEBUG
+        //std::cerr << "found: " << *RoomDoor << std::endl;
+        //auto Tile = NewRoom.M.getTile(RoomDoor->Pos);
+        //NewRoom.M.setTile(RoomDoor->Pos, '*');
+        //std::cerr << NewRoom.M << std::endl;
+        //NewRoom.M.setTile(RoomDoor->Pos, Tile);
 
         Inserted = tryToInsertRoom(NewRoom, *RoomDoor, *TargetRoom, *Door);
       }
@@ -95,15 +107,29 @@ public:
     }
 
     for (const auto &Hallway : Hallways) {
-      M.fillRect('*', Hallway);
-      // M.setTile(Hallway.Pos, 'x');
-      // M.setTile(Hallway.Pos + Hallway.Size + Point2d<U>{-1, -1}, 'x');
+      M.fillRect(Ground, Hallway);
     }
 
     for (const auto &Room : Rooms) {
       for (const auto &Door : Room.Doors) {
-        if (Door.Used) {
-          M.setTile(Room.Pos + Door.Pos, '+');
+        if (!Door.Used) {
+          continue;
+        }
+        switch (Door.Dir) {
+        case Dir2d::DOWN:
+          M.setTile(Room.Pos + Door.Pos, 'v');
+          break;
+        case Dir2d::UP:
+          M.setTile(Room.Pos + Door.Pos, '^');
+          break;
+        case Dir2d::RIGHT:
+          M.setTile(Room.Pos + Door.Pos, '>');
+          break;
+        case Dir2d::LEFT:
+          M.setTile(Room.Pos + Door.Pos, '<');
+          break;
+        default:
+          break;
         }
         (void)Door;
       }
@@ -129,6 +155,8 @@ public:
                  (!HallwayOverlap.empty() && &OtherRoom != &TargetRoom);
         });
 
+    // Check if the room overlaps with another hallway, it does not matter if
+    // the hallway overlaps
     bool HallwayOverlaps = std::any_of(
         Hallways.begin(), Hallways.end(), [&NewRoom](const Rect2d<U> &Other) {
           return !(Other & NewRoom.rect()).empty();
@@ -142,20 +170,23 @@ public:
                        DungeonDoor<U> &Door) {
 
     // get position for alignment
-    // TODO create class direction iterator
-    ymir::Point2d<U> AlignmentPos = TargetRoom.Pos + Door.Pos;
+    ymir::Point2d<U> AlignmentPos = TargetRoom.Pos + Door.Pos + Door.Dir;
     for (; M.contains(AlignmentPos); AlignmentPos += Door.Dir) {
 
+      // Calculate the new room position for the next alignment
       NewRoom.Pos = AlignmentPos - RoomDoor.Pos;
 
       // Create hallway between target and new room
-      auto Hallway = Rect2d<U>::get(TargetRoom.Pos + Door.Pos + Door.Dir,
+      auto Hallway = Rect2d<U>::get(TargetRoom.Pos + Door.Pos,
                                     NewRoom.Pos + RoomDoor.Pos);
       if (Door.Dir & Dir2d::VERTICAL) {
         Hallway.Size.W = Hallway.Size.W == 0 ? 1 : Hallway.Size.W;
       } else {
         Hallway.Size.H = Hallway.Size.H == 0 ? 1 : Hallway.Size.H;
       }
+      //std::cerr << "  -> check hallway: " << Hallway
+      //          << ", target: " << (TargetRoom.Pos + Door.Pos)
+      //          << ", new: " << (NewRoom.Pos + RoomDoor.Pos) << std::endl;
       // M.fillRect('*', Hallway);
 
       // check if room overlaps or hallway overlaps

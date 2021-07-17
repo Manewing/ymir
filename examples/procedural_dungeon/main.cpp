@@ -1,4 +1,4 @@
-#include "Room.hpp"
+#include <ymir/Room.hpp>
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -29,13 +29,8 @@ int main(int Argc, char *Argv[]) {
 
   ymir::WyHashRndEng RE;
   RE.seed(Seed);
-  auto Room = ymir::generateRoom<int>(' ', '#', RE);
-  // std::cout << Room;
 
   ymir::DungeonBuilder<char, ymir::WyHashRndEng> DB({80, 24}, RE);
   DB.generate(' ', '#');
   std::cout << DB.getMap();
-
-  //generate_dungeon(Map, ' ', '#', RE);
-  //std::cout << Map;
 }
