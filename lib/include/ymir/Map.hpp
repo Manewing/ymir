@@ -31,23 +31,23 @@ public:
     return Data.at(P.X + P.Y * Size.W);
   }
 
-  inline TileType getTileOr(TilePos P, TileType Tile = TileType()) const {
+  inline bool isTile(TilePos P, TileType Tile) const {
     if (static_cast<unsigned>(P.X + P.Y * Size.W) >= Data.size()) {
-      return Tile;
+      return false;
     }
-    return getTile(P);
+    return getTile(P) == Tile;
   }
 
   std::size_t getNeighborCount(TilePos P, TileType Tile) const {
     std::size_t Count = 0;
-    Count += getTileOr({P.X + 1, P.Y + 1}) == Tile;
-    Count += getTileOr({P.X + 1, P.Y - 1}) == Tile;
-    Count += getTileOr({P.X + 1, P.Y}) == Tile;
-    Count += getTileOr({P.X - 1, P.Y + 1}) == Tile;
-    Count += getTileOr({P.X - 1, P.Y - 1}) == Tile;
-    Count += getTileOr({P.X - 1, P.Y}) == Tile;
-    Count += getTileOr({P.X, P.Y + 1}) == Tile;
-    Count += getTileOr({P.X, P.Y - 1}) == Tile;
+    Count += isTile({P.X + 1, P.Y + 1}, Tile);
+    Count += isTile({P.X + 1, P.Y - 1}, Tile);
+    Count += isTile({P.X + 1, P.Y}, Tile);
+    Count += isTile({P.X - 1, P.Y + 1}, Tile);
+    Count += isTile({P.X - 1, P.Y - 1}, Tile);
+    Count += isTile({P.X - 1, P.Y}, Tile);
+    Count += isTile({P.X, P.Y + 1}, Tile);
+    Count += isTile({P.X, P.Y - 1}, Tile);
     return Count;
   }
 
