@@ -4,6 +4,6 @@ set(SOURCE_FILES
   src/Map.cpp
 )
 
-add_library(${TARGET} STATIC ${SOURCE_FILES})
+add_library(${TARGET} SHARED ${SOURCE_FILES})
 
 target_include_directories(${TARGET} PUBLIC include)
