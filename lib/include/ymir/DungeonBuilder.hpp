@@ -1,17 +1,39 @@
 #ifndef YMIR_DUNGEON_BUILDER_HPP
 #define YMIR_DUNGEON_BUILDER_HPP
 
+#include <list>
 #include <vector>
+#include <ymir/Dungeon/Hallway.hpp>
 #include <ymir/Dungeon/Room.hpp>
 #include <ymir/Map.hpp>
 
 namespace ymir {
 
+template <typename U>
+bool checkIfOpposing(Point2d<U> SrcPos, Dir2d SrcDir, Point2d<U> TgtPos,
+                     Dir2d TgtDir) {
+  if (SrcDir.opposing() != TgtDir) {
+    return false;
+  }
+  switch (SrcDir) {
+  case Dir2d::LEFT:
+    return SrcPos.X >= TgtPos.X;
+  case Dir2d::RIGHT:
+    return SrcPos.X <= TgtPos.X;
+  case Dir2d::UP:
+    return SrcPos.Y >= TgtPos.Y;
+  case Dir2d::DOWN:
+    return SrcPos.Y <= TgtPos.Y;
+  default:
+    break;
+  }
+  return false;
+}
+
 template <typename T, typename RE, typename U = int> class DungeonBuilder {
 public:
   DungeonBuilder(Size2d<U> Size, RE &RndEng) : M(Size), RndEng(RndEng) {}
 
-  // FIXME use pointer or reference
   // FIXME add rooom pointer to door?
   std::vector<std::pair<Dungeon::Room<T, U> *, Dungeon::Door<U> *>>
   getSuitableDoors(const Dungeon::Room<T, U> &NewRoom) {
@@ -40,14 +62,64 @@ public:
     throw std::runtime_error("Could not generate new room");
   }
 
-  void generateLoops(T Ground, T Wall) {
-    (void)Ground;
-    (void)Wall;
-    for (auto const &Room : Rooms) {
-      for (auto const &Door : Room.Doors) {
-        (void)Door;
+  bool haveRoomsHallway(const Dungeon::Room<T, U> &A,
+                        const Dungeon::Room<T, U> &B) const {
+    return std::any_of(Hallways.begin(), Hallways.end(),
+                       [&A, &B](const Dungeon::Hallway<T, U> &Hallway) {
+                         return (Hallway.Src == &A && Hallway.Dst == &B) ||
+                                (Hallway.Src == &B && Hallway.Dst == &A);
+                       });
+  }
+
+  std::optional<Dungeon::Hallway<T, U>>
+  getLoopHallway(const Dungeon::Room<T, U> &Source,
+                 const Dungeon::Room<T, U> &Target) {
+    std::vector<Dungeon::Hallway<T, U>> LoopHallways;
+    for (const auto &SrcDoor : Source.Doors) {
+      for (const auto &TgtDoor : Target.Doors) {
+        auto SrcPos = Source.Pos + SrcDoor.Pos;
+        auto TgtPos = Target.Pos + TgtDoor.Pos;
+        if (!checkIfOpposing(SrcPos, SrcDoor.Dir, TgtPos, TgtDoor.Dir) ||
+            SrcDoor.Used || TgtDoor.Used) {
+          continue;
+        }
+        if ((SrcPos.X == TgtPos.X && SrcDoor.Dir.isVertical()) ||
+            (SrcPos.Y == TgtPos.Y && SrcDoor.Dir.isHorizontal())) {
+          auto HallwayRect = getHallwayRect(SrcPos, TgtPos);
+          if (doesHallwayFit(HallwayRect, &Target, &Source)) {
+            LoopHallways.push_back(
+                Dungeon::Hallway<T, U>{HallwayRect, &Source, &Target});
+          }
+        }
       }
-      (void)Room;
+    }
+    if (LoopHallways.empty()) {
+      return std::nullopt;
+    }
+    return *randomIterator(LoopHallways.begin(), LoopHallways.end(), RndEng);
+  }
+
+  void generateLoops(unsigned MaxLoops, unsigned MaxUsedDoors) {
+    std::vector<Dungeon::Hallway<T, U>> LoopHallways;
+    for (auto It = Rooms.begin(); It != Rooms.end(); It++) {
+      if (It->getNumUsedDoors() >= MaxUsedDoors) {
+        continue;
+      }
+      for (auto NextIt = It; NextIt != Rooms.end(); NextIt++) {
+        if (It == NextIt || haveRoomsHallway(*It, *NextIt) ||
+            NextIt->getNumUsedDoors() >= MaxUsedDoors) {
+          continue;
+        }
+        auto LoopHallway = getLoopHallway(*It, *NextIt);
+        if (LoopHallway) {
+          LoopHallways.push_back(*LoopHallway);
+        }
+      }
+    }
+    std::shuffle(LoopHallways.begin(), LoopHallways.end(), RndEng);
+    for (std::size_t Idx = 0; Idx < MaxLoops && Idx < LoopHallways.size();
+         Idx++) {
+      Hallways.push_back(LoopHallways.at(Idx));
     }
   }
 
@@ -92,43 +164,72 @@ public:
       }
     } while (--NewRoomAttempts);
 
+    // Generate loops between rooms, currently dungeon is a tree
+    generateLoops(Rooms.size() / 2, 5);
+
     for (const auto &Room : Rooms) {
       M.merge(Room.M, Room.Pos);
     }
 
     for (const auto &Hallway : Hallways) {
-      M.fillRect(Ground, Hallway);
+      M.fillRect(Ground, Hallway.Rect);
     }
   }
 
-  bool doesRoomAndHallwayFit(const Dungeon::Room<T, U> &NewRoom,
-                             Rect2d<U> Hallway,
-                             const Dungeon::Room<T, U> &TargetRoom) const {
-    // Check that room and hallway are contained in map
-    if (!M.rect().contains(NewRoom.rect()) || !M.rect().contains(Hallway)) {
+  bool doesRoomFit(const Dungeon::Room<T, U> &Room) const {
+    // If it's not contained in the map, it does not fit
+    if (!M.rect().contains(Room.rect())) {
       return false;
     }
 
-    // Check that neither the hallway nor the room overlap with other rooms,
-    // except that the hallway is allowed to overlap with the target room
-    bool RoomOverlaps = std::any_of(
-        Rooms.begin(), Rooms.end(),
-        [&NewRoom, &Hallway,
-         &TargetRoom](const Dungeon::Room<T, U> &OtherRoom) {
-          auto RoomOverlap = OtherRoom.rect() & NewRoom.rect();
-          auto HallwayOverlap = OtherRoom.rect() & Hallway;
-          return !RoomOverlap.empty() ||
-                 (!HallwayOverlap.empty() && &OtherRoom != &TargetRoom);
-        });
+    // Check that the room neiter overlaps with another room nor with a hallway
+    bool RoomOverlapsRoom =
+        std::any_of(Rooms.begin(), Rooms.end(),
+                    [&Room](const Dungeon::Room<T, U> &OtherRoom) {
+                      auto Overlap = OtherRoom.rect() & Room.rect();
+                      return !Overlap.empty();
+                    });
+    bool RoopmOverlapsHallway =
+        std::any_of(Hallways.begin(), Hallways.end(),
+                    [&Room](const Dungeon::Hallway<T, U> &Hallway) {
+                      auto Overlap = Hallway.Rect & Room.rect();
+                      return !Overlap.empty();
+                    });
 
-    // Check if the room overlaps with another hallway, it does not matter if
-    // the hallway overlaps
-    bool HallwayOverlaps = std::any_of(
-        Hallways.begin(), Hallways.end(), [&NewRoom](const Rect2d<U> &Other) {
-          return !(Other & NewRoom.rect()).empty();
-        });
+    return !RoomOverlapsRoom && !RoopmOverlapsHallway;
+  }
 
-    return !RoomOverlaps && !HallwayOverlaps;
+  bool doesHallwayFit(Rect2d<U> HallwayRect,
+                      const Dungeon::Room<T, U> *TargetRoom = nullptr,
+                      const Dungeon::Room<T, U> *SourceRoom = nullptr) const {
+    // If it's not contained in the map, it does not fit
+    if (!M.rect().contains(HallwayRect)) {
+      return false;
+    }
+    bool HallwayOverlapsRooms =
+        std::any_of(Rooms.begin(), Rooms.end(),
+                    [&HallwayRect, TargetRoom,
+                     SourceRoom](const Dungeon::Room<T, U> &Room) {
+                      if (&Room == TargetRoom || &Room == SourceRoom) {
+                        return false;
+                      }
+                      auto HallwayOverlap = Room.rect() & HallwayRect;
+                      return !HallwayOverlap.empty();
+                    });
+    return !HallwayOverlapsRooms;
+  }
+
+  bool doesRoomAndHallwayFit(const Dungeon::Room<T, U> &NewRoom,
+                             Rect2d<U> HallwayRect,
+                             const Dungeon::Room<T, U> &TargetRoom) const {
+    return doesRoomFit(NewRoom) &&
+           doesHallwayFit(HallwayRect, &TargetRoom, &NewRoom);
+  }
+
+  static Rect2d<U> getHallwayRect(Point2d<U> PosA, Point2d<U> PosB) {
+    auto Hallway = Rect2d<U>::get(PosA, PosB);
+    Hallway.Size += Size2d<U>(1, 1);
+    return Hallway;
   }
 
   bool tryToInsertRoom(Dungeon::Room<T, U> &NewRoom, Dungeon::Door<U> &RoomDoor,
@@ -145,34 +246,36 @@ public:
       // Create hallway between target and new room
       auto TargetDoorPos = TargetRoom.Pos + Door.Pos;
       auto NewDoorPos = NewRoom.Pos + RoomDoor.Pos;
-      auto Hallway = Rect2d<U>::get(TargetDoorPos, NewDoorPos);
-      Hallway.Size += Size2d<U>(1, 1);
+      auto HallwayRect = getHallwayRect(TargetDoorPos, NewDoorPos);
 
       // check if room overlaps or hallway overlaps
-      if (!doesRoomAndHallwayFit(NewRoom, Hallway, TargetRoom)) {
+      if (!doesRoomAndHallwayFit(NewRoom, HallwayRect, TargetRoom)) {
         continue;
       }
 
       Door.Used = true;
       RoomDoor.Used = true;
       Rooms.push_back(NewRoom); // FIXME this copies
-      Hallways.push_back(Hallway);
+      Hallways.push_back(
+          Dungeon::Hallway<T, U>{HallwayRect, &Rooms.back(), &TargetRoom});
       return true;
     }
     return false;
   }
 
   const ymir::Map<T, U> &getMap() const { return M; }
-  const std::vector<Dungeon::Room<T, U>> &getRooms() const { return Rooms; }
-  const std::vector<Rect2d<U>> &getHallways() const { return Hallways; }
+  const std::list<Dungeon::Room<T, U>> &getRooms() const { return Rooms; }
+  const std::vector<Dungeon::Hallway<T, U>> &getHallways() const {
+    return Hallways;
+  }
 
 private:
   ymir::Map<T, U> M;
   RE &RndEng;
 
-  std::vector<Dungeon::Room<T, U>> Rooms;
-  std::vector<Rect2d<U>> Hallways;
-};
+  std::list<Dungeon::Room<T, U>> Rooms;
+  std::vector<Dungeon::Hallway<T, U>> Hallways;
+}; // namespace ymir
 
 } // namespace ymir
 

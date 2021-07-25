@@ -36,15 +36,29 @@ int main(int Argc, char *Argv[]) {
   DB.generate(/*Ground=*/' ', /*Wall=*/'#', Rooms);
 
   auto MapCopy = DB.getMap();
+  unsigned RoomIdx = 0;
   for (auto const &Room : DB.getRooms()) {
-    Room.M.forEach([&Room, &MapCopy](ymir::Point2d<int> Pos, char Tile) {
-      if (Tile == '#') {
-        MapCopy.setTile(Room.Pos + Pos, '-');
-      }
-    });
+    Room.M.forEach(
+        [&Room, &MapCopy](ymir::Point2d<int> Pos, char Tile) {
+          if (Tile == '#') {
+            MapCopy.setTile(Room.Pos + Pos, '-');
+          }
+        });
+    int X = 0;
+    auto RoomIdxStr = std::to_string(RoomIdx);
+    for (const char Char : RoomIdxStr) {
+      auto Pos = Room.Pos + ymir::Point2d<int>(Room.rect().Size.W / 2 + X -
+                                                   RoomIdxStr.size() / 2,
+                                               Room.rect().Size.H / 2);
+
+      MapCopy.setTile(Pos, Char);
+      X++;
+    }
+    ymir::Dungeon::internal::markDoors(MapCopy, Room.Doors, Room.Pos);
+    RoomIdx++;
   }
   for (auto const &Hallway : DB.getHallways()) {
-    MapCopy.fillRect('x', Hallway);
+    MapCopy.fillRect('x', Hallway.Rect);
   }
 
   std::cout << MapCopy << std::endl

@@ -39,6 +39,11 @@ template <typename T, typename U> struct Room {
     return Dirs;
   }
 
+  unsigned getNumUsedDoors() const {
+    return std::count_if(Doors.begin(), Doors.end(),
+                         [](const Door<U> &Door) { return Door.Used; });
+  }
+
   Dir2d getOpposingDoorDirections() const {
     Dir2d Dirs = Dir2d::NONE;
     std::for_each(Doors.begin(), Doors.end(), [&Dirs](const Door<U> &Door) {
@@ -52,20 +57,21 @@ template <typename T, typename U> struct Room {
 
 namespace internal {
 template <typename T, typename U>
-void markDoors(ymir::Map<T, U> &M, const std::vector<Door<U>> &Doors) {
+void markDoors(ymir::Map<T, U> &M, const std::vector<Door<U>> &Doors,
+               Point2d<U> Offset = {0, 0}) {
   for (const auto &Door : Doors) {
     switch (Door.Dir) {
     case Dir2d::DOWN:
-      M.getTile(Door.Pos) = 'v';
+      M.getTile(Offset + Door.Pos) = 'v';
       break;
     case Dir2d::UP:
-      M.getTile(Door.Pos) = '^';
+      M.getTile(Offset + Door.Pos) = '^';
       break;
     case Dir2d::RIGHT:
-      M.getTile(Door.Pos) = '>';
+      M.getTile(Offset + Door.Pos) = '>';
       break;
     case Dir2d::LEFT:
-      M.getTile(Door.Pos) = '<';
+      M.getTile(Offset + Door.Pos) = '<';
       break;
     default:
       break;

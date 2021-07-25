@@ -215,6 +215,13 @@ TEST(Dir2dTest, Methods) {
   EXPECT_EQ(Dir2d(Dir2d::RIGHT).opposing(), Dir2d::LEFT);
   EXPECT_EQ(Dir2d(Dir2d::DOWN).opposing(), Dir2d::UP);
 
+  EXPECT_TRUE(Dir2d(Dir2d::RIGHT).isHorizontal());
+  EXPECT_TRUE(Dir2d(Dir2d::LEFT).isHorizontal());
+  EXPECT_FALSE(Dir2d(Dir2d::UP).isHorizontal());
+  EXPECT_TRUE(Dir2d(Dir2d::UP).isVertical());
+  EXPECT_TRUE(Dir2d(Dir2d::DOWN).isVertical());
+  EXPECT_FALSE(Dir2d(Dir2d::RIGHT).isVertical());
+
   EXPECT_EQ(Dir2d(Dir2d::DOWN).advance<int>(), Point2d<int>(0, 1));
 }
 

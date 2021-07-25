@@ -222,6 +222,14 @@ public:
 
   Dir2d opposing() const;
 
+  inline constexpr bool isHorizontal() const {
+    return (Value & HORIZONTAL) != NONE;
+  }
+
+  inline constexpr bool isVertical() const {
+    return (Value & VERTICAL) != NONE;
+  }
+
   template <typename U>
   Point2d<U> advance(Point2d<U> Pos = Point2d<U>{0, 0}) const {
     switch (Value) {
