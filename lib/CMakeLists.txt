@@ -2,6 +2,7 @@ set(TARGET ymir)
 
 set(SOURCE_FILES
   src/Map.cpp
+  src/Types.cpp
 )
 
 add_library(${TARGET} SHARED ${SOURCE_FILES})

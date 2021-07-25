@@ -3,67 +3,95 @@
 
 #include <algorithm>
 #include <iostream>
+#include <optional>
 #include <tuple>
 #include <vector>
 #include <ymir/CallularAutomata.hpp>
+#include <ymir/DebugTile.hpp>
+#include <ymir/Dungeon/Door.hpp>
 #include <ymir/Map.hpp>
 #include <ymir/MapFilter.hpp>
 #include <ymir/Noise.hpp>
 #include <ymir/Types.hpp>
 
-namespace ymir {
+namespace ymir::Dungeon {
 
-template <typename U> struct DungeonDoor {
-  Point2d<U> Pos;
-  Dir2d Dir = Dir2d::NONE;
-  bool Used = false;
-};
-
-template <typename U>
-std::ostream &operator<<(std::ostream &Out, const DungeonDoor<U> &Door) {
-  Out << "DungeonDoor{" << Door.Pos << ", 0x" << std::hex << (int)Door.Dir
-      << "}" << std::dec; // FIXME prevent cast here
-  return Out;
-}
-
-template <typename T, typename U> struct DungeonRoom {
+template <typename T, typename U> struct Room {
   Map<T, U> M;
-  std::vector<DungeonDoor<U>> Doors;
+  std::vector<Door<U>> Doors;
   Point2d<U> Pos = {0, 0};
 
-  DungeonDoor<U> *getDoor(Dir2d Dir) {
-    auto It = std::find_if(
-        Doors.begin(), Doors.end(),
-        [Dir](const ymir::DungeonDoor<U> &Door) { return Dir == Door.Dir; });
+  std::optional<Door<U>> getDoor(Dir2d Dir) {
+    auto It =
+        std::find_if(Doors.begin(), Doors.end(), [Dir](const Door<U> &Door) {
+          return (Dir & Door.Dir) != Dir2d::NONE;
+        });
     if (It == Doors.end()) {
-      return nullptr;
+      return std::nullopt;
     }
-    return &*It;
+    return *It;
   }
 
   Dir2d getDoorDirections() const {
     Dir2d Dirs = Dir2d::NONE;
     std::for_each(Doors.begin(), Doors.end(),
-                  [&Dirs](const DungeonDoor<U> &Door) { Dirs |= Door.Dir; });
+                  [&Dirs](const Door<U> &Door) { Dirs |= Door.Dir; });
     return Dirs;
   }
 
   Dir2d getOpposingDoorDirections() const {
     Dir2d Dirs = Dir2d::NONE;
-    std::for_each(
-        Doors.begin(), Doors.end(),
-        [&Dirs](const DungeonDoor<U> &Door) { Dirs |= Door.Dir.opposing(); });
+    std::for_each(Doors.begin(), Doors.end(), [&Dirs](const Door<U> &Door) {
+      Dirs |= Door.Dir.opposing();
+    });
     return Dirs;
   }
 
   Rect2d<U> rect() const { return {Pos, M.Size}; }
 };
 
-// TODO std::ostream& DungeonRoom
+namespace internal {
+template <typename T, typename U>
+void markDoors(ymir::Map<T, U> &M, const std::vector<Door<U>> &Doors) {
+  for (const auto &Door : Doors) {
+    switch (Door.Dir) {
+    case Dir2d::DOWN:
+      M.getTile(Door.Pos) = 'v';
+      break;
+    case Dir2d::UP:
+      M.getTile(Door.Pos) = '^';
+      break;
+    case Dir2d::RIGHT:
+      M.getTile(Door.Pos) = '>';
+      break;
+    case Dir2d::LEFT:
+      M.getTile(Door.Pos) = '<';
+      break;
+    default:
+      break;
+    }
+  }
+}
+} // namespace internal
 
 template <typename T, typename U>
-std::vector<DungeonDoor<U>> getDoorCandidates(Map<T, U> &Room, T Ground) {
-  std::vector<DungeonDoor<U>> Doors;
+std::ostream &operator<<(std::ostream &Out, const Room<T, U> &Room) {
+  Out << "Room{" << Room.Pos << ", /*Doors=*/{";
+  const char *Separator = "";
+  for (const auto &Door : Room.Doors) {
+    Out << Separator << Door;
+    Separator = ", ";
+  }
+  Out << "}}: " << std::endl;
+  auto MapCopy = DebugTile<T, char>::convert(Room.M);
+  internal::markDoors(MapCopy, Room.Doors);
+  Out << MapCopy << std::endl;
+  return Out;
+}
+
+template <typename T, typename U>
+std::vector<Door<U>> getDoorCandidates(Map<T, U> &Room, T Ground) {
+  std::vector<Door<U>> Doors;
   Room.forEach([&Doors, &Room, Ground](Point2d<U> P, T &Tile) {
     auto Count = Room.getNeighborCount(P, Ground);
     if (Count == 3 && Tile != Ground) {
@@ -80,59 +108,6 @@ std::vector<DungeonDoor<U>> getDoorCandidates(Map<T, U> &Room, T Ground) {
       }
     }
   });
-  return Doors;
-}
-
-template <typename T, typename U, typename RE>
-std::vector<ymir::DungeonDoor<U>> getDoors(ymir::Map<T, U> &Room, T Ground,
-                                           RE &RndEng) {
-  std::vector<ymir::DungeonDoor<U>> Doors;
-  auto DoorCandidates = getDoorCandidates(Room, Ground);
-
-  char RoomsExisting = 0;
-
-  Doors = DoorCandidates;
-  (void)RndEng;
-  (void)RoomsExisting;
-  //const float DoorReplaceChance = 0.25f;
-  //std::uniform_real_distribution<float> Uni(0, 1);
-  //for (const auto &[P, Dir, Used] : DoorCandidates) {
-  //  (void)Used;
-  //  if (Dir & RoomsExisting) {
-  //    if (Uni(RndEng) < DoorReplaceChance) {
-  //      std::replace_if(
-  //          Doors.begin(), Doors.end(),
-  //          [Dir](const ymir::DungeonDoor<U> &Door) { return Door.Dir == Dir; },
-  //          ymir::DungeonDoor<U>{P, Dir});
-  //      continue;
-  //    } else {
-  //      continue;
-  //    }
-  //  }
-
-  //  RoomsExisting |= Dir;
-  //  Doors.push_back({P, Dir});
-  //}
-
-  //for (const auto &Door : Doors) {
-  //  switch (Door.Dir) {
-  //  case Dir2d::DOWN:
-  //    Room.setTile(Door.Pos, 'v');
-  //    break;
-  //  case Dir2d::UP:
-  //    Room.setTile(Door.Pos, '^');
-  //    break;
-  //  case Dir2d::RIGHT:
-  //    Room.setTile(Door.Pos, '>');
-  //    break;
-  //  case Dir2d::LEFT:
-  //    Room.setTile(Door.Pos, '<');
-  //    break;
-  //  default:
-  //    break;
-  //  }
-  //}
-
   return Doors;
 }
 
@@ -193,6 +168,6 @@ Map<T, U> generateRandomRoom(T Ground, T Wall, RE &RndEng,
   return generateCaveRoom(Ground, Wall, RoomSize, RndEng);
 }
 
-} // namespace ymir
+} // namespace ymir::Dungeon
 
 #endif // #ifndef YMIR_ROOM_HPP

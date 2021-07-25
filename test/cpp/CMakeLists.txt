@@ -2,6 +2,8 @@ set (TARGET YmirUnittest)
 
 add_executable(
   ${TARGET}
+  DungeonDoorTest.cpp
+  DungeonRoomTest.cpp
   TypesTest.cpp
 )
 

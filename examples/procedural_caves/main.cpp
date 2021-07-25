@@ -5,17 +5,15 @@
 #include <ymir/Map.hpp>
 #include <ymir/Noise.hpp>
 
-template <typename TileType, typename U>
+template <typename TileType, typename U, typename RE>
 void generate_caves(ymir::Map<TileType, U> &M, TileType Ground, TileType Wall,
-                    ymir::Point2d<U> Offset) {
-  ymir::UniformRndEng<ymir::WyHashRndEng, float> RE(0, 1);
-
+                    ymir::Point2d<U> Offset, RE RandEng) {
   // Make entire map walls
   M.fillRect(Wall);
 
   // Generate initial ground tiles
   const float GroundChance = 0.65f;
-  ymir::fillRectSeedRandom(M, Ground, GroundChance, RE,
+  ymir::fillRectSeedRandom(M, Ground, GroundChance, RandEng,
                            ymir::Rect2d<U>{{0, 0}, {0, 0}}, Offset);
 
   // Run replacement
@@ -41,11 +39,13 @@ int main(int Argc, char *Argv[]) {
     OffsetY = std::stoi(Argv[2]);
   }
   ymir::Map<char> Map(80, 24);
+  ymir::WyHashRndEng RE;
+  RE.seed(std::random_device()());
 
   for (float Degree = 0; Degree < 360; Degree += 1.0) {
     int PosY = sin(deg2rad(Degree)) * 50;
     int PosX = cos(deg2rad(Degree)) * 50;
-    //generate_caves(Map, ' ', '#', {OffsetX + PosX, OffsetY + PosY});
+    generate_caves(Map, ' ', '#', {OffsetX + PosX, OffsetY + PosY}, RE);
     (void)(PosX + OffsetX);
     (void)(PosY + OffsetY);
     std::cout << "\e[1;1H\e[2J" << Map;

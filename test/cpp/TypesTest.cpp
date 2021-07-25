@@ -1,3 +1,4 @@
+#include "TestHelpers.hpp"
 #include <gtest/gtest.h>
 #include <ymir/Types.hpp>
 
@@ -13,6 +14,15 @@ TEST(Size2dTest, Comparison) {
   Size2d<float> C{0, 0}, D{0.2, 0};
   EXPECT_EQ(C, C);
   EXPECT_NE(C, D);
+}
+
+TEST(Size2dTest, Operators) {
+  EXPECT_EQ(Size2d<int>(1, 4) + Size2d<int>(0, 5), Size2d<int>(1, 9));
+  {
+    Size2d<int> A(42, 3);
+    A += Size2d<int>(1, 3);
+    EXPECT_EQ(A, Size2d<int>(43, 6));
+  }
 }
 
 TEST(Point2dTest, Comparison) {
@@ -206,6 +216,29 @@ TEST(Dir2dTest, Methods) {
   EXPECT_EQ(Dir2d(Dir2d::DOWN).opposing(), Dir2d::UP);
 
   EXPECT_EQ(Dir2d(Dir2d::DOWN).advance<int>(), Point2d<int>(0, 1));
+}
+
+TEST(Dir2dTest, Output) {
+  {
+    Dir2d Dir = Dir2d::NONE;
+    EXPECT_EQ(Dir.str(), "NONE");
+    EXPECT_EQ(dump(Dir), "Dir2d(NONE)");
+  }
+  {
+    Dir2d Dir = Dir2d::VERTICAL;
+    EXPECT_EQ(Dir.str(), "VERTICAL");
+    EXPECT_EQ(dump(Dir), "Dir2d(VERTICAL)");
+  }
+  {
+    Dir2d Dir = Dir2d::LEFT;
+    EXPECT_EQ(Dir.str(), "LEFT");
+    EXPECT_EQ(dump(Dir), "Dir2d(LEFT)");
+  }
+  {
+    Dir2d Dir = Dir2d::RIGHT | Dir2d::UP | Dir2d::DOWN;
+    EXPECT_EQ(Dir.str(), "UP | DOWN | RIGHT");
+    EXPECT_EQ(dump(Dir), "Dir2d(UP | DOWN | RIGHT)");
+  }
 }
 
 } // namespace

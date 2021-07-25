@@ -16,6 +16,9 @@ public:
   using TileCord = U;
   using TilePos = Point2d<TileCord>;
 
+  template <typename TX, typename UX>
+  friend bool operator==(const Map<TX, UX> &Lhs, const Map<TX, UX> &Rhs);
+
 public:
   explicit Map(Size2d<TileCord> Size) : Size(Size) {
     Data.resize(Size.W * Size.H);
@@ -51,13 +54,9 @@ public:
     return Count;
   }
 
-  Rect2d<TileCord> rect() const {
-    return Rect2d<TileCord>{{0, 0}, Size};
-  }
+  Rect2d<TileCord> rect() const { return Rect2d<TileCord>{{0, 0}, Size}; }
 
-  bool contains(Point2d<TileCord> P) const {
-    return rect().contains(P);
-  }
+  bool contains(Point2d<TileCord> P) const { return rect().contains(P); }
 
   Rect2d<TileCord>
   getContained(std::optional<Rect2d<TileCord>> Rect = {}) const {
@@ -114,7 +113,7 @@ public:
     forEachElem([&Tile](TileType &TL) { TL = Tile; }, Rect);
   }
 
-  void merge(const Map &Other, Point2d<TileCord> Pos = {0,0}) {
+  void merge(const Map &Other, Point2d<TileCord> Pos = {0, 0}) {
     auto R = getContained(Rect2d<TileCord>{Pos, Other.Size});
     for (auto PY = R.Pos.Y; PY < R.Pos.Y + R.Size.H && PY < Size.H; PY++) {
       for (auto PX = R.Pos.X; PX < R.Pos.X + R.Size.W && PX < Size.W; PX++) {
@@ -139,6 +138,11 @@ std::ostream &operator<<(std::ostream &Out, const Map<T, U> &M) {
     Out << '\n';
   }
   return Out;
+}
+
+template <typename T, typename U>
+inline bool operator==(const Map<T, U> &Lhs, const Map<T, U> &Rhs) {
+  return Lhs.Data == Rhs.Data;
 }
 
 } // namespace ymir

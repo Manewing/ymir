@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <iostream>
+#include <string>
 #include <tuple>
 #include <type_traits>
 #include <ymir/Enum.hpp>
@@ -18,6 +19,12 @@ template <typename T> struct Size2d {
 
   Size2d() = default;
   Size2d(ValueType W, ValueType H) : W(W), H(H) {}
+
+  inline Size2d &operator+=(const Size2d<T> &Rhs) {
+    W += Rhs.W;
+    H += Rhs.H;
+    return *this;
+  }
 };
 
 template <typename T>
@@ -28,6 +35,12 @@ inline bool operator==(const Size2d<T> &Lhs, const Size2d<T> &Rhs) noexcept {
 template <typename T>
 inline bool operator!=(const Size2d<T> &Lhs, const Size2d<T> &Rhs) noexcept {
   return Lhs.W != Rhs.W || Lhs.H != Rhs.H;
+}
+
+template <typename T>
+inline Size2d<T> operator+(const Size2d<T> &Lhs,
+                           const Size2d<T> &Rhs) noexcept {
+  return {Lhs.W + Rhs.W, Lhs.H + Rhs.H};
 }
 
 template <typename T> std::ostream &operator<<(std::ostream &Out, Size2d<T> S) {
@@ -198,31 +211,16 @@ public:
   } Dir2dValue;
 
   Dir2d() = default;
-  Dir2d(Dir2dValue Value) : Value(Value) {}
+  inline constexpr Dir2d(Dir2dValue Value) : Value(Value) {}
+  inline constexpr operator Dir2dValue() const { return Value; }
 
-  operator Dir2dValue() const { return Value; }
+  std::string str() const;
 
   Dir2d &operator|=(Dir2d Other);
   Dir2d &operator&=(Dir2d Other);
   Dir2d &operator^=(Dir2d Other);
 
-  Dir2d opposing() const {
-    switch (Value) {
-    case NONE:
-      return NONE;
-    case DOWN:
-      return UP;
-    case UP:
-      return DOWN;
-    case RIGHT:
-      return LEFT;
-    case LEFT:
-      return RIGHT;
-    default:
-      break;
-    }
-    return NONE;
-  }
+  Dir2d opposing() const;
 
   template <typename U>
   Point2d<U> advance(Point2d<U> Pos = Point2d<U>{0, 0}) const {
@@ -247,6 +245,8 @@ private:
   Dir2dValue Value = NONE;
 };
 
+std::ostream &operator<<(std::ostream &Out, const Dir2d &Dir);
+
 template <typename U> Point2d<U> operator+(const Point2d<U> &P, Dir2d Dir) {
   return Dir.advance(P);
 }
@@ -267,24 +267,5 @@ template <typename U> Point2d<U> operator-(const Point2d<U> &P, Dir2d Dir) {
 } // namespace ymir
 
 YMIR_BITFIELD_ENUM(ymir::Dir2d::Dir2dValue);
-
-namespace ymir {
-
-Dir2d &Dir2d::operator|=(Dir2d Other) {
-  Value |= Other.Value;
-  return *this;
-}
-
-Dir2d &Dir2d::operator&=(Dir2d Other) {
-  Value &= Other.Value;
-  return *this;
-}
-
-Dir2d &Dir2d::operator^=(Dir2d Other) {
-  Value ^= Other.Value;
-  return *this;
-}
-
-} // namespace ymir
 
 #endif // #ifndef YMIR_TYPES_HPP

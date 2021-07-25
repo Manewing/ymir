@@ -10,6 +10,6 @@ set(CMAKE_CXX_FLAGS
 
 enable_testing()
 
-add_subdirectory(googletest)
 add_subdirectory(cpp)
+add_subdirectory(googletest)
 
