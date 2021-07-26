@@ -8,8 +8,10 @@ namespace ymir::Dungeon {
 template <typename T, typename U>
 struct Hallway {
   Rect2d<U> Rect;
-  const Room<T, U> *Src;
-  const Room<T, U> *Dst;
+  Room<T, U> *Src = nullptr;
+  Door<U> *SrcDoor = nullptr;
+  Room<T, U> *Dst = nullptr;
+  Door<U> *DstDoor = nullptr;
 };
 
 }

@@ -72,11 +72,10 @@ public:
   }
 
   std::optional<Dungeon::Hallway<T, U>>
-  getLoopHallway(const Dungeon::Room<T, U> &Source,
-                 const Dungeon::Room<T, U> &Target) {
+  getLoopHallway(Dungeon::Room<T, U> &Source, Dungeon::Room<T, U> &Target) {
     std::vector<Dungeon::Hallway<T, U>> LoopHallways;
-    for (const auto &SrcDoor : Source.Doors) {
-      for (const auto &TgtDoor : Target.Doors) {
+    for (auto &SrcDoor : Source.Doors) {
+      for (auto &TgtDoor : Target.Doors) {
         auto SrcPos = Source.Pos + SrcDoor.Pos;
         auto TgtPos = Target.Pos + TgtDoor.Pos;
         if (!checkIfOpposing(SrcPos, SrcDoor.Dir, TgtPos, TgtDoor.Dir) ||
@@ -87,8 +86,8 @@ public:
             (SrcPos.Y == TgtPos.Y && SrcDoor.Dir.isHorizontal())) {
           auto HallwayRect = getHallwayRect(SrcPos, TgtPos);
           if (doesHallwayFit(HallwayRect, &Target, &Source)) {
-            LoopHallways.push_back(
-                Dungeon::Hallway<T, U>{HallwayRect, &Source, &Target});
+            LoopHallways.push_back(Dungeon::Hallway<T, U>{
+                HallwayRect, &Source, &SrcDoor, &Target, &TgtDoor});
           }
         }
       }
@@ -119,7 +118,10 @@ public:
     std::shuffle(LoopHallways.begin(), LoopHallways.end(), RndEng);
     for (std::size_t Idx = 0; Idx < MaxLoops && Idx < LoopHallways.size();
          Idx++) {
-      Hallways.push_back(LoopHallways.at(Idx));
+      auto &Hallway = LoopHallways.at(Idx);
+      Hallway.SrcDoor->Used = true;
+      Hallway.DstDoor->Used = true;
+      Hallways.push_back(Hallway);
     }
   }
 
@@ -233,7 +235,7 @@ public:
   }
 
   bool tryToInsertRoom(Dungeon::Room<T, U> &NewRoom, Dungeon::Door<U> &RoomDoor,
-                       const Dungeon::Room<T, U> &TargetRoom,
+                       Dungeon::Room<T, U> &TargetRoom,
                        Dungeon::Door<U> &Door) {
 
     // get position for alignment
@@ -256,8 +258,8 @@ public:
       Door.Used = true;
       RoomDoor.Used = true;
       Rooms.push_back(NewRoom); // FIXME this copies
-      Hallways.push_back(
-          Dungeon::Hallway<T, U>{HallwayRect, &Rooms.back(), &TargetRoom});
+      Hallways.push_back(Dungeon::Hallway<T, U>{HallwayRect, &Rooms.back(),
+                                                &RoomDoor, &TargetRoom, &Door});
       return true;
     }
     return false;

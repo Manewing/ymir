@@ -78,7 +78,7 @@ TEST(DungeonRoomTest, GetDoor) {
     Door Left{{0, 0}, Dir2d::LEFT, false};
     Door Right{{0, 0}, Dir2d::RIGHT, false};
     Room<char, int> R{Map<char, int>({}), {Up, Down, Left, Right}};
-    EXPECT_EQ(R.getDoor(Dir2d::VERTICAL), nullptr);
+    EXPECT_EQ(R.getDoor(Dir2d::NONE), nullptr);
     EXPECT_EQ(*R.getDoor(Dir2d::DOWN), Down);
     EXPECT_EQ(*R.getDoor(Dir2d::UP), Up);
     EXPECT_EQ(*R.getDoor(Dir2d::RIGHT), Right);
