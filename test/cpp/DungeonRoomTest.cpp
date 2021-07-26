@@ -86,6 +86,63 @@ TEST(DungeonRoomTest, GetDoor) {
   }
 }
 
+TEST(DungeonRoomTest, GetNumUsedDoors) {
+//  using Door = ymir::Dungeon::Door<int>;
+
+  // Empty
+  {
+    Room<char, int> R{Map<char, int>({}), {}};
+    EXPECT_EQ(R.getNumUsedDoors(), 0);
+  }
+  // Non-Empty
+  {
+    Room<char, int> R{Map<char, int>({}), {
+      {{0, 0}, Dir2d::LEFT, true},
+      {{0, 1}, Dir2d::LEFT, false},
+      {{0, 2}, Dir2d::LEFT, false},
+      {{13, 6}, Dir2d::RIGHT, false},
+      {{14, 6}, Dir2d::RIGHT, true},
+      {{15, 6}, Dir2d::RIGHT, false},
+    }};
+    EXPECT_EQ(R.getNumUsedDoors(), 2);
+  }
+}
+
+TEST(DungeonRoomTest, BlocksDoor) {
+//  using Door = ymir::Dungeon::Door<int>;
+
+  // Empty
+  {
+    Room<char, int> R{Map<char, int>({}), {}};
+    EXPECT_FALSE(R.blocksDoor({4, 3}, /*Used=*/false));
+  }
+
+  // Non-empty
+  {
+    Room<char, int> R{Map<char, int>({}), {
+      {{0, 0}, Dir2d::LEFT, true},
+      {{0, 1}, Dir2d::LEFT, false},
+      {{0, 2}, Dir2d::LEFT, false},
+      {{13, 6}, Dir2d::RIGHT, false},
+      {{13, 7}, Dir2d::RIGHT, true},
+      {{13, 8}, Dir2d::RIGHT, false},
+      {{20, 20}, Dir2d::DOWN, false},
+      {{10, 4}, Dir2d::UP, false}
+    }};
+    EXPECT_TRUE(R.blocksDoor({0, 0}, /*Used=*/true));
+    EXPECT_TRUE(R.blocksDoor({1, 0}, /*Used=*/true));
+    EXPECT_TRUE(R.blocksDoor({12, 7}, /*Used=*/true));
+    EXPECT_TRUE(R.blocksDoor({13, 7}, /*Used=*/true));
+    EXPECT_FALSE(R.blocksDoor({1, 1}, /*Used=*/true));
+    EXPECT_FALSE(R.blocksDoor({15, 17}, /*Used=*/true));
+    EXPECT_TRUE(R.blocksDoor({20, 20}, /*Used=*/false));
+    EXPECT_TRUE(R.blocksDoor({20, 19}, /*Used=*/false));
+    EXPECT_TRUE(R.blocksDoor({10, 4}, /*Used=*/false));
+    EXPECT_TRUE(R.blocksDoor({10, 5}, /*Used=*/false));
+    EXPECT_FALSE(R.blocksDoor({0, 0}, /*Used=*/false));
+  }
+}
+
 TEST(DungeonRoomTest, GetDoorDirections) {
   using Door = ymir::Dungeon::Door<int>;
 

@@ -43,6 +43,14 @@ template <typename T, typename U> struct Room {
                          [](const Door<U> &Door) { return Door.Used; });
   }
 
+  bool blocksDoor(Point2d<U> Pos, bool Used = true) const {
+    return std::any_of(Doors.begin(), Doors.end(),
+                       [Pos, Used](const Door<U> &Door) {
+                         return Used == Door.Used && (Door.Pos == Pos ||
+                                Door.Dir.opposing().advance(Door.Pos) == Pos);
+                       });
+  }
+
   Dir2d getOpposingDoorDirections() const {
     Dir2d Dirs = Dir2d::NONE;
     std::for_each(Doors.begin(), Doors.end(), [&Dirs](const Door<U> &Door) {
