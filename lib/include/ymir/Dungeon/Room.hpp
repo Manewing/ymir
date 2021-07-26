@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <optional>
 #include <tuple>
 #include <vector>
 #include <ymir/CallularAutomata.hpp>
@@ -21,15 +20,15 @@ template <typename T, typename U> struct Room {
   std::vector<Door<U>> Doors;
   Point2d<U> Pos = {0, 0};
 
-  std::optional<Door<U>> getDoor(Dir2d Dir) {
+  Door<U>* getDoor(Dir2d Dir) {
     auto It =
         std::find_if(Doors.begin(), Doors.end(), [Dir](const Door<U> &Door) {
           return (Dir & Door.Dir) != Dir2d::NONE;
         });
     if (It == Doors.end()) {
-      return std::nullopt;
+      return nullptr;
     }
-    return *It;
+    return &*It;
   }
 
   Dir2d getDoorDirections() const {
