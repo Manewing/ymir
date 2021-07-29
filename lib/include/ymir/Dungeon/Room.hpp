@@ -106,19 +106,23 @@ template <typename T, typename U>
 std::vector<Door<U>> getDoorCandidates(Map<T, U> &Room, T Ground) {
   std::vector<Door<U>> Doors;
   Room.forEach([&Doors, &Room, Ground](Point2d<U> P, T &Tile) {
+    if (Tile == Ground) {
+      return;
+    }
     auto Count = Room.getNeighborCount(P, Ground);
-    if (Count == 3 && Tile != Ground) {
-      auto VEdge = verticalEdgeFilter(Room, P, Ground);
-      auto HEdge = horizontalEdgeFilter(Room, P, Ground);
-      if (VEdge == 3) {
-        Doors.push_back({P, Dir2d::DOWN});
-      } else if (VEdge == -3) {
-        Doors.push_back({P, Dir2d::UP});
-      } else if (HEdge == 3) {
-        Doors.push_back({P, Dir2d::RIGHT});
-      } else if (HEdge == -3) {
-        Doors.push_back({P, Dir2d::LEFT});
-      }
+    if (Count != 3) {
+      return;
+    }
+    auto VEdge = verticalEdgeFilter(Room, P, Ground);
+    auto HEdge = horizontalEdgeFilter(Room, P, Ground);
+    if (VEdge == 3) {
+      Doors.push_back({P, Dir2d::DOWN});
+    } else if (VEdge == -3) {
+      Doors.push_back({P, Dir2d::UP});
+    } else if (HEdge == 3) {
+      Doors.push_back({P, Dir2d::RIGHT});
+    } else if (HEdge == -3) {
+      Doors.push_back({P, Dir2d::LEFT});
     }
   });
   return Doors;
