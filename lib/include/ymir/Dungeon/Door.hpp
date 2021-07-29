@@ -2,14 +2,15 @@
 #define YMIR_DUNGEON_DOOR_HPP
 
 #include <iostream>
-#include <ymir/Types.hpp>
+#include <ymir/Dungeon/Object.hpp>
 
 namespace ymir::Dungeon {
 
-template <typename U> struct Door {
-  Point2d<U> Pos;
-  Dir2d Dir = Dir2d::NONE;
-  bool Used = false;
+template <typename U> struct Door : public Object<U> {
+  // FIXME either make class obsolete or add required additional attributes
+  using Object<U>::Object;
+  Door(Point2d<U> Pos, Dir2d Dir, bool Used = false)
+      : Object<U>{Pos, Dir, Used} {}
 };
 
 template <typename U>

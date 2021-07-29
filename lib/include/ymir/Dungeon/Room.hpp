@@ -46,8 +46,7 @@ template <typename T, typename U> struct Room {
   bool blocksDoor(Point2d<U> Pos, bool Used = true) const {
     return std::any_of(Doors.begin(), Doors.end(),
                        [Pos, Used](const Door<U> &Door) {
-                         return Used == Door.Used && (Door.Pos == Pos ||
-                                Door.Dir.opposing().advance(Door.Pos) == Pos);
+                         return Used == Door.Used && Door.isBlockedBy(Pos);
                        });
   }
 
