@@ -30,6 +30,10 @@ bool checkIfOpposing(Point2d<U> SrcPos, Dir2d SrcDir, Point2d<U> TgtPos,
   return false;
 }
 
+// TODO refactor split:
+// - Dungeon::Context
+// - function/class for generating rooms
+// - function/class for generating loops
 template <typename T, typename RE, typename U = int> class DungeonBuilder {
 public:
   DungeonBuilder(Size2d<U> Size, RE &RndEng) : M(Size), RndEng(RndEng) {}
@@ -265,6 +269,7 @@ public:
     return false;
   }
 
+  ymir::Map<T, U> &getMap() { return M; }
   const ymir::Map<T, U> &getMap() const { return M; }
   const std::list<Dungeon::Room<T, U>> &getRooms() const { return Rooms; }
   const std::vector<Dungeon::Hallway<T, U>> &getHallways() const {
@@ -278,6 +283,7 @@ private:
   std::list<Dungeon::Room<T, U>> Rooms;
   std::vector<Dungeon::Hallway<T, U>> Hallways;
 }; // namespace ymir
+
 
 } // namespace ymir
 

@@ -4,8 +4,13 @@
 #include <string_view>
 #include <unistd.h>
 #include <ymir/CallularAutomata.hpp>
+#include <ymir/Dungeon/ChestPlacer.hpp>
 #include <ymir/DungeonBuilder.hpp>
 #include <ymir/Noise.hpp>
+
+constexpr char Ground = ' ';
+constexpr char Wall = '#';
+constexpr char Chest = 'C';
 
 void usage(const char *ProgName) {
   std::cerr << "usage: " << ProgName << "<width> <height> <seed>?" << std::endl;
@@ -30,20 +35,27 @@ int main(int Argc, char *Argv[]) {
   RE.seed(Seed);
 
   // FIXME room min/max currently fixed to 5,5 - 10,10
-  unsigned Rooms = Width * Height / (10 * 10);
+  unsigned NumRooms = Width * Height / (10 * 10);
 
   ymir::DungeonBuilder<char, ymir::WyHashRndEng, int> DB({Width, Height}, RE);
-  DB.generate(/*Ground=*/' ', /*Wall=*/'#', Rooms);
+  DB.generate(Ground, Wall, NumRooms);
+
+  ymir::Dungeon::addRandomChests(DB.getMap(), Ground, Wall, Chest,
+                                 DB.getRooms(), RE);
 
   auto MapCopy = DB.getMap();
+  auto ChestLocs =
+      ymir::Dungeon::findPossibleChestLocations(DB.getRooms(), Ground, Wall);
+  for (auto const &Chest : ChestLocs) {
+    MapCopy.setTile(Chest.Pos, 'C');
+  }
   unsigned RoomIdx = 0;
   for (auto const &Room : DB.getRooms()) {
-    Room.M.forEach(
-        [&Room, &MapCopy](ymir::Point2d<int> Pos, char Tile) {
-          if (Tile == '#') {
-            MapCopy.setTile(Room.Pos + Pos, '-');
-          }
-        });
+    Room.M.forEach([&Room, &MapCopy](ymir::Point2d<int> Pos, char Tile) {
+      if (Tile == '#') {
+        MapCopy.setTile(Room.Pos + Pos, '-');
+      }
+    });
     int X = 0;
     auto RoomIdxStr = std::to_string(RoomIdx);
     for (const char Char : RoomIdxStr) {
@@ -67,6 +79,20 @@ int main(int Argc, char *Argv[]) {
             << DB.getMap() << std::endl
             << std::endl
             << "Seed: " << Seed << std::endl
-            << "# Rooms: " << DB.getRooms().size() << " / " << Rooms
+            << "# Rooms: " << DB.getRooms().size() << " / " << NumRooms
             << std::endl;
+
+  unsigned Idx = 0;
+  for (const auto &Room : DB.getRooms()) {
+    std::cerr << "Room " << Idx << " has " << Room.getNumUsedDoors()
+              << " used doors" << std::endl;
+    for (const auto &Door : Room.Doors) {
+      if (!Door.Used) {
+        continue;
+      }
+      MapCopy.setTile(Room.Pos + Door.Pos, '@'); // std::to_string(Idx)[0]);
+    }
+    Idx++;
+  }
+  std::cout << MapCopy << std::endl;
 }

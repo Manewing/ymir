@@ -1,3 +1,4 @@
 add_subdirectory(simple_caves)
 add_subdirectory(procedural_caves)
 add_subdirectory(procedural_dungeon)
+add_subdirectory(dungeon_builder_pass)
