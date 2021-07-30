@@ -5,7 +5,6 @@
 #include <iostream>
 #include <tuple>
 #include <vector>
-#include <ymir/CallularAutomata.hpp>
 #include <ymir/DebugTile.hpp>
 #include <ymir/Dungeon/Door.hpp>
 #include <ymir/Map.hpp>
@@ -125,63 +124,6 @@ std::vector<Door<U>> getDoorCandidates(Map<T, U> &Room, T Ground) {
     }
   });
   return Doors;
-}
-
-template <typename U, typename T, typename RE>
-Map<T, U> generateMultiRectRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
-  Map<T, U> Room(Size);
-  Room.fillRect(Wall);
-
-  for (int L = 0; L < 2; L++) {
-    const auto SizeRange = Rect2d<U>{{3, 3}, {Size.W - 4, Size.H - 4}};
-    const auto RandomSubSize = randomSize2d<U>(SizeRange, RndEng);
-
-    const auto PosRange = Rect2d<U>{
-        {1, 1}, {Size.W - RandomSubSize.W - 1, Size.H - RandomSubSize.H - 1}};
-    const auto RandomSubPos = randomPoint2d<U>(PosRange, RndEng);
-
-    const Rect2d<U> FirstRoom = {RandomSubPos, RandomSubSize};
-    Room.fillRect(Ground, FirstRoom);
-  }
-
-  return Room;
-}
-
-template <typename U, typename T, typename RE>
-Map<T, U> generateCaveRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
-  Map<T, U> Room(Size);
-  Room.fillRect(Wall);
-
-  // Generate initial ground tiles
-  const float GroundChance = 0.85f;
-  fillRectRandom(Room, Ground, GroundChance, RndEng,
-                 Rect2d<U>{{1, 1}, {Size.W - 2, Size.H - 2}});
-
-  // Run replacement
-  const std::size_t ReplaceThres = 4, Iterations = 6;
-  for (std::size_t Idx = 0; Idx < Iterations; Idx++) {
-    celat::replace(Room, Ground, Wall, ReplaceThres);
-  }
-
-  // Smooth generation
-  const std::size_t SmoothThres = 5;
-  celat::generate(Room, Ground, SmoothThres);
-
-  // Kill isolated ground
-  celat::generate(Room, Wall, 8);
-
-  return Room;
-}
-
-template <typename U, typename T, typename RE>
-Map<T, U> generateRandomRoom(T Ground, T Wall, RE &RndEng,
-                             Rect2d<U> RoomMinMax = {{5, 5}, {10, 10}}) {
-  const auto RoomSize = ymir::randomSize2d<U>(RoomMinMax, RndEng);
-  std::uniform_int_distribution Uni(0, 1);
-  if (Uni(RndEng)) {
-    return generateMultiRectRoom(Ground, Wall, RoomSize, RndEng);
-  }
-  return generateCaveRoom(Ground, Wall, RoomSize, RndEng);
 }
 
 } // namespace ymir::Dungeon

@@ -4,36 +4,26 @@
 #include <list>
 #include <vector>
 #include <ymir/Dungeon/Hallway.hpp>
+#include <ymir/Dungeon/CaveRoomGenerator.hpp>
+#include <ymir/Dungeon/RectRoomGenerator.hpp>
+#include <ymir/Dungeon/LoopPlacer.hpp>
 #include <ymir/Dungeon/Room.hpp>
 #include <ymir/Map.hpp>
 
 namespace ymir {
 
-template <typename U>
-bool checkIfOpposing(Point2d<U> SrcPos, Dir2d SrcDir, Point2d<U> TgtPos,
-                     Dir2d TgtDir) {
-  if (SrcDir.opposing() != TgtDir) {
-    return false;
+
+template <typename U, typename T, typename RE>
+Map<T, U> generateRandomRoom(T Ground, T Wall, RE &RndEng,
+                             Rect2d<U> RoomMinMax = {{5, 5}, {10, 10}}) {
+  const auto RoomSize = ymir::randomSize2d<U>(RoomMinMax, RndEng);
+  std::uniform_int_distribution Uni(0, 1);
+  if (Uni(RndEng)) {
+    return Dungeon::generateMultiRectRoom(Ground, Wall, RoomSize, RndEng);
   }
-  switch (SrcDir) {
-  case Dir2d::LEFT:
-    return SrcPos.X >= TgtPos.X;
-  case Dir2d::RIGHT:
-    return SrcPos.X <= TgtPos.X;
-  case Dir2d::UP:
-    return SrcPos.Y >= TgtPos.Y;
-  case Dir2d::DOWN:
-    return SrcPos.Y <= TgtPos.Y;
-  default:
-    break;
-  }
-  return false;
+  return Dungeon::generateCaveRoom(Ground, Wall, RoomSize, RndEng);
 }
 
-// TODO refactor split:
-// - Dungeon::Context
-// - function/class for generating rooms
-// - function/class for generating loops
 template <typename T, typename RE, typename U = int> class DungeonBuilder {
 public:
   DungeonBuilder(Size2d<U> Size, RE &RndEng) : M(Size), RndEng(RndEng) {}
@@ -57,7 +47,7 @@ public:
 
   Dungeon::Room<T, U> getNewRoom(T Ground, T Wall) {
     for (int Attempts = 0; Attempts < 100; Attempts++) {
-      auto RoomMap = Dungeon::generateRandomRoom<U>(Ground, Wall, RndEng);
+      auto RoomMap = generateRandomRoom<U>(Ground, Wall, RndEng);
       auto RoomDoors = Dungeon::getDoorCandidates(RoomMap, Ground);
       if (!RoomDoors.empty()) {
         return {std::move(RoomMap), std::move(RoomDoors)};
@@ -82,7 +72,7 @@ public:
       for (auto &TgtDoor : Target.Doors) {
         auto SrcPos = Source.Pos + SrcDoor.Pos;
         auto TgtPos = Target.Pos + TgtDoor.Pos;
-        if (!checkIfOpposing(SrcPos, SrcDoor.Dir, TgtPos, TgtDoor.Dir) ||
+        if (!Dungeon::checkIfOpposing(SrcPos, SrcDoor.Dir, TgtPos, TgtDoor.Dir) ||
             SrcDoor.Used || TgtDoor.Used) {
           continue;
         }

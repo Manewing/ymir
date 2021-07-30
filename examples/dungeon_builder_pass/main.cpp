@@ -1,9 +1,10 @@
 #include <ymir/Dungeon/BuilderPass.hpp>
 #include <ymir/Dungeon/CaveRoomGenerator.hpp>
 #include <ymir/Dungeon/ChestPlacer.hpp>
-#include <ymir/Dungeon/RoomPlacer.hpp>
 #include <ymir/Dungeon/LoopPlacer.hpp>
+#include <ymir/Dungeon/RandomRoomGenerator.hpp>
 #include <ymir/Dungeon/RectRoomGenerator.hpp>
+#include <ymir/Dungeon/RoomPlacer.hpp>
 
 // FIXME get rid of template parameter for RandEngType
 template <typename TileType, typename TileCord, typename RandEngType>
@@ -13,6 +14,7 @@ void registerBuilders(ymir::Dungeon::BuilderPass &Pass) {
   using RE = RandEngType;
   Pass.registerBuilder<ymir::Dungeon::CaveRoomGenerator<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::RectRoomGenerator<T, U, RE>>();
+  Pass.registerBuilder<ymir::Dungeon::RandomRoomGenerator<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::ChestPlacer<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::RoomPlacer<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::LoopPlacer<T, U, RE>>();
@@ -22,8 +24,8 @@ int main() {
   ymir::Dungeon::BuilderPass Pass;
   registerBuilders<char, int, ymir::WyHashRndEng>(Pass);
 
-  Pass.setBuilderAlias("rect_room_generator", "room_generator");
-  Pass.setSequence({"room_placer",  "loop_placer", "chest_placer"});
+  Pass.setBuilderAlias("random_room_generator", "room_generator");
+  Pass.setSequence({"room_placer", "loop_placer", "chest_placer"});
 
   Pass.configure({
       {"ground", ' '},
@@ -34,6 +36,11 @@ int main() {
       {"chest_placer/room_chest_percentage", static_cast<float>(10.0)},
       {"loop_placer/max_loops", 30U},
       {"loop_placer/max_used_doors", 5U},
+      {"random_room_generator/room_probs",
+       ymir::Dungeon::RoomProbsType{
+           {"rect_room_generator", 0.7},
+           {"cave_room_generator", 1.0},
+       }},
   });
 
   ymir::WyHashRndEng RE;
