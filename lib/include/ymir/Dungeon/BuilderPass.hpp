@@ -1,6 +1,7 @@
 #ifndef YMIR_DUNGEON_BUILDER_PASS_H
 #define YMIR_DUNGEON_BUILDER_PASS_H
 
+#include <any>
 #include <cxxabi.h>
 #include <map>
 #include <memory>
@@ -48,10 +49,11 @@ public:
   }
 
   void init(BuilderContext &Ctx) {
-    for (auto &[Name, Builder] : Builders) {
-      (void)Name;
-      Builder->init(*this, Ctx);
+    InitCtxPtr = &Ctx;
+    for (auto const &BuilderName : Sequence) {
+      Builders.at(BuilderName)->init(*this, Ctx);
     }
+    InitCtxPtr = nullptr;
   }
 
   void run(BuilderContext &Ctx) {
@@ -61,11 +63,25 @@ public:
   }
 
   template <typename T> T &get(const std::string &BuilderName) {
-    return dynamic_cast<T &>(*Builders.at(BuilderName));
+    // TODO move to internal function
+    auto It = Builders.find(BuilderName);
+    if (It == Builders.end()) {
+      throw std::runtime_error("No builder with name '" + BuilderName +
+                               "' registered at pass");
+    }
+    auto &BuilderPtr = It->second;
+    if (!BuilderPtr->isInit()) {
+      if (InitCtxPtr == nullptr) {
+        throw std::runtime_error("Uninitalized builder '" + BuilderName +
+                                 "'requested after initialization");
+      }
+      BuilderPtr->init(*this, *InitCtxPtr);
+    }
+    return dynamic_cast<T &>(*BuilderPtr);
   }
 
   template <typename T, typename = decltype(T::Name)> T &get() {
-    return dynamic_cast<T &>(*Builders.at(T::Name));
+    return get<T>(T::Name);
   }
 
   template <typename T> T &getConfigValue(const std::string &Name) {
@@ -84,6 +100,7 @@ public:
   }
 
 private:
+  BuilderContext *InitCtxPtr = nullptr;
   std::vector<std::string> Sequence;
   std::map<std::string, std::shared_ptr<BuilderBase>> Builders;
   std::map<std::string, std::any> Configuration;

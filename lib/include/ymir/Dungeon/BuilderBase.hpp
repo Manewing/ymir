@@ -22,6 +22,10 @@ public:
 
   virtual const char *getName() const = 0;
 
+  bool isInit() const {
+    return CurrentPassPtr != nullptr && CurrentCtxPtr != nullptr;
+  }
+
   virtual void init(BuilderPass &Pass, BuilderContext &Ctx) {
     CurrentPassPtr = &Pass;
     CurrentCtxPtr = &Ctx;

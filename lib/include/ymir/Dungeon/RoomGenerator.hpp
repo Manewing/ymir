@@ -27,6 +27,7 @@ protected:
 protected:
   std::optional<TileType> Ground;
   std::optional<TileType> Wall;
+  Rect2d<TileCord> RoomMinMax;
 };
 
 template <typename T, typename U, typename RE>
@@ -37,6 +38,8 @@ void RoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &Ctx) {
   BuilderBase::init(Pass, Ctx);
   Ground = getPass().template getConfigValue<T>("ground");
   Wall = getPass().template getConfigValue<T>("wall");
+  RoomMinMax =
+      getPass().template getConfigValue<Rect2d<U>>("room_generator/room_size_min_max");
 }
 
 } // namespace ymir::Dungeon

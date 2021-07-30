@@ -41,7 +41,7 @@ int main(int Argc, char *Argv[]) {
   DB.generate(Ground, Wall, NumRooms);
 
   ymir::Dungeon::addRandomChests(DB.getMap(), Ground, Wall, Chest,
-                                 DB.getRooms(), RE);
+                                 DB.getRooms(), RE, 5.0);
 
   auto MapCopy = DB.getMap();
   auto ChestLocs =
