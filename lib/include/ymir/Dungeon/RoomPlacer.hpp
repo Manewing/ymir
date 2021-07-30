@@ -4,11 +4,15 @@
 #include <ymir/Dungeon/BuilderBase.hpp>
 #include <ymir/Dungeon/Context.hpp>
 #include <ymir/Dungeon/Room.hpp>
+#include <ymir/Dungeon/RoomGenerator.hpp>
 
 namespace ymir::Dungeon {
 
 template <typename TileType, typename TileCord, typename RandEngType>
 class RoomPlacer : public BuilderBase {
+public:
+  using RoomGeneratorType = RoomGenerator<TileType, TileCord, RandEngType>;
+
 public:
   static const char *Name;
 
@@ -16,16 +20,14 @@ public:
   RoomPlacer() = default;
   const char *getName() const override { return Name; }
 
+  void init(BuilderPass &Pass, BuilderContext &C) override;
   void run(BuilderPass &Pass, BuilderContext &C) override;
 
 private:
   std::vector<std::pair<Room<TileType, TileCord> *, Dungeon::Door<TileCord> *>>
   getSuitableDoors(const Room<TileType, TileCord> &NewRoom,
                    std::list<Room<TileType, TileCord>> &Rooms);
-  Room<TileType, TileCord> getNewRoom(TileType Ground, TileType Wall,
-                                      RandEngType &RE);
   Room<TileType, TileCord> generateInitialRoom(Map<TileType, TileCord> &M,
-                                               TileType Ground, TileType Wall,
                                                RandEngType &RE);
 
   bool tryToInsertRoom(Context<TileType, TileCord, RandEngType> &Ctx,
@@ -33,6 +35,9 @@ private:
                        Dungeon::Door<TileCord> &RoomDoor,
                        Dungeon::Room<TileType, TileCord> &TargetRoom,
                        Dungeon::Door<TileCord> &Door);
+
+public:
+  RoomGeneratorType *RoomGen = nullptr;
 };
 
 template <typename T, typename U, typename RE>
@@ -57,22 +62,8 @@ RoomPlacer<T, U, RE>::getSuitableDoors(const Dungeon::Room<T, U> &NewRoom,
 }
 
 template <typename T, typename U, typename RE>
-Dungeon::Room<T, U> RoomPlacer<T, U, RE>::getNewRoom(T Ground, T Wall,
-                                                     RE &RndEng) {
-  for (int Attempts = 0; Attempts < 100; Attempts++) {
-    auto RoomMap = Dungeon::generateRandomRoom<U>(Ground, Wall, RndEng);
-    auto RoomDoors = Dungeon::getDoorCandidates(RoomMap, Ground);
-    if (!RoomDoors.empty()) {
-      return {std::move(RoomMap), std::move(RoomDoors)};
-    }
-  }
-  throw std::runtime_error("Could not generate new room");
-}
-
-template <typename T, typename U, typename RE>
-Room<T, U> RoomPlacer<T, U, RE>::generateInitialRoom(Map<T, U> &M, T Ground,
-                                                     T Wall, RE &RndEng) {
-  auto NewRoom = getNewRoom(Ground, Wall, RndEng);
+Room<T, U> RoomPlacer<T, U, RE>::generateInitialRoom(Map<T, U> &M, RE &RndEng) {
+  auto NewRoom = RoomGen->generate();
   const auto Size = NewRoom.M.Size;
   const auto PosRange =
       ymir::Rect2d<U>{{1, 1}, {M.Size.W - Size.W - 1, M.Size.H - Size.H - 1}};
@@ -81,7 +72,15 @@ Room<T, U> RoomPlacer<T, U, RE>::generateInitialRoom(Map<T, U> &M, T Ground,
 }
 
 template <typename T, typename U, typename RE>
-void RoomPlacer<T, U, RE>::run(BuilderPass & /*Pass*/, BuilderContext &C) {
+void RoomPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
+  BuilderBase::init(Pass, C);
+  RoomGen = &getPass().template get<RoomGeneratorType>();
+}
+
+template <typename T, typename U, typename RE>
+void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
+  BuilderBase::run(Pass, C);
+
   auto &Ctx = C.get<Context<T, U, RE>>();
 
   // FIXME
@@ -96,11 +95,12 @@ void RoomPlacer<T, U, RE>::run(BuilderPass & /*Pass*/, BuilderContext &C) {
   Ctx.M.fillRect(Wall); // FIXME this should not be done by the placer
 
   // Create initial room
-  auto InitialRoom = generateInitialRoom(Ctx.M, Ground, Wall, Ctx.RndEng);
+  auto InitialRoom = generateInitialRoom(Ctx.M, Ctx.RndEng);
   Ctx.Rooms.push_back(std::move(InitialRoom));
 
   do {
-    ymir::Dungeon::Room<T, U> NewRoom = getNewRoom(Ground, Wall, Ctx.RndEng);
+    ymir::Dungeon::Room<T, U> NewRoom =
+        RoomGen->generate(); // getNewRoom(Ground, Wall, Ctx.RndEng);
 
     // Select a suitable room and door randomly from all available
     auto SuitableDoors = getSuitableDoors(NewRoom, Ctx.Rooms);

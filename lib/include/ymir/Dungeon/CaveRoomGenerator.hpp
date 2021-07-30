@@ -1,44 +1,42 @@
 #ifndef YMIR_DUNGEON_CAVE_ROOM_GENERATOR_HPP
 #define YMIR_DUNGEON_CAVE_ROOM_GENERATOR_HPP
 
-#include <ymir/Dungeon/BuilderBase.hpp>
-#include <ymir/Dungeon/Context.hpp>
-#include <ymir/Dungeon/Room.hpp>
+#include <ymir/Dungeon/RoomGenerator.hpp>
 
 namespace ymir::Dungeon {
 
-template <typename TileType, typename TileCord, typename RandEng>
-class CaveRoomGenerator : public BuilderBase {
+template <typename TileType, typename TileCord, typename RndEngType>
+class CaveRoomGenerator : public RoomGenerator<TileType, TileCord, RndEngType> {
 public:
-  constexpr char *Name = "cave_room_generator";
+  using RoomGenerator<TileType, TileCord, RndEngType>::getCtx;
+
+  static const char *Name;
 
 public:
   CaveRoomGenerator() = default;
-
   const char *getName() const override { return Name; }
 
-  void init(BuilderPass &Pass, BuilderContext &C) override {
-    CtxPtr = C.get_or_null<Context<TileType, TileCord, RandEng>();
-    assert(CtxPtr); // TODO
-  }
-
-  void run(BuilderPass &Pass, BuilderContext &C) override {
-    // Nothing todo?
-    (void)Pass;
-    (void)C;
-    /// auto &Ctx = C.get<Context<TileType, TileCord, RandEng>>();
-  }
-
-  Room<TileType, TileCord> generate() {
-    const Rect2d<TileCord> RoomMinMax = {{5, 5}, {10, 10}};
-    const auto RoomSize = randomSize2d<TileCord>(RoomMinMax, CtxPtr->RndEng);
-    auto RoomMap = generateCaveRoom(CtxPtr->Ground, CtxPtr->Wall, RoomSize, CtxPtr->RndEng);
-    auto RoomDoors = getDoorCandidates(RooMap, CtxPtr->Ground);
-  }
-
-private:
-  Context<TileType, TileCord, RandEng> *CtxPtr = nullptr;
+  Room<TileType, TileCord> generate() override;
 };
+
+template <typename T, typename U, typename RE>
+const char *CaveRoomGenerator<T, U, RE>::Name = "cave_room_generator";
+
+template <typename T, typename U, typename RE>
+Room<T, U> CaveRoomGenerator<T, U, RE>::generate() {
+  // FIXME make this configurable
+  const Rect2d<U> RoomMinMax = {{5, 5}, {10, 10}};
+  for (int Attempts = 0; Attempts < 100; Attempts++) {
+    const auto RoomSize = randomSize2d<U>(RoomMinMax, getCtx().RndEng);
+    auto RoomMap = generateCaveRoom(getCtx().Ground, getCtx().Wall, RoomSize,
+                                    getCtx().RndEng);
+    auto RoomDoors = getDoorCandidates(RoomMap, getCtx().Ground);
+    if (!RoomDoors.empty()) {
+      return {std::move(RoomMap), std::move(RoomDoors)};
+    }
+  }
+  throw std::runtime_error("Could not generate new room");
+}
 
 } // namespace ymir::Dungeon
 
