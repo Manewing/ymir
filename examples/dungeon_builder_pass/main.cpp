@@ -16,18 +16,22 @@ void registerBuilders(ymir::Dungeon::BuilderPass &Pass) {
 }
 
 int main() {
-
   ymir::Dungeon::BuilderPass Pass;
   registerBuilders<char, int, ymir::WyHashRndEng>(Pass);
 
   Pass.setBuilderAlias("cave_room_generator", "room_generator");
   Pass.setSequence({"room_placer"});
 
+  Pass.configure({
+      {"ground", ' '},
+      {"wall", '#'},
+      {"chest", 'C'},
+      {"room_placer/num_new_room_attempts", 30U},
+  });
+
   ymir::WyHashRndEng RE;
   ymir::Dungeon::Context<char, int, ymir::WyHashRndEng> Ctx(
-      RE, ymir::Map<char, int>{80, 24},
-      /*Ground=*/' ',
-      /*Wall=*/'#', /*Chest=*/'C');
+      RE, ymir::Map<char, int>{80, 24});
 
   Pass.init(Ctx);
   Pass.run(Ctx);

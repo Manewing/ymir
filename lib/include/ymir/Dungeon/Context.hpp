@@ -18,9 +18,8 @@ public:
                                          Point2d<TileCord> PosB);
 
 public:
-  Context(RandomEngineType &RE, Map<TileType, TileCord> M, TileType Ground,
-          TileType Wall, TileType Chest)
-      : RndEng(RE), M(std::move(M)), Ground(Ground), Wall(Wall), Chest(Chest) {}
+  Context(RandomEngineType &RE, Map<TileType, TileCord> M)
+      : RndEng(RE), M(std::move(M)) {}
 
   bool haveRoomsHallway(const Dungeon::Room<TileType, TileCord> &A,
                         const Dungeon::Room<TileType, TileCord> &B) const;
@@ -42,11 +41,6 @@ public:
   ymir::Map<TileType, TileCord> M;
   std::list<Dungeon::Room<TileType, TileCord>> Rooms;
   std::vector<Dungeon::Hallway<TileType, TileCord>> Hallways;
-
-  // FIXME this should ideally not be configured here
-  TileType Ground;
-  TileType Wall;
-  TileType Chest;
 };
 
 template <typename T, typename U, typename RE>

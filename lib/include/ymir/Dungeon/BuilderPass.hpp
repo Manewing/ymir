@@ -1,6 +1,7 @@
 #ifndef YMIR_DUNGEON_BUILDER_PASS_H
 #define YMIR_DUNGEON_BUILDER_PASS_H
 
+#include <cxxabi.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -8,6 +9,22 @@
 #include <ymir/Dungeon/BuilderBase.hpp>
 
 namespace ymir::Dungeon {
+
+template <typename T> std::string getTypeIdName(const T &TypeId) {
+  int Status;
+  std::string TypeName = TypeId.name();
+  char *Demangled = abi::__cxa_demangle(TypeName.c_str(), NULL, NULL, &Status);
+  if (Status == 0) {
+    TypeName = Demangled;
+    std::free(Demangled);
+  }
+  return TypeName;
+}
+
+// TOOD move
+template <typename T> std::string getTypeName() {
+  return getTypeIdName(typeid(T));
+}
 
 class BuilderPass {
 public:
@@ -20,6 +37,10 @@ public:
       throw std::out_of_range("Duplicate TODO");
     }
     Builders[Alias] = Builders.at(Builder);
+  }
+
+  void configure(std::map<std::string, std::any> Configuration) {
+    this->Configuration = std::move(Configuration);
   }
 
   void setSequence(std::vector<std::string> Sequence) {
@@ -47,9 +68,25 @@ public:
     return dynamic_cast<T &>(*Builders.at(T::Name));
   }
 
+  template <typename T> T &getConfigValue(const std::string &Name) {
+    auto It = Configuration.find(Name);
+    if (It == Configuration.end()) {
+      throw std::runtime_error("No configuration value '" + Name + "' present");
+    }
+    auto *Value = std::any_cast<T>(&It->second);
+    if (Value == nullptr) {
+      throw std::runtime_error("Could not cast configuration value '" + Name +
+                               "' which is of type '" +
+                               getTypeIdName(It->second.type()) +
+                               "' to type '" + getTypeName<T>() + "'");
+    }
+    return *Value;
+  }
+
 private:
   std::vector<std::string> Sequence;
   std::map<std::string, std::shared_ptr<BuilderBase>> Builders;
+  std::map<std::string, std::any> Configuration;
 };
 
 } // namespace ymir::Dungeon

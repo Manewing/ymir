@@ -8,6 +8,8 @@ namespace ymir::Dungeon {
 template <typename TileType, typename TileCord, typename RndEngType>
 class CaveRoomGenerator : public RoomGenerator<TileType, TileCord, RndEngType> {
 public:
+  using RoomGenerator<TileType, TileCord, RndEngType>::Ground;
+  using RoomGenerator<TileType, TileCord, RndEngType>::Wall;
   using RoomGenerator<TileType, TileCord, RndEngType>::getCtx;
 
   static const char *Name;
@@ -28,9 +30,8 @@ Room<T, U> CaveRoomGenerator<T, U, RE>::generate() {
   const Rect2d<U> RoomMinMax = {{5, 5}, {10, 10}};
   for (int Attempts = 0; Attempts < 100; Attempts++) {
     const auto RoomSize = randomSize2d<U>(RoomMinMax, getCtx().RndEng);
-    auto RoomMap = generateCaveRoom(getCtx().Ground, getCtx().Wall, RoomSize,
-                                    getCtx().RndEng);
-    auto RoomDoors = getDoorCandidates(RoomMap, getCtx().Ground);
+    auto RoomMap = generateCaveRoom(*Ground, *Wall, RoomSize, getCtx().RndEng);
+    auto RoomDoors = getDoorCandidates(RoomMap, *Ground);
     if (!RoomDoors.empty()) {
       return {std::move(RoomMap), std::move(RoomDoors)};
     }

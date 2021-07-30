@@ -38,6 +38,9 @@ private:
 
 public:
   RoomGeneratorType *RoomGen = nullptr;
+  std::optional<TileType> Ground = std::nullopt;
+  std::optional<TileType> Wall = std::nullopt;
+  unsigned NumNewRoomAttempts = 0;
 };
 
 template <typename T, typename U, typename RE>
@@ -75,6 +78,10 @@ template <typename T, typename U, typename RE>
 void RoomPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
   RoomGen = &getPass().template get<RoomGeneratorType>();
+  Ground = getPass().template getConfigValue<T>("ground");
+  Wall = getPass().template getConfigValue<T>("wall");
+  NumNewRoomAttempts = getPass().template getConfigValue<unsigned>(
+      "room_placer/num_new_room_attempts");
 }
 
 template <typename T, typename U, typename RE>
@@ -83,24 +90,18 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
 
   auto &Ctx = C.get<Context<T, U, RE>>();
 
-  // FIXME
-  auto Wall = Ctx.Wall;
-  auto Ground = Ctx.Ground;
-  auto &Rooms = Ctx.Rooms;
-
-  // FIXME make configurable
-  unsigned NewRoomAttempts = 30;
-
   // Make entire map walls
-  Ctx.M.fillRect(Wall); // FIXME this should not be done by the placer
+  Ctx.M.fillRect(*Wall); // FIXME this should not be done by the placer
 
   // Create initial room
   auto InitialRoom = generateInitialRoom(Ctx.M, Ctx.RndEng);
   Ctx.Rooms.push_back(std::move(InitialRoom));
 
-  do {
+  // Until we have no new room attempts left try to insert new rooms
+  unsigned NewRoomAttemptsLeft = NumNewRoomAttempts;
+  while (NewRoomAttemptsLeft--) {
     ymir::Dungeon::Room<T, U> NewRoom =
-        RoomGen->generate(); // getNewRoom(Ground, Wall, Ctx.RndEng);
+        RoomGen->generate();
 
     // Select a suitable room and door randomly from all available
     auto SuitableDoors = getSuitableDoors(NewRoom, Ctx.Rooms);
@@ -122,15 +123,15 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
 
       Inserted = tryToInsertRoom(Ctx, NewRoom, *RoomDoor, *TargetRoom, *Door);
     }
-  } while (--NewRoomAttempts);
+  }
 
   // FIXME create a finalize method or sth?
-  for (const auto &Room : Rooms) {
+  for (const auto &Room : Ctx.Rooms) {
     Ctx.M.merge(Room.M, Room.Pos);
   }
 
   for (const auto &Hallway : Ctx.Hallways) {
-    Ctx.M.fillRect(Ground, Hallway.Rect);
+    Ctx.M.fillRect(*Ground, Hallway.Rect);
   }
 }
 
