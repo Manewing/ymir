@@ -23,6 +23,7 @@ public:
 
   inline auto size() const { return Map.size(); }
   inline bool empty() const { return Map.empty(); }
+  inline auto count(const std::string &Key) const { return Map.count(Key); }
 
   inline std::any &operator[](const std::string &Key) { return Map[Key]; }
 
@@ -35,6 +36,21 @@ public:
         const_cast<std::any *>(&getInternal(Key, typeid(T))));
   }
 
+  template <typename T> inline T getOr(const std::string &Key, T Default) {
+    if (count(Key)) {
+      return get<T>(Key);
+    }
+    return Default;
+  }
+
+  template <typename T>
+  inline T getOr(const std::string &Key, T Default) const {
+    if (count(Key)) {
+      return get<T>(Key);
+    }
+    return Default;
+  }
+
   template <typename T> inline const T &get(const std::string &Key) const {
     return *std::any_cast<T>(&getInternal(Key, typeid(T)));
   }
@@ -43,6 +59,16 @@ public:
   inline auto find(const std::string &Key) const { return Map.find(Key); }
 
   AnyDict getSubDict(const std::string &Prefix) const;
+
+  template <typename T> std::vector<T> values() const {
+    std::vector<T> Result;
+    Result.reserve(Map.size());
+    for (auto const &[Key, Value] : Map) {
+      (void)Key;
+      Result.emplace_back(*std::any_cast<T>(&getAny(Key, Value, typeid(T))));
+    }
+    return Result;
+  }
 
   template <typename T> std::vector<std::pair<std::string, T>> toVec() const {
     std::vector<std::pair<std::string, T>> Result;
