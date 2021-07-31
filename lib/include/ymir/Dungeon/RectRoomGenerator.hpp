@@ -10,18 +10,13 @@ namespace ymir::Dungeon {
 template <typename TileType, typename TileCord, typename RndEngType>
 class RectRoomGenerator : public RoomGenerator<TileType, TileCord, RndEngType> {
 public:
-  using RoomGenerator<TileType, TileCord, RndEngType>::RoomMinMax;
-  using RoomGenerator<TileType, TileCord, RndEngType>::Ground;
-  using RoomGenerator<TileType, TileCord, RndEngType>::Wall;
-  using RoomGenerator<TileType, TileCord, RndEngType>::getCtx;
-
   static const char *Name;
 
 public:
   RectRoomGenerator() = default;
   const char *getName() const override { return Name; }
 
-  Room<TileType, TileCord> generate() override;
+  Map<TileType, TileCord> generateRoomMap(Size2d<TileCord> SIze) override;
 };
 
 template <typename T, typename U, typename RE>
@@ -48,17 +43,9 @@ Map<T, U> generateMultiRectRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
 }
 
 template <typename T, typename U, typename RE>
-Room<T, U> RectRoomGenerator<T, U, RE>::generate() {
-  for (int Attempts = 0; Attempts < 100; Attempts++) {
-    const auto RoomSize = randomSize2d<U>(RoomMinMax, getCtx().RndEng);
-    auto RoomMap =
-        generateMultiRectRoom(*Ground, *Wall, RoomSize, getCtx().RndEng);
-    auto RoomDoors = getDoorCandidates(RoomMap, *Ground);
-    if (!RoomDoors.empty()) {
-      return {std::move(RoomMap), std::move(RoomDoors)};
-    }
-  }
-  throw std::runtime_error("Could not generate new room");
+Map<T, U> RectRoomGenerator<T, U, RE>::generateRoomMap(Size2d<U> Size) {
+  return generateMultiRectRoom(*this->Ground, *this->Wall, Size,
+                               this->getCtx().RndEng);
 }
 
 } // namespace ymir::Dungeon

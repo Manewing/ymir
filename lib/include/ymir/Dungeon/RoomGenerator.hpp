@@ -19,7 +19,9 @@ public:
   RoomGenerator() = default;
 
   void init(BuilderPass &Pass, BuilderContext &C) override;
-  virtual Room<TileType, TileCord> generate() = 0;
+  virtual Room<TileType, TileCord> generate();
+
+  virtual Map<TileType, TileCord> generateRoomMap(Size2d<TileCord> Size) = 0;
 
 protected:
   CtxType &getCtx() { return BuilderBase::getCtx<CtxType>(); }
@@ -38,8 +40,22 @@ void RoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &Ctx) {
   BuilderBase::init(Pass, Ctx);
   Ground = getPass().template getConfigValue<T>("ground");
   Wall = getPass().template getConfigValue<T>("wall");
-  RoomMinMax =
-      getPass().template getConfigValue<Rect2d<U>>("room_generator/room_size_min_max");
+  RoomMinMax = getPass().template getConfigValue<Rect2d<U>>(
+      "room_generator/room_size_min_max");
+}
+
+template <typename T, typename U, typename RE>
+Room<T, U> RoomGenerator<T, U, RE>::generate() {
+  // FIXME get rid of this or at least make configurable
+  for (int Attempts = 0; Attempts < 100; Attempts++) {
+    const auto RoomSize = randomSize2d<U>(this->RoomMinMax, getCtx().RndEng);
+    auto RoomMap = generateRoomMap(RoomSize);
+    auto RoomDoors = getDoorCandidates(RoomMap, *this->Ground);
+    if (!RoomDoors.empty()) {
+      return {std::move(RoomMap), std::move(RoomDoors)};
+    }
+  }
+  throw std::runtime_error("Could not generate new room");
 }
 
 } // namespace ymir::Dungeon

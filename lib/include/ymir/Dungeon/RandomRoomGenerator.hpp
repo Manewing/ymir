@@ -15,8 +15,6 @@ class RandomRoomGenerator
     : public RoomGenerator<TileType, TileCord, RndEngType> {
 public:
   using RoomGeneratorType = RoomGenerator<TileType, TileCord, RndEngType>;
-  using RoomGeneratorType::getCtx;
-  using RoomGeneratorType::getPass;
 
 public:
   static const char *Name;
@@ -28,6 +26,7 @@ public:
   void init(BuilderPass &Pass, BuilderContext &C) override;
 
   Room<TileType, TileCord> generate() override;
+  Map<TileType, TileCord> generateRoomMap(Size2d<TileCord> SIze) override;
 
 private:
   std::vector<std::pair<RoomGeneratorType *, float>> RoomGenProbs;
@@ -39,7 +38,7 @@ const char *RandomRoomGenerator<T, U, RE>::Name = "random_room_generator";
 template <typename T, typename U, typename RE>
 void RandomRoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   RoomGeneratorType::init(Pass, C);
-  auto RoomProbs = getPass().template getConfigValue<RoomProbsType>(
+  auto RoomProbs = this->getPass().template getConfigValue<RoomProbsType>(
       "random_room_generator/room_probs");
 
   RoomGenProbs.clear();
@@ -50,7 +49,7 @@ void RandomRoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
     assert(LastProb < Prob);
     LastProb = Prob;
     RoomGenProbs.emplace_back(
-        &getPass().template get<RoomGeneratorType>(RoomGenName), Prob);
+        &this->getPass().template get<RoomGeneratorType>(RoomGenName), Prob);
   }
 
   // TODO default value? (see above)
@@ -62,7 +61,7 @@ void RandomRoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
 template <typename T, typename U, typename RE>
 Room<T, U> RandomRoomGenerator<T, U, RE>::generate() {
   std::uniform_real_distribution<float> Uni(0.0, 1.0);
-  auto Value = Uni(getCtx().RndEng);
+  auto Value = Uni(this->getCtx().RndEng);
 
   for (auto const &[RoomGen, Prob] : RoomGenProbs) {
     if (Value <= Prob) {
@@ -71,6 +70,11 @@ Room<T, U> RandomRoomGenerator<T, U, RE>::generate() {
   }
 
   throw std::runtime_error("should never be reached"); // FIXME
+}
+
+template <typename T, typename U, typename RE>
+Map<T, U> RandomRoomGenerator<T, U, RE>::generateRoomMap(Size2d<U> /*Size*/) {
+  throw std::runtime_error("Not implmeneted");
 }
 
 } // namespace ymir::Dungeon
