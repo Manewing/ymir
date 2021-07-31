@@ -1,8 +1,8 @@
 #include <cxxabi.h>
 #include <iostream>
-#include <ymir/Config/TypeHelpers.hpp>
+#include <ymir/TypeHelpers.hpp>
 
-namespace ymir::Config {
+namespace ymir {
 
 std::string getTypeIdName(const std::type_info &TypeInfo) {
   int Status;
@@ -51,4 +51,4 @@ std::ostream &dumpAny(std::ostream &Out, const std::any &Any) {
   return Out;
 }
 
-} // namespace ymir::Config
+} // namespace ymir

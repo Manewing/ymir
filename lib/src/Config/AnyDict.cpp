@@ -1,6 +1,6 @@
 #include <iostream>
 #include <ymir/Config/AnyDict.hpp>
-#include <ymir/Config/TypeHelpers.hpp>
+#include <ymir/TypeHelpers.hpp>
 
 namespace ymir::Config {
 
@@ -18,8 +18,9 @@ AnyDict AnyDict::getSubDict(const std::string &Prefix) const {
   }
   return SubDict;
 }
+
 const std::any &AnyDict::getAny(const std::string &Key, const std::any &Value,
-                       const std::type_info &Type) const {
+                                const std::type_info &Type) const {
   return getAny(Key, Value, &Type);
 }
 

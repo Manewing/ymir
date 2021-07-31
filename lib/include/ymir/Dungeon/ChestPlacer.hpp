@@ -81,11 +81,11 @@ void addRandomChests(Map<T, U> &M, T Ground, T Wall, T Chest,
 template <typename T, typename U, typename RE>
 void ChestPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
-  Ground = getPass().template getConfigValue<T>("ground");
-  Wall = getPass().template getConfigValue<T>("wall");
-  Chest = getPass().template getConfigValue<T>("chest");
-  RoomChestPercentage = getPass().template getConfigValue<float>(
-      "chest_placer/room_chest_percentage");
+  Ground = getPass().cfg().template get<T>("ground");
+  Wall = getPass().cfg().template get<T>("wall");
+  Chest = getPass().cfg().template get<T>("chest");
+  RoomChestPercentage =
+      getPass().cfg().template get<float>("chest_placer/room_chest_percentage");
 }
 
 template <typename T, typename U, typename RE>

@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <regex>
 #include <ymir/Config/Parser.hpp>
-#include <ymir/Config/TypeHelpers.hpp>
+#include <ymir/TypeHelpers.hpp>
 #include <ymir/Types.hpp>
 
 namespace ymir::Config {

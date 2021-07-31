@@ -1,12 +1,13 @@
 set(TARGET ymir)
 
 set(SOURCE_FILES
-  src/Map.cpp
-  src/Types.cpp
-  src/Config/String.cpp
   src/Config/AnyDict.cpp
   src/Config/Parser.cpp
-  src/Config/TypeHelpers.cpp
+  src/Config/String.cpp
+  src/Dungeon/BuilderPass.cpp
+  src/Map.cpp
+  src/TypeHelpers.cpp
+  src/Types.cpp
 )
 
 add_library(${TARGET} SHARED ${SOURCE_FILES})

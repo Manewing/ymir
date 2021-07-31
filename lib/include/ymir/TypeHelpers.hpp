@@ -1,5 +1,5 @@
-#ifndef YMIR_CONFIG_TYPE_HELPERS_HPP
-#define YMIR_CONFIG_TYPE_HELPERS_HPP
+#ifndef YMIR_TYPE_HELPERS_HPP
+#define YMIR_TYPE_HELPERS_HPP
 
 #include <any>
 #include <functional>
@@ -9,7 +9,7 @@
 #include <typeindex>
 #include <typeinfo>
 
-namespace ymir::Config {
+namespace ymir {
 
 std::string getTypeIdName(const std::type_info &TypeInfo);
 
@@ -54,6 +54,6 @@ void registerAnyDumper(const internal::TypeVisitor<T, std::ostream &> &Dumper) {
       internal::toAnyVisitorIndex<T, std::ostream &>(Dumper));
 }
 
-} // namespace ymir::Config
+} // namespace ymir
 
 #endif // #ifndef YMIR_CONFIG_TYPE_HELPERS_HPP

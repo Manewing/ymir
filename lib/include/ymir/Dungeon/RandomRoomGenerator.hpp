@@ -38,19 +38,20 @@ const char *RandomRoomGenerator<T, U, RE>::Name = "random_room_generator";
 template <typename T, typename U, typename RE>
 void RandomRoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   RoomGeneratorType::init(Pass, C);
-  auto RoomProbs = this->getPass().template getConfigValue<RoomProbsType>(
-      "random_room_generator/room_probs");
+  auto RoomProbs = this->getPass().cfg()
+                       .getSubDict("random_room_generator/room_probs/")
+                       .template toVec<float>();
 
   RoomGenProbs.clear();
   RoomGenProbs.reserve(RoomProbs.size());
-  float LastProb = -1.0;
   for (auto const &[RoomGenName, Prob] : RoomProbs) {
     assert(Prob > 0.0 && Prob <= 1.0); // TODO
-    assert(LastProb < Prob);
-    LastProb = Prob;
-    RoomGenProbs.emplace_back(
-        &this->getPass().template get<RoomGeneratorType>(RoomGenName), Prob);
+    auto *RoomGen =
+        &this->getPass().template get<RoomGeneratorType>(RoomGenName);
+    RoomGenProbs.emplace_back(RoomGen, Prob);
   }
+  std::sort(RoomGenProbs.begin(), RoomGenProbs.end(),
+            [](const auto &A, const auto &B) { return A.second < B.second; });
 
   // TODO default value? (see above)
   assert(!RoomGenProbs.empty());

@@ -12,8 +12,13 @@ namespace ymir::Config {
 class AnyDict {
 public:
   using MapType = std::map<std::string, std::any>;
+  using ValueType = MapType::value_type;
 
 public:
+  AnyDict() = default;
+  AnyDict(std::initializer_list<ValueType> &&Init)
+      : Map(Init.begin(), Init.end()) {}
+
   void set(const std::string &Key, std::any Value);
 
   inline auto size() const { return Map.size(); }
@@ -33,6 +38,9 @@ public:
   template <typename T> inline const T &get(const std::string &Key) const {
     return *std::any_cast<T>(&getInternal(Key, typeid(T)));
   }
+
+  inline auto find(const std::string &Key) { return Map.find(Key); }
+  inline auto find(const std::string &Key) const { return Map.find(Key); }
 
   AnyDict getSubDict(const std::string &Prefix) const;
 

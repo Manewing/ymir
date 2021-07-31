@@ -78,9 +78,9 @@ template <typename T, typename U, typename RE>
 void RoomPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
   RoomGen = &getPass().template get<RoomGeneratorType>();
-  Ground = getPass().template getConfigValue<T>("ground");
-  Wall = getPass().template getConfigValue<T>("wall");
-  NumNewRoomAttempts = getPass().template getConfigValue<unsigned>(
+  Ground = getPass().cfg(). template get<T>("ground");
+  Wall = getPass().cfg(). template get<T>("wall");
+  NumNewRoomAttempts = getPass().cfg(). template get<unsigned>(
       "room_placer/num_new_room_attempts");
 }
 
