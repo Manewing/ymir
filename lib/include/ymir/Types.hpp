@@ -210,6 +210,8 @@ public:
     HORIZONTAL = LEFT | RIGHT
   } Dir2dValue;
 
+  static Dir2d fromString(std::string Str);
+
   Dir2d() = default;
   inline constexpr Dir2d(Dir2dValue Value) : Value(Value) {}
   inline constexpr operator Dir2dValue() const { return Value; }

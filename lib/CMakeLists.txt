@@ -3,6 +3,10 @@ set(TARGET ymir)
 set(SOURCE_FILES
   src/Map.cpp
   src/Types.cpp
+  src/Config/String.cpp
+  src/Config/AnyDict.cpp
+  src/Config/Parser.cpp
+  src/Config/TypeHelpers.cpp
 )
 
 add_library(${TARGET} SHARED ${SOURCE_FILES})
