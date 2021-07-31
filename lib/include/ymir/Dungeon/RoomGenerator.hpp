@@ -38,8 +38,9 @@ const char *RoomGenerator<T, U, RE>::Name = "room_generator";
 template <typename T, typename U, typename RE>
 void RoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &Ctx) {
   BuilderBase::init(Pass, Ctx);
-  Ground = getPass().cfg(). template get<T>("ground");
-  Wall = getPass().cfg(). template get<T>("wall");
+  // TODO move to strings to common place
+  Ground = getPass().cfg(). template get<T>("dungeon/ground");
+  Wall = getPass().cfg(). template get<T>("dungeon/wall");
   RoomMinMax = getPass().cfg(). template get<Rect2d<U>>(
       "room_generator/room_size_min_max");
 }

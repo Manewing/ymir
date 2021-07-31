@@ -41,6 +41,7 @@ public:
   template <typename T> T &get(const std::string &Path) {
     return Configuration.get<T>(Path);
   }
+
   template <typename T>
   T &get(const std::string &Header, const std::string &Name) {
     return get<T>(Header + "/" + Name);
