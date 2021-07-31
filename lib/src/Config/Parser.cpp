@@ -22,7 +22,7 @@ std::string Parser::parseString(const std::string &Value) {
   const char StringDelim = '"';
   if (Value.size() < 2 || Value[0] != StringDelim ||
       Value[Value.size() - 1] != StringDelim) {
-    throw std::runtime_error("Invalid char format: " + Value);
+    return Value;
   }
   return Value.substr(1, Value.size() - 2);
 }
@@ -60,6 +60,12 @@ std::any Parser::parseAnyType(const std::string &Value) {
     return parseString(Value);
   default:
     break;
+  }
+  if (std::any_of(Value.begin(), Value.end(), [](char Char) {
+        return !std::isdigit(Char) && Char != '-' && Char != '.' &&
+               Char != '+' && Char != 'U';
+      })) {
+    return parseString(Value);
   }
   if (Value[Value.size() - 1] == 'U') {
     return parseUnsigned(Value);
@@ -130,7 +136,12 @@ void Parser::parseLine(std::string Line) {
     const std::string Name = AssignMatch[1];
     const std::string Type = AssignMatch[3];
     const std::string Value = AssignMatch[4];
-    set(CurrentHeader, Name, getTypeParser(Type)(Value));
+    try {
+      set(CurrentHeader, Name, getTypeParser(Type)(Value));
+    } catch (std::exception &E) {
+      throw std::runtime_error("While parsing line '" + Line +
+                               "': " + E.what());
+    }
     return;
   }
 
