@@ -26,6 +26,8 @@ public:
 
   Map(TileCord Width, TileCord Height) : Map(Size2d<TileCord>{Width, Height}) {}
 
+  inline Size2d<TileCord> getSize() const { return Size;  }
+
   inline void setTile(TilePos P, TileType Tile) { getTile(P) = Tile; }
 
   inline TileType &getTile(TilePos P) { return Data.at(P.X + P.Y * Size.W); }
@@ -122,17 +124,15 @@ public:
     }
   }
 
-public:
-  const Size2d<TileCord> Size;
-
 private:
+  Size2d<TileCord> Size;
   std::vector<TileType> Data;
 };
 
 template <typename T, typename U>
 std::ostream &operator<<(std::ostream &Out, const Map<T, U> &M) {
-  for (auto PY = 0; PY < M.Size.H; PY++) {
-    for (auto PX = 0; PX < M.Size.W; PX++) {
+  for (auto PY = 0; PY < M.getSize().H; PY++) {
+    for (auto PX = 0; PX < M.getSize().W; PX++) {
       Out << M.getTile({PX, PY});
     }
     Out << '\n';

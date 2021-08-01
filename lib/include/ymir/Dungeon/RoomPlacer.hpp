@@ -67,9 +67,10 @@ RoomPlacer<T, U, RE>::getSuitableDoors(const Dungeon::Room<T, U> &NewRoom,
 template <typename T, typename U, typename RE>
 Room<T, U> RoomPlacer<T, U, RE>::generateInitialRoom(Map<T, U> &M, RE &RndEng) {
   auto NewRoom = RoomGen->generate();
-  const auto Size = NewRoom.M.Size;
+  const auto Size = NewRoom.M.getSize();
+  const auto MapSize = M.getSize();
   const auto PosRange =
-      ymir::Rect2d<U>{{1, 1}, {M.Size.W - Size.W - 1, M.Size.H - Size.H - 1}};
+      ymir::Rect2d<U>{{1, 1}, {MapSize.W - Size.W - 1, MapSize.H - Size.H - 1}};
   NewRoom.Pos = ymir::randomPoint2d<U>(PosRange, RndEng);
   return NewRoom;
 }
@@ -78,9 +79,9 @@ template <typename T, typename U, typename RE>
 void RoomPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
   RoomGen = &getPass().template get<RoomGeneratorType>();
-  Ground = getPass().cfg(). template get<T>("dungeon/ground");
-  Wall = getPass().cfg(). template get<T>("dungeon/wall");
-  NumNewRoomAttempts = getPass().cfg(). template get<unsigned>(
+  Ground = getPass().cfg().template get<T>("dungeon/ground");
+  Wall = getPass().cfg().template get<T>("dungeon/wall");
+  NumNewRoomAttempts = getPass().cfg().template get<unsigned>(
       "room_placer/num_new_room_attempts");
 }
 
@@ -100,8 +101,7 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   // Until we have no new room attempts left try to insert new rooms
   unsigned NewRoomAttemptsLeft = NumNewRoomAttempts;
   while (NewRoomAttemptsLeft--) {
-    ymir::Dungeon::Room<T, U> NewRoom =
-        RoomGen->generate();
+    ymir::Dungeon::Room<T, U> NewRoom = RoomGen->generate();
 
     // Select a suitable room and door randomly from all available
     auto SuitableDoors = getSuitableDoors(NewRoom, Ctx.Rooms);

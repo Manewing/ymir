@@ -3,15 +3,14 @@
 
 #include <list>
 #include <vector>
-#include <ymir/Dungeon/Hallway.hpp>
 #include <ymir/Dungeon/CaveRoomGenerator.hpp>
-#include <ymir/Dungeon/RectRoomGenerator.hpp>
+#include <ymir/Dungeon/Hallway.hpp>
 #include <ymir/Dungeon/LoopPlacer.hpp>
+#include <ymir/Dungeon/RectRoomGenerator.hpp>
 #include <ymir/Dungeon/Room.hpp>
 #include <ymir/Map.hpp>
 
 namespace ymir {
-
 
 template <typename U, typename T, typename RE>
 Map<T, U> generateRandomRoom(T Ground, T Wall, RE &RndEng,
@@ -72,7 +71,8 @@ public:
       for (auto &TgtDoor : Target.Doors) {
         auto SrcPos = Source.Pos + SrcDoor.Pos;
         auto TgtPos = Target.Pos + TgtDoor.Pos;
-        if (!Dungeon::checkIfOpposing(SrcPos, SrcDoor.Dir, TgtPos, TgtDoor.Dir) ||
+        if (!Dungeon::checkIfOpposing(SrcPos, SrcDoor.Dir, TgtPos,
+                                      TgtDoor.Dir) ||
             SrcDoor.Used || TgtDoor.Used) {
           continue;
         }
@@ -121,9 +121,10 @@ public:
 
   void generateInitialRoom(T Ground, T Wall) {
     auto NewRoom = getNewRoom(Ground, Wall);
-    const auto Size = NewRoom.M.Size;
-    const auto PosRange =
-        ymir::Rect2d<U>{{1, 1}, {M.Size.W - Size.W - 1, M.Size.H - Size.H - 1}};
+    const auto Size = NewRoom.M.getSize();
+    const auto MapSize = M.getSize();
+    const auto PosRange = ymir::Rect2d<U>{
+        {1, 1}, {MapSize.W - Size.W - 1, MapSize.H - Size.H - 1}};
     NewRoom.Pos = ymir::randomPoint2d<U>(PosRange, RndEng);
     Rooms.push_back(std::move(NewRoom));
   }
@@ -273,7 +274,6 @@ private:
   std::list<Dungeon::Room<T, U>> Rooms;
   std::vector<Dungeon::Hallway<T, U>> Hallways;
 }; // namespace ymir
-
 
 } // namespace ymir
 
