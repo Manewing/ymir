@@ -56,17 +56,21 @@ int main(int Argc, char *Argv[]) {
     Pass.setBuilderAlias(Builder, Alias);
   }
 
-  Pass.setSequence(Cfg.getSubDict("sequence").values<std::string>());
+  Pass.setSequence(Cfg.getSubDict("sequence/").values<std::string>());
   Pass.configure(Cfg);
 
   ymir::WyHashRndEng RE;
   RE.seed(Cfg.getOr<int>("dungeon/seed", Seed));
-  ymir::Dungeon::Context<char, int, ymir::WyHashRndEng> Ctx(
-      RE, ymir::Map<char, int>{Cfg.get<ymir::Size2d<int>>("dungeon/size")});
+
+  const auto Layers = Cfg.getSubDict("layers/").values<std::string>();
+  const auto Size = Cfg.get<ymir::Size2d<int>>("dungeon/size");
+  ymir::LayeredMap<char, int> Map(Layers, Size);
+  ymir::Dungeon::Context<char, int, ymir::WyHashRndEng> Ctx(RE, Map);
 
   Pass.init(Ctx);
   Pass.run(Ctx);
 
-  std::cout << Ctx.M << std::endl << std::endl
+  std::cout << Ctx.Map.render() << std::endl
+            << std::endl
             << "Seed: " << Seed << std::endl;
 }

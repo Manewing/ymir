@@ -20,6 +20,7 @@ public:
   friend bool operator==(const Map<TX, UX> &Lhs, const Map<TX, UX> &Rhs);
 
 public:
+  // TODO allow passing tile for default value when resizing
   explicit Map(Size2d<TileCord> Size) : Size(Size) {
     Data.resize(Size.W * Size.H);
   }

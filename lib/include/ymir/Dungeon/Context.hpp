@@ -7,7 +7,7 @@
 #include <ymir/Dungeon/Hallway.hpp>
 #include <ymir/Dungeon/Object.hpp>
 #include <ymir/Dungeon/Room.hpp>
-#include <ymir/Map.hpp>
+#include <ymir/LayeredMap.hpp>
 
 namespace ymir::Dungeon {
 
@@ -18,8 +18,8 @@ public:
                                          Point2d<TileCord> PosB);
 
 public:
-  Context(RandomEngineType &RE, Map<TileType, TileCord> M)
-      : RndEng(RE), M(std::move(M)) {}
+  Context(RandomEngineType &RE, LayeredMap<TileType, TileCord> Map)
+      : RndEng(RE), Map(std::move(Map)) {}
 
   bool haveRoomsHallway(const Dungeon::Room<TileType, TileCord> &A,
                         const Dungeon::Room<TileType, TileCord> &B) const;
@@ -38,7 +38,7 @@ public:
 
 public:
   RandomEngineType &RndEng;
-  ymir::Map<TileType, TileCord> M;
+  LayeredMap<TileType, TileCord> Map;
   std::list<Dungeon::Room<TileType, TileCord>> Rooms;
   std::vector<Dungeon::Hallway<TileType, TileCord>> Hallways;
 };
@@ -56,7 +56,7 @@ bool Context<T, U, RE>::haveRoomsHallway(const Dungeon::Room<T, U> &A,
 template <typename T, typename U, typename RE>
 bool Context<T, U, RE>::doesRoomFit(const Dungeon::Room<T, U> &Room) const {
   // If it's not contained in the map, it does not fit
-  if (!M.rect().contains(Room.rect())) {
+  if (!Map.rect().contains(Room.rect())) {
     return false;
   }
 
@@ -82,7 +82,7 @@ bool Context<T, U, RE>::doesHallwayFit(
     Rect2d<U> HallwayRect, const Dungeon::Room<T, U> *TargetRoom,
     const Dungeon::Room<T, U> *SourceRoom) const {
   // If it's not contained in the map, it does not fit
-  if (!M.rect().contains(HallwayRect)) {
+  if (!Map.rect().contains(HallwayRect)) {
     return false;
   }
   bool HallwayOverlapsRooms = std::any_of(

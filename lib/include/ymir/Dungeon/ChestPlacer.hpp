@@ -92,7 +92,9 @@ template <typename T, typename U, typename RE>
 void ChestPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::run(Pass, C);
   auto &Ctx = C.get<Context<T, U, RE>>();
-  addRandomChests(Ctx.M, *Ground, *Wall, *Chest, Ctx.Rooms, Ctx.RndEng,
+  // TODO get layer to operate on or drop the map all together and add objects
+  // to rooms instead
+  addRandomChests(Ctx.Map.get(0), *Ground, *Wall, *Chest, Ctx.Rooms, Ctx.RndEng,
                   RoomChestPercentage);
 }
 

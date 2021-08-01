@@ -92,10 +92,12 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   auto &Ctx = C.get<Context<T, U, RE>>();
 
   // Make entire map walls
-  Ctx.M.fillRect(*Wall); // FIXME this should not be done by the placer
+  // FIXME use configured layer
+  Ctx.Map.get(0).fillRect(*Wall); // FIXME this should not be done by the placer
 
   // Create initial room
-  auto InitialRoom = generateInitialRoom(Ctx.M, Ctx.RndEng);
+  // FIXME use configured layer
+  auto InitialRoom = generateInitialRoom(Ctx.Map.get(0), Ctx.RndEng);
   Ctx.Rooms.push_back(std::move(InitialRoom));
 
   // Until we have no new room attempts left try to insert new rooms
@@ -127,11 +129,13 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
 
   // FIXME create a finalize method or sth?
   for (const auto &Room : Ctx.Rooms) {
-    Ctx.M.merge(Room.M, Room.Pos);
+    // FIXME use configured layer
+    Ctx.Map.get(0).merge(Room.M, Room.Pos);
   }
 
   for (const auto &Hallway : Ctx.Hallways) {
-    Ctx.M.fillRect(*Ground, Hallway.Rect);
+    // FIXME use configured layer
+    Ctx.Map.get(0).fillRect(*Ground, Hallway.Rect);
   }
 }
 
@@ -144,7 +148,7 @@ bool RoomPlacer<T, U, RE>::tryToInsertRoom(Context<T, U, RE> &Ctx,
 
   // get position for alignment
   ymir::Point2d<U> AlignmentPos = TargetRoom.Pos + Door.Pos + Door.Dir;
-  for (; Ctx.M.contains(AlignmentPos); AlignmentPos += Door.Dir) {
+  for (; Ctx.Map.contains(AlignmentPos); AlignmentPos += Door.Dir) {
 
     // Calculate the new room position for the next alignment
     NewRoom.Pos = AlignmentPos - RoomDoor.Pos;

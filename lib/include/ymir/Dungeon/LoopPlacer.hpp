@@ -121,7 +121,8 @@ void LoopPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
     Ctx.Hallways.push_back(Hallway);
 
     // FIXME do this somewhere else?
-    Ctx.M.fillRect(*Ground, Hallway.Rect);
+    // FIXME use configured layer
+    Ctx.Map.get(0).fillRect(*Ground, Hallway.Rect);
   }
 }
 
