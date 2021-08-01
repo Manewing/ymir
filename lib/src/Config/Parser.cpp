@@ -13,7 +13,8 @@ char Parser::parseChar(const std::string &Value) {
   const char CharDelim = '\'';
   if (Value.size() != 3 || Value[0] != CharDelim ||
       Value[Value.size() - 1] != CharDelim) {
-    throw std::runtime_error("Invalid char format: " + Value);
+    throw std::runtime_error("Invalid char format: " + Value +
+                             " only ASCII allowed");
   }
   return Value[1];
 }
