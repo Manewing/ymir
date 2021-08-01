@@ -62,7 +62,7 @@ int main(int Argc, char *Argv[]) {
   ymir::WyHashRndEng RE;
   RE.seed(Cfg.getOr<int>("dungeon/seed", Seed));
   ymir::Dungeon::Context<char, int, ymir::WyHashRndEng> Ctx(
-      RE, ymir::Map<char, int>{80, 24});
+      RE, ymir::Map<char, int>{Cfg.get<ymir::Size2d<int>>("dungeon/size")});
 
   Pass.init(Ctx);
   Pass.run(Ctx);
