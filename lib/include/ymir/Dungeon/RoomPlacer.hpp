@@ -90,12 +90,7 @@ void RoomPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
 template <typename T, typename U, typename RE>
 void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::run(Pass, C);
-
   auto &Ctx = C.get<Context<T, U, RE>>();
-
-  // Make entire map walls
-  Ctx.Map.get(Layer).fillRect(
-      *Wall); // FIXME this should not be done by the placer
 
   // Create initial room
   auto InitialRoom = generateInitialRoom(Ctx.Map.get(Layer), Ctx.RndEng);
