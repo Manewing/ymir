@@ -20,6 +20,7 @@ public:
   void run(BuilderPass &Pass, BuilderContext &C) override;
 
 protected:
+  std::string Layer;
   unsigned MaxLoops = 0;
   unsigned MaxUsedDoors = 0;
   std::optional<TileType> Ground;
@@ -81,6 +82,7 @@ getLoopHallway(Context<T, U, RE> &Ctx, Dungeon::Room<T, U> &Source,
 template <typename T, typename U, typename RE>
 void LoopPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
+  Layer = getCfg<std::string>("layer");
   Ground = getCfg<T>("ground", "dungeon/ground");
   MaxLoops = getCfg<unsigned>("max_loops");
   MaxUsedDoors = getCfg<unsigned>("max_used_doors");
@@ -117,10 +119,7 @@ void LoopPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
     Hallway.SrcDoor->Used = true;
     Hallway.DstDoor->Used = true;
     Ctx.Hallways.push_back(Hallway);
-
-    // FIXME do this somewhere else?
-    // FIXME use configured layer
-    Ctx.Map.get(0).fillRect(*Ground, Hallway.Rect);
+    Ctx.Map.get(Layer).fillRect(*Ground, Hallway.Rect);
   }
 }
 

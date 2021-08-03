@@ -46,7 +46,7 @@ private:
 template <typename T, typename U>
 Map<T, U> &LayeredMap<T, U>::get(const std::string &LayerName) {
   return const_cast<Map<T, U> &>(
-      static_cast<LayeredMap<T, U> *>(this)->get(LayerName));
+      static_cast<const LayeredMap<T, U> *>(this)->get(LayerName));
 }
 
 template <typename T, typename U>

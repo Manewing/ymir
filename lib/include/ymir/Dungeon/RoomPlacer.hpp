@@ -38,6 +38,7 @@ private:
 
 public:
   RoomGeneratorType *RoomGen = nullptr;
+  std::string Layer;
   std::optional<TileType> Ground = std::nullopt;
   std::optional<TileType> Wall = std::nullopt;
   unsigned NumNewRoomAttempts = 0;
@@ -80,6 +81,7 @@ void RoomPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
   auto RoomGenName = getCfg<std::string>("room_generator");
   RoomGen = &getPass().template get<RoomGeneratorType>(RoomGenName);
+  Layer = getCfg<std::string>("layer");
   Ground = getCfg<T>("ground", "dungeon/ground");
   Wall = getCfg<T>("wall", "dungeon/wall");
   NumNewRoomAttempts = getCfg<unsigned>("num_new_room_attempts");
@@ -92,12 +94,11 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   auto &Ctx = C.get<Context<T, U, RE>>();
 
   // Make entire map walls
-  // FIXME use configured layer
-  Ctx.Map.get(0).fillRect(*Wall); // FIXME this should not be done by the placer
+  Ctx.Map.get(Layer).fillRect(
+      *Wall); // FIXME this should not be done by the placer
 
   // Create initial room
-  // FIXME use configured layer
-  auto InitialRoom = generateInitialRoom(Ctx.Map.get(0), Ctx.RndEng);
+  auto InitialRoom = generateInitialRoom(Ctx.Map.get(Layer), Ctx.RndEng);
   Ctx.Rooms.push_back(std::move(InitialRoom));
 
   // Until we have no new room attempts left try to insert new rooms
@@ -127,15 +128,12 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
     }
   }
 
-  // FIXME create a finalize method or sth?
+  // Add rooms and hallways to the map
   for (const auto &Room : Ctx.Rooms) {
-    // FIXME use configured layer
-    Ctx.Map.get(0).merge(Room.M, Room.Pos);
+    Ctx.Map.get(Layer).merge(Room.M, Room.Pos);
   }
-
   for (const auto &Hallway : Ctx.Hallways) {
-    // FIXME use configured layer
-    Ctx.Map.get(0).fillRect(*Ground, Hallway.Rect);
+    Ctx.Map.get(Layer).fillRect(*Ground, Hallway.Rect);
   }
 }
 

@@ -19,6 +19,7 @@ public:
   void run(BuilderPass &Pass, BuilderContext &C) override;
 
 private:
+  std::string Layer;
   std::optional<TileType> Ground;
   std::optional<TileType> Wall;
   std::optional<TileType> Chest;
@@ -81,6 +82,7 @@ void addRandomChests(Map<T, U> &M, T Ground, T Wall, T Chest,
 template <typename T, typename U, typename RE>
 void ChestPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
+  Layer = getCfg<std::string>("layer");
   Ground = getCfg<T>("ground", "dungeon/ground");
   Wall = getCfg<T>("wall", "dungeon/wall");
   Chest = getCfg<T>("chest", "dungeon/chest"); // FIXME make local?
@@ -91,10 +93,9 @@ template <typename T, typename U, typename RE>
 void ChestPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::run(Pass, C);
   auto &Ctx = C.get<Context<T, U, RE>>();
-  // TODO get layer to operate on or drop the map all together and add objects
-  // to rooms instead
-  addRandomChests(Ctx.Map.get(0), *Ground, *Wall, *Chest, Ctx.Rooms, Ctx.RndEng,
-                  RoomChestPercentage);
+  // TODO drop the map all together and add objects to rooms instead
+  addRandomChests(Ctx.Map.get(Layer), *Ground, *Wall, *Chest, Ctx.Rooms,
+                  Ctx.RndEng, RoomChestPercentage);
 }
 
 } // namespace ymir::Dungeon
