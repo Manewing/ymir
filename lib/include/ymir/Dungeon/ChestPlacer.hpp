@@ -18,7 +18,7 @@ public:
   void init(BuilderPass &Pass, BuilderContext &C) override;
   void run(BuilderPass &Pass, BuilderContext &C) override;
 
-public:
+private:
   std::optional<TileType> Ground;
   std::optional<TileType> Wall;
   std::optional<TileType> Chest;
