@@ -9,17 +9,20 @@ namespace ymir::Dungeon {
 template <typename TileType, typename TileCord, typename RndEngType>
 class CaveRoomGenerator : public RoomGenerator<TileType, TileCord, RndEngType> {
 public:
-  static const char *Name;
+  using RoomGeneratorType = RoomGenerator<TileType, TileCord, RndEngType>;
 
 public:
-  CaveRoomGenerator() = default;
-  const char *getName() const override { return Name; }
+  static const char *Type;
+
+public:
+  using RoomGeneratorType::RoomGenerator;
+  const char *getType() const override { return Type; }
 
   Map<TileType, TileCord> generateRoomMap(Size2d<TileCord> Size) override;
 };
 
 template <typename T, typename U, typename RE>
-const char *CaveRoomGenerator<T, U, RE>::Name = "cave_room_generator";
+const char *CaveRoomGenerator<T, U, RE>::Type = "cave_room_generator";
 
 template <typename U, typename T, typename RE>
 Map<T, U> generateCaveRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {

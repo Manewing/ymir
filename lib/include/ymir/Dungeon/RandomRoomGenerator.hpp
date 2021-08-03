@@ -17,11 +17,11 @@ public:
   using RoomGeneratorType = RoomGenerator<TileType, TileCord, RndEngType>;
 
 public:
-  static const char *Name;
+  static const char *Type;
 
 public:
-  RandomRoomGenerator() = default;
-  const char *getName() const override { return Name; }
+  using RoomGeneratorType::RoomGenerator;
+  const char *getType() const override { return Type; }
 
   void init(BuilderPass &Pass, BuilderContext &C) override;
 
@@ -33,7 +33,7 @@ private:
 };
 
 template <typename T, typename U, typename RE>
-const char *RandomRoomGenerator<T, U, RE>::Name = "random_room_generator";
+const char *RandomRoomGenerator<T, U, RE>::Type= "random_room_generator";
 
 template <typename T, typename U, typename RE>
 void RandomRoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {

@@ -8,12 +8,12 @@ namespace ymir::Dungeon {
 template <typename TileType, typename TileCord, typename RandomEngineType>
 class ChestPlacer : public BuilderBase {
 public:
-  static const char *Name;
+  static const char *Type;
 
 public:
-  ChestPlacer() = default;
+  using BuilderBase::BuilderBase;
 
-  const char *getName() const override { return Name; }
+  const char *getType() const override { return Type; }
 
   void init(BuilderPass &Pass, BuilderContext &C) override;
   void run(BuilderPass &Pass, BuilderContext &C) override;
@@ -26,7 +26,7 @@ public:
 };
 
 template <typename T, typename U, typename RE>
-const char *ChestPlacer<T, U, RE>::Name = "chest_placer";
+const char *ChestPlacer<T, U, RE>::Type = "chest_placer";
 
 // TODO move
 template <typename T, typename U>

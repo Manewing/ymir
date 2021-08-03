@@ -4,10 +4,12 @@ namespace ymir::Dungeon {
 
 void BuilderPass::setBuilderAlias(const std::string &Builder,
                                   const std::string &Alias) {
-  if (Builders.count(Alias)) {
-    throw std::out_of_range("Duplicate TODO");
+  if (!BuilderFactory.count(Builder)) {
+    throw std::runtime_error("Can not add alias '" + Alias +
+                             "' for unregistered builder type '" + Builder +
+                             "'");
   }
-  Builders[Alias] = Builders.at(Builder);
+  BuilderAlias[Alias] = Builder;
 }
 
 void BuilderPass::configure(Config::AnyDict Configuration) {
@@ -21,7 +23,7 @@ void BuilderPass::setSequence(std::vector<std::string> Sequence) {
 void BuilderPass::init(BuilderContext &Ctx) {
   InitCtxPtr = &Ctx;
   for (auto const &BuilderName : Sequence) {
-    Builders.at(BuilderName)->init(*this, Ctx);
+    getInternal(BuilderName).init(*this, Ctx);
   }
   InitCtxPtr = nullptr;
 }
@@ -33,12 +35,28 @@ void BuilderPass::run(BuilderContext &Ctx) {
 }
 
 BuilderBase &BuilderPass::getInternal(const std::string &BuilderName) {
-  auto It = Builders.find(BuilderName);
-  if (It == Builders.end()) {
-    throw std::runtime_error("No builder with name '" + BuilderName +
+
+  // Check if there is an alias registered for the name
+  std::string BuilderType = BuilderName;
+  if (auto It = BuilderAlias.find(BuilderName); It != BuilderAlias.end()) {
+    BuilderType = It->second;
+  }
+
+  // Get the builder from the builders or create it if it does not yet exist
+  std::shared_ptr<BuilderBase> BuilderPtr;
+  if (auto It = Builders.find(BuilderName); It != Builders.end()) {
+    BuilderPtr = It->second;
+  } else if (auto It = BuilderFactory.find(BuilderType);
+             It != BuilderFactory.end()) {
+    BuilderPtr = It->second(BuilderName);
+    Builders[BuilderName] = BuilderPtr;
+  } else {
+    throw std::runtime_error("No builder of type '" + BuilderType +
+                             "' with name '" + BuilderName +
                              "' registered at pass");
   }
-  auto &BuilderPtr = It->second;
+
+  // Check whether the builder has been initialized
   if (!BuilderPtr->isInit()) {
     if (InitCtxPtr == nullptr) {
       throw std::runtime_error("Uninitalized builder '" + BuilderName +

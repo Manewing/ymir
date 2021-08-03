@@ -1,6 +1,8 @@
 #ifndef YMIR_DUNGEON_BUILDER_BASE_H
 #define YMIR_DUNGEON_BUILDER_BASE_H
 
+#include <ymir/Config/AnyDict.hpp>
+
 namespace ymir::Dungeon {
 class BuilderPass;
 }
@@ -18,27 +20,16 @@ public:
 
 class BuilderBase {
 public:
+  explicit BuilderBase(std::string Name);
   virtual ~BuilderBase() = default;
 
-  virtual const char *getName() const = 0;
+  virtual const char *getType() const = 0;
+  const std::string &getName() const;
 
-  bool isInit() const {
-    return CurrentPassPtr != nullptr && CurrentCtxPtr != nullptr;
-  }
+  bool isInit() const;
 
-  virtual void init(BuilderPass &Pass, BuilderContext &Ctx) {
-    CurrentPassPtr = &Pass;
-    CurrentCtxPtr = &Ctx;
-  }
-
-  virtual void run(BuilderPass &Pass, BuilderContext &Ctx) {
-    if (CurrentPassPtr != &Pass) {
-      throw std::runtime_error("CurrentPassPtr != &Pass"); // TODO
-    }
-    if (CurrentCtxPtr != &Ctx) {
-      throw std::runtime_error("CurrentCtxPtr != &Ctx"); // TODO
-    }
-  }
+  virtual void init(BuilderPass &Pass, BuilderContext &Ctx);
+  virtual void run(BuilderPass &Pass, BuilderContext &Ctx);
 
 protected:
   template <typename T> T &getCtx() {
@@ -55,7 +46,17 @@ protected:
     return dynamic_cast<T &>(*CurrentPassPtr);
   }
 
+  template <typename T = BuilderPass> const T &getPass() const {
+    if (CurrentPassPtr == nullptr) {
+      throw std::runtime_error("Access to uninialized builder pass");
+    }
+    return dynamic_cast<T &>(*CurrentPassPtr);
+  }
+
+  Config::AnyDict getCfg() const;
+
 private:
+  std::string Name;
   BuilderPass *CurrentPassPtr = nullptr;
   BuilderContext *CurrentCtxPtr = nullptr;
 };

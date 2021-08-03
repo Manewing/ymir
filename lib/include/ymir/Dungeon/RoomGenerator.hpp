@@ -10,13 +10,13 @@ namespace ymir::Dungeon {
 template <typename TileType, typename TileCord, typename RndEngType>
 class RoomGenerator : public BuilderBase {
 public:
-  static const char *Name;
+  static const char *Type;
 
 public:
   using CtxType = Context<TileType, TileCord, RndEngType>;
 
 public:
-  RoomGenerator() = default;
+  using BuilderBase::BuilderBase;
 
   void init(BuilderPass &Pass, BuilderContext &C) override;
   virtual Room<TileType, TileCord> generate();
@@ -33,7 +33,7 @@ protected:
 };
 
 template <typename T, typename U, typename RE>
-const char *RoomGenerator<T, U, RE>::Name = "room_generator";
+const char *RoomGenerator<T, U, RE>::Type = "room_generator";
 
 template <typename T, typename U, typename RE>
 void RoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &Ctx) {

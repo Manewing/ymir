@@ -4,6 +4,7 @@
 #include <any>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 #include <ymir/Config/AnyDict.hpp>
@@ -14,8 +15,14 @@ namespace ymir::Dungeon {
 
 class BuilderPass {
 public:
+  using BuilderCreator =
+      std::function<std::shared_ptr<BuilderBase>(std::string)>;
+
+public:
   template <typename BuilderType> void registerBuilder() {
-    Builders[BuilderType::Name] = std::make_shared<BuilderType>();
+    BuilderFactory[BuilderType::Type] = [](std::string Name) {
+      return std::make_shared<BuilderType>(std::move(Name));
+    };
   }
 
   void setBuilderAlias(const std::string &Builder, const std::string &Alias);
@@ -32,8 +39,8 @@ public:
     return dynamic_cast<T &>(getInternal(BuilderName));
   }
 
-  template <typename T, typename = decltype(T::Name)> T &get() {
-    return get<T>(T::Name);
+  template <typename T, typename = decltype(T::Type)> T &get() {
+    return get<T>(T::Type);
   }
 
   Config::AnyDict &cfg() { return Configuration; }
@@ -46,7 +53,10 @@ private:
 private:
   BuilderContext *InitCtxPtr = nullptr;
   std::vector<std::string> Sequence;
+  // FIXME unique_ptr?
   std::map<std::string, std::shared_ptr<BuilderBase>> Builders;
+  std::map<std::string, BuilderCreator> BuilderFactory;
+  std::map<std::string, std::string> BuilderAlias;
   Config::AnyDict Configuration;
 };
 

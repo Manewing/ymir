@@ -9,12 +9,12 @@ namespace ymir::Dungeon {
 template <typename TileType, typename TileCord, typename RndEngType>
 class LoopPlacer : public BuilderBase {
 public:
-  static const char *Name;
+  static const char *Type;
 
 public:
-  LoopPlacer() = default;
+  using BuilderBase::BuilderBase;
 
-  const char *getName() const override { return Name; }
+  const char *getType() const override { return Type; }
 
   void init(BuilderPass &Pass, BuilderContext &C) override;
   void run(BuilderPass &Pass, BuilderContext &C) override;
@@ -26,7 +26,7 @@ protected:
 };
 
 template <typename T, typename U, typename RE>
-const char *LoopPlacer<T, U, RE>::Name = "loop_placer";
+const char *LoopPlacer<T, U, RE>::Type = "loop_placer";
 
 template <typename U>
 bool checkIfOpposing(Point2d<U> SrcPos, Dir2d SrcDir, Point2d<U> TgtPos,
@@ -81,11 +81,10 @@ getLoopHallway(Context<T, U, RE> &Ctx, Dungeon::Room<T, U> &Source,
 template <typename T, typename U, typename RE>
 void LoopPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
-  Ground = getPass().cfg(). template get<T>("dungeon/ground");
-  MaxLoops =
-      getPass().cfg(). template get<unsigned>("loop_placer/max_loops");
+  Ground = getPass().cfg().template get<T>("dungeon/ground");
+  MaxLoops = getPass().cfg().template get<unsigned>("loop_placer/max_loops");
   MaxUsedDoors =
-      getPass().cfg(). template get<unsigned>("loop_placer/max_used_doors");
+      getPass().cfg().template get<unsigned>("loop_placer/max_used_doors");
 }
 
 template <typename T, typename U, typename RE>

@@ -14,11 +14,11 @@ public:
   using RoomGeneratorType = RoomGenerator<TileType, TileCord, RandEngType>;
 
 public:
-  static const char *Name;
+  static const char *Type;
 
 public:
-  RoomPlacer() = default;
-  const char *getName() const override { return Name; }
+  using BuilderBase::BuilderBase;
+  const char *getType() const override { return Type; }
 
   void init(BuilderPass &Pass, BuilderContext &C) override;
   void run(BuilderPass &Pass, BuilderContext &C) override;
@@ -44,7 +44,7 @@ public:
 };
 
 template <typename T, typename U, typename RE>
-const char *RoomPlacer<T, U, RE>::Name = "room_placer";
+const char *RoomPlacer<T, U, RE>::Type = "room_placer";
 
 template <typename T, typename U, typename RE>
 std::vector<std::pair<Dungeon::Room<T, U> *, Dungeon::Door<U> *>>

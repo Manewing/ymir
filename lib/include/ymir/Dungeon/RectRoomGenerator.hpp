@@ -10,17 +10,20 @@ namespace ymir::Dungeon {
 template <typename TileType, typename TileCord, typename RndEngType>
 class RectRoomGenerator : public RoomGenerator<TileType, TileCord, RndEngType> {
 public:
-  static const char *Name;
+  using RoomGeneratorType = RoomGenerator<TileType, TileCord, RndEngType>;
 
 public:
-  RectRoomGenerator() = default;
-  const char *getName() const override { return Name; }
+  static const char *Type;
+
+public:
+  using RoomGeneratorType::RoomGenerator;
+  const char *getType() const override { return Type; }
 
   Map<TileType, TileCord> generateRoomMap(Size2d<TileCord> SIze) override;
 };
 
 template <typename T, typename U, typename RE>
-const char *RectRoomGenerator<T, U, RE>::Name = "rect_room_generator";
+const char *RectRoomGenerator<T, U, RE>::Type= "rect_room_generator";
 
 template <typename U, typename T, typename RE>
 Map<T, U> generateMultiRectRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
