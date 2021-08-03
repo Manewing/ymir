@@ -32,6 +32,8 @@ public:
 
   MapType &get(std::size_t LayerIdx) { return Layers.at(LayerIdx); }
   const MapType &get(std::size_t LayerIdx) const { return Layers.at(LayerIdx); }
+  MapType &get(const std::string &LayerName);
+  const MapType &get(const std::string &LayerName) const;
 
   MapType render(TileType Transparent = TileType()) const;
 
@@ -40,6 +42,21 @@ private:
   std::vector<MapType> Layers;
   std::vector<std::string> Names;
 };
+
+template <typename T, typename U>
+Map<T, U> &LayeredMap<T, U>::get(const std::string &LayerName) {
+  return const_cast<Map<T, U> &>(
+      static_cast<LayeredMap<T, U> *>(this)->get(LayerName));
+}
+
+template <typename T, typename U>
+const Map<T, U> &LayeredMap<T, U>::get(const std::string &LayerName) const {
+  auto It = std::find(Names.begin(), Names.end(), LayerName);
+  if (It != Names.end()) {
+    return Layers.at(It - Names.begin());
+  }
+  throw std::out_of_range("Could not find layer '" + LayerName + "'");
+}
 
 template <typename T, typename U>
 Map<T, U> LayeredMap<T, U>::render(T Transparent) const {
