@@ -1,9 +1,9 @@
 #ifndef YMIR_NOISE_HPP
 #define YMIR_NOISE_HPP
 
+#include <iterator>
 #include <random>
 #include <ymir/Types.hpp>
-#include <iterator>
 
 namespace ymir {
 

@@ -1,5 +1,5 @@
-#include <ymir/Config/String.hpp>
 #include <algorithm>
+#include <ymir/Config/String.hpp>
 
 namespace ymir::Config {
 

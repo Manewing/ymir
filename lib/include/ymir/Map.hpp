@@ -27,7 +27,7 @@ public:
 
   Map(TileCord Width, TileCord Height) : Map(Size2d<TileCord>{Width, Height}) {}
 
-  inline Size2d<TileCord> getSize() const { return Size;  }
+  inline Size2d<TileCord> getSize() const { return Size; }
 
   inline void setTile(TilePos P, TileType Tile) { getTile(P) = Tile; }
 

@@ -2,18 +2,18 @@
 #define YMIR_DUNGEON_BUILDER_PASS_H
 
 #include <any>
+#include <functional>
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
-#include <functional>
 #include <ymir/Config/AnyDict.hpp>
 
 namespace ymir::Dungeon {
 class BuilderBase;
 class BuilderContext;
-}
+} // namespace ymir::Dungeon
 
 namespace ymir::Dungeon {
 

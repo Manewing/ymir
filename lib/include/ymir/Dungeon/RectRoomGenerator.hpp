@@ -23,7 +23,7 @@ public:
 };
 
 template <typename T, typename U, typename RE>
-const char *RectRoomGenerator<T, U, RE>::Type= "rect_room_generator";
+const char *RectRoomGenerator<T, U, RE>::Type = "rect_room_generator";
 
 template <typename U, typename T, typename RE>
 Map<T, U> generateMultiRectRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
