@@ -7,9 +7,13 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <functional>
 #include <ymir/Config/AnyDict.hpp>
-#include <ymir/Dungeon/BuilderBase.hpp>
-#include <ymir/TypeHelpers.hpp>
+
+namespace ymir::Dungeon {
+class BuilderBase;
+class BuilderContext;
+}
 
 namespace ymir::Dungeon {
 

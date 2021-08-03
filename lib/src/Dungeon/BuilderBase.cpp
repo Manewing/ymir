@@ -25,8 +25,18 @@ void BuilderBase::run(BuilderPass &Pass, BuilderContext &Ctx) {
   }
 }
 
-Config::AnyDict BuilderBase::getCfg() const {
-  return getPass().cfg().getSubDict(getName() + "/");
+Config::AnyDict BuilderBase::getSubCfg(const std::string &Key) const {
+  auto Path = getName() + "/" + Key;
+  return getPass().cfg().getSubDict(Path);
+}
+
+Config::AnyDict BuilderBase::getSubCfg(const std::string &Key,
+                                       const std::string &FallbackKey) const {
+  auto Path = getName() + "/" + Key;
+  if (getPass().cfg().count(Path)) {
+    return getPass().cfg().getSubDict(Path);
+  }
+  return getPass().cfg().getSubDict(FallbackKey);
 }
 
 } // namespace ymir::Dungeon

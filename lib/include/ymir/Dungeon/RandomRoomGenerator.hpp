@@ -33,14 +33,14 @@ private:
 };
 
 template <typename T, typename U, typename RE>
-const char *RandomRoomGenerator<T, U, RE>::Type= "random_room_generator";
+const char *RandomRoomGenerator<T, U, RE>::Type = "random_room_generator";
 
 template <typename T, typename U, typename RE>
 void RandomRoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   RoomGeneratorType::init(Pass, C);
-  auto RoomProbs = this->getPass().cfg()
-                       .getSubDict("random_room_generator/room_probs/")
-                       .template toVec<float>();
+  auto RoomProbs = this->getSubCfg("room_probs/").template toVec<float>();
+  // TODO default value?
+  assert(!RoomProbs.empty());
 
   RoomGenProbs.clear();
   RoomGenProbs.reserve(RoomProbs.size());
@@ -52,10 +52,6 @@ void RandomRoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   }
   std::sort(RoomGenProbs.begin(), RoomGenProbs.end(),
             [](const auto &A, const auto &B) { return A.second < B.second; });
-
-  // TODO default value? (see above)
-  assert(!RoomGenProbs.empty());
-
   RoomGenProbs.back().second = 1.0;
 }
 

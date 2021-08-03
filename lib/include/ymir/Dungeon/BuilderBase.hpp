@@ -2,10 +2,7 @@
 #define YMIR_DUNGEON_BUILDER_BASE_H
 
 #include <ymir/Config/AnyDict.hpp>
-
-namespace ymir::Dungeon {
-class BuilderPass;
-}
+#include <ymir/Dungeon/BuilderPass.hpp>
 
 namespace ymir::Dungeon {
 
@@ -53,7 +50,24 @@ protected:
     return dynamic_cast<T &>(*CurrentPassPtr);
   }
 
-  Config::AnyDict getCfg() const;
+  template <typename T> const T &getCfg(const std::string &Key) const {
+    auto Path = getName() + "/" + Key;
+    return getPass().cfg().template get<T>(Path);
+  }
+
+  template <typename T>
+  const T &getCfg(const std::string &Key,
+                  const std::string &FallbackKey) const {
+    auto Path = getName() + "/" + Key;
+    if (getPass().cfg().count(Path)) {
+      return getPass().cfg().template get<T>(Path);
+    }
+    return getPass().cfg().template get<T>(FallbackKey);
+  }
+
+  Config::AnyDict getSubCfg(const std::string &Key) const;
+  Config::AnyDict getSubCfg(const std::string &Key,
+                            const std::string &FallbackKey) const;
 
 private:
   std::string Name;

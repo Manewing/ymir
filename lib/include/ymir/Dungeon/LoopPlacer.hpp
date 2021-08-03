@@ -81,10 +81,9 @@ getLoopHallway(Context<T, U, RE> &Ctx, Dungeon::Room<T, U> &Source,
 template <typename T, typename U, typename RE>
 void LoopPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
-  Ground = getPass().cfg().template get<T>("dungeon/ground");
-  MaxLoops = getPass().cfg().template get<unsigned>("loop_placer/max_loops");
-  MaxUsedDoors =
-      getPass().cfg().template get<unsigned>("loop_placer/max_used_doors");
+  Ground = getCfg<T>("ground", "dungeon/ground");
+  MaxLoops = getCfg<unsigned>("max_loops");
+  MaxUsedDoors = getCfg<unsigned>("max_used_doors");
 }
 
 template <typename T, typename U, typename RE>

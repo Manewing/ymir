@@ -39,10 +39,10 @@ template <typename T, typename U, typename RE>
 void RoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &Ctx) {
   BuilderBase::init(Pass, Ctx);
   // TODO move to strings to common place
-  Ground = getPass().cfg(). template get<T>("dungeon/ground");
-  Wall = getPass().cfg(). template get<T>("dungeon/wall");
-  RoomMinMax = getPass().cfg(). template get<Rect2d<U>>(
-      "room_generator/room_size_min_max");
+  Ground = getCfg<T>("ground", "dungeon/ground");
+  Wall = getCfg<T>("wall", "dungeon/wall");
+  RoomMinMax = getCfg<Rect2d<U>>("room_size_min_max",
+                                 "room_generator/room_size_min_max");
 }
 
 template <typename T, typename U, typename RE>
