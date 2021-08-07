@@ -3,6 +3,7 @@
 
 #include <ymir/Config/AnyDict.hpp>
 #include <ymir/Dungeon/BuilderPass.hpp>
+#include <optional>
 
 namespace ymir::Dungeon {
 
@@ -52,6 +53,24 @@ protected:
 
   template <typename T> const T &getCfg(const std::string &Key) const {
     auto Path = getName() + "/" + Key;
+    return getPass().cfg().template get<T>(Path);
+  }
+
+  template <typename T>
+  const T &getCfgOr(const std::string &Key, const T &Default) const {
+    auto Path = getName() + "/" + Key;
+    if (!getPass().cfg().count(Path)) {
+      return Default;
+    }
+    return getPass().cfg().template get<T>(Path);
+  }
+
+  template <typename T>
+  std::optional<T> getCfgOpt(const std::string &Key) const {
+    auto Path = getName() + "/" + Key;
+    if (!getPass().cfg().count(Path)) {
+      return std::nullopt;
+    }
     return getPass().cfg().template get<T>(Path);
   }
 
