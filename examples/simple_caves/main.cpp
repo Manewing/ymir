@@ -19,7 +19,7 @@ void generate_caves(ymir::Map<TileType, U> &M, TileType Ground, TileType Wall,
   const float GroundChance = 0.65f;
   ymir::fillRectRandom(
       M, Ground, GroundChance, RE,
-      ymir::Rect2d<U>{{0, 0}, {M.getSize().W - 1, M.getSize().H - 1}});
+      ymir::Rect2d<U>{{1, 1}, {M.getSize().W - 2, M.getSize().H - 2}});
 
   // Run replacement
   const std::size_t ReplaceThres = 4, Iterations = 6;
