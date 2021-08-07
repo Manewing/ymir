@@ -7,6 +7,7 @@ set(SOURCE_FILES
   src/Dungeon/BuilderBase.cpp
   src/Dungeon/BuilderPass.cpp
   src/Map.cpp
+  src/Terminal.cpp
   src/TypeHelpers.cpp
   src/Types.cpp
 )

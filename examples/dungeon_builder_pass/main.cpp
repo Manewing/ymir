@@ -10,6 +10,7 @@
 #include <ymir/Dungeon/RandomRoomGenerator.hpp>
 #include <ymir/Dungeon/RectRoomGenerator.hpp>
 #include <ymir/Dungeon/RoomPlacer.hpp>
+#include <ymir/Terminal.hpp>
 
 // FIXME get rid of template parameter for RandEngType
 template <typename TileType, typename TileCord, typename RandEngType>
@@ -51,7 +52,7 @@ int main(int Argc, char *Argv[]) {
 
   // Create new builder pass and register builders at it
   ymir::Dungeon::BuilderPass Pass;
-  registerBuilders<char, int, ymir::WyHashRndEng>(Pass);
+  registerBuilders<ymir::ColoredUniChar, int, ymir::WyHashRndEng>(Pass);
 
   for (auto const &[Alias, Builder] :
        Cfg.getSubDict("builder_alias/").toVec<std::string>()) {
@@ -66,8 +67,9 @@ int main(int Argc, char *Argv[]) {
 
   const auto Layers = Cfg.getSubDict("layers/").values<std::string>();
   const auto Size = Cfg.get<ymir::Size2d<int>>("dungeon/size");
-  ymir::LayeredMap<char, int> Map(Layers, Size);
-  ymir::Dungeon::Context<char, int, ymir::WyHashRndEng> Ctx(RE, Map);
+  ymir::LayeredMap<ymir::ColoredUniChar, int> Map(Layers, Size);
+  ymir::Dungeon::Context<ymir::ColoredUniChar, int, ymir::WyHashRndEng> Ctx(
+      RE, Map);
 
   Pass.init(Ctx);
   Pass.run(Ctx);

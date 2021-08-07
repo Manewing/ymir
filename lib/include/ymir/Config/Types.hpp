@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <regex>
 #include <ymir/Config/Parser.hpp>
+#include <ymir/Terminal.hpp>
 #include <ymir/TypeHelpers.hpp>
 #include <ymir/Types.hpp>
 
@@ -56,11 +57,56 @@ Dir2d parseDir2d(const std::string &Value) {
   return Dir2d::NONE;
 }
 
+UniChar parseUniChar(const std::string &Value) {
+  const char CharDelim = '\'';
+  if (Value.size() < 3 || Value.size() > 6 || Value[0] != CharDelim ||
+      Value[Value.size() - 1] != CharDelim) {
+    throw std::runtime_error("Invalid unicode char format: " + Value);
+  }
+  unsigned char Data[4] = {0};
+  for (std::size_t Idx = 1; Idx < Value.size() - 1; Idx++) {
+    Data[Idx - 1] = Value[Idx];
+  }
+  return UniChar(Data);
+}
+
+RgbColor parseRgbColor(const std::string &Value) {
+  std::regex Regex("#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})");
+  std::smatch Match;
+  if (!std::regex_match(Value, Match, Regex)) {
+    throw std::runtime_error("Invalid RGB color format: " + Value);
+  }
+  RgbColor Color;
+  Color.R = std::stoul(Match[1].str(), nullptr, 16);
+  Color.G = std::stoul(Match[2].str(), nullptr, 16);
+  Color.B = std::stoul(Match[3].str(), nullptr, 16);
+  return Color;
+}
+
+ColoredUniChar parseColoredUniChar(const std::string &Value) {
+  try {
+    return ColoredUniChar{parseUniChar(Value)};
+  } catch (const std::runtime_error &) {
+  }
+  static const std::regex Regex("\\{('.*'), (#[0-9a-fA-F]+)\\}");
+  std::smatch Match;
+  if (std::regex_match(Value, Match, Regex)) {
+    auto UC = parseUniChar(Match[1]);
+    auto Color = parseRgbColor(Match[2]);
+    return ColoredUniChar{UC, Color};
+  }
+  return ColoredUniChar{};
+}
+
 template <typename U> void registerYmirTypes(Parser &P) {
   P.registerType("Size2d", parseSize2d<U>);
   P.registerType("Point2d", parsePoint2d<U>);
   P.registerType("Rect2d", parseRect2d<U>);
   P.registerType("Dir2d", parseDir2d);
+  P.registerType("UniChar", parseUniChar);
+  P.registerType("UC", parseUniChar);
+  P.registerType("ColoredUniChar", parseColoredUniChar);
+  P.registerType("C", parseColoredUniChar);
 
   registerYmirTypes<U>();
 }
