@@ -7,6 +7,7 @@
 #include <ymir/Dungeon/ChestPlacer.hpp>
 #include <ymir/Dungeon/LoopPlacer.hpp>
 #include <ymir/Dungeon/MapFiller.hpp>
+#include <ymir/Dungeon/CelAltMapFiller.hpp>
 #include <ymir/Dungeon/RandomRoomGenerator.hpp>
 #include <ymir/Dungeon/RectRoomGenerator.hpp>
 #include <ymir/Dungeon/RoomPlacer.hpp>
@@ -25,6 +26,7 @@ void registerBuilders(ymir::Dungeon::BuilderPass &Pass) {
   Pass.registerBuilder<ymir::Dungeon::RoomPlacer<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::LoopPlacer<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::MapFiller<T, U, RE>>();
+  Pass.registerBuilder<ymir::Dungeon::CelAltMapFiller<T, U, RE>>();
 }
 
 int main(int Argc, char *Argv[]) {
