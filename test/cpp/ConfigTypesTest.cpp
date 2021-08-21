@@ -23,16 +23,16 @@ TEST(ConfigTypesTest, ParseUniChar) {
 }
 
 TEST(ConfigTypesTest, ParseRgbColor) {
-  EXPECT_EQ(parseRgbColor("#123456"), (RgbColor{0x12, 0x34, 0x56}));
-  EXPECT_THROW(parseRgbColor("123456"), std::runtime_error);
-  EXPECT_THROW(parseRgbColor("#56"), std::runtime_error);
+  EXPECT_EQ(parseRgbColor("\"#123456\""), (RgbColor{0x12, 0x34, 0x56}));
+  EXPECT_THROW(parseRgbColor("\"123456\""), std::runtime_error);
+  EXPECT_THROW(parseRgbColor("\"#56\""), std::runtime_error);
 }
 
 TEST(ConfigTypesTest, ParseColoredUniChar) {
   EXPECT_EQ(parseColoredUniChar("'a'"), ColoredUniChar{'a'});
-  EXPECT_EQ(parseColoredUniChar("{'a', #112233}"),
-            ColoredUniChar('a', RgbColor{0x11, 0x22, 0x33}));
-  EXPECT_EQ(parseColoredUniChar("{'τ', #11ff33}"),
+  EXPECT_EQ(parseColoredUniChar("{'a', \"#00ff00\"}"),
+            ColoredUniChar('a', RgbColor{0x00, 0xff, 0x00}));
+  EXPECT_EQ(parseColoredUniChar("{'τ', \"#11ff33\"}"),
             ColoredUniChar(UniChar({0xcf, 0x84, 0x00, 0x00}),
                            RgbColor{0x11, 0xff, 0x33}));
 }

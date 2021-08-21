@@ -71,7 +71,7 @@ UniChar parseUniChar(const std::string &Value) {
 }
 
 RgbColor parseRgbColor(const std::string &Value) {
-  std::regex Regex("#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})");
+  std::regex Regex("\"#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})\"");
   std::smatch Match;
   if (!std::regex_match(Value, Match, Regex)) {
     throw std::runtime_error("Invalid RGB color format: " + Value);
@@ -88,7 +88,7 @@ ColoredUniChar parseColoredUniChar(const std::string &Value) {
     return ColoredUniChar{parseUniChar(Value)};
   } catch (const std::runtime_error &) {
   }
-  static const std::regex Regex("\\{('.*'), (#[0-9a-fA-F]+)\\}");
+  static const std::regex Regex("\\{('.*'), (\"#[0-9a-fA-F]+\")\\}");
   std::smatch Match;
   if (std::regex_match(Value, Match, Regex)) {
     auto UC = parseUniChar(Match[1]);
