@@ -12,7 +12,7 @@
 namespace ymir {
 
 template <class... Ts> struct Overloaded : Ts... { using Ts::operator()...; };
-template<class... Ts> Overloaded(Ts...) -> Overloaded<Ts...>;
+template <class... Ts> Overloaded(Ts...) -> Overloaded<Ts...>;
 
 std::string getTypeIdName(const std::type_info &TypeInfo);
 

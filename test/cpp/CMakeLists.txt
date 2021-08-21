@@ -2,11 +2,12 @@ set (TARGET YmirUnittest)
 
 add_executable(
   ${TARGET}
+  ConfigParserTest.cpp
   ConfigTypesTest.cpp
   DungeonDoorTest.cpp
   DungeonRoomTest.cpp
-  TypesTest.cpp
   StringTest.cpp
+  TypesTest.cpp
 )
 
 target_link_libraries(${TARGET}

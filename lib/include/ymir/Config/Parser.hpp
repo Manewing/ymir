@@ -20,6 +20,7 @@ public:
   static unsigned parseUnsigned(const std::string &Value);
   static float parseFloat(const std::string &Value);
   static int parseSigned(const std::string &Value);
+  static bool parseBool(const std::string &Value);
   static std::any parseAnyType(const std::string &Value);
 
 public:
@@ -28,10 +29,12 @@ public:
 public:
   Parser();
 
+  inline AnyDict &getCfg() { return Configuration; }
   inline const AnyDict &getCfg() const { return Configuration; }
 
   void parse(const std::filesystem::path &Path);
   void parse(const std::string &Str);
+  void parse(const char *Str);
 
   void registerType(const std::string &TypeName,
                     ParserCallbackType ParserCallback);

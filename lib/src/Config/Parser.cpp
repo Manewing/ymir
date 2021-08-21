@@ -50,6 +50,21 @@ int Parser::parseSigned(const std::string &Value) {
   return Val;
 }
 
+bool Parser::parseBool(const std::string &Value) {
+  std::string ValueCopy = lower(Value);
+  return ValueCopy == "true";
+}
+
+namespace {
+std::optional<bool> tryParseBool(const std::string &Value) {
+  std::string ValueCopy = lower(Value);
+  if (Value == "true" || Value == "false") {
+    return Value == "true";
+  }
+  return std::nullopt;
+}
+} // namespace
+
 std::any Parser::parseAnyType(const std::string &Value) {
   if (Value.empty()) {
     return std::any();
@@ -61,6 +76,9 @@ std::any Parser::parseAnyType(const std::string &Value) {
     return parseString(Value);
   default:
     break;
+  }
+  if (auto BoolOpt = tryParseBool(Value)) {
+    return *BoolOpt;
   }
   if (std::any_of(Value.begin(), Value.end(), [](char Char) {
         return !std::isdigit(Char) && Char != '-' && Char != '.' &&
@@ -84,6 +102,7 @@ Parser::Parser() {
   registerType("float", parseFloat);
   registerType("int", parseSigned);
   registerType("unsigned", parseUnsigned);
+  registerType("bool", parseBool);
 }
 
 void Parser::parse(const std::filesystem::path &Path) {
@@ -96,6 +115,11 @@ void Parser::parse(const std::filesystem::path &Path) {
 }
 
 void Parser::parse(const std::string &Str) {
+  std::stringstream SS(Str);
+  parseInternal(SS);
+}
+
+void Parser::parse(const char *Str) {
   std::stringstream SS(Str);
   parseInternal(SS);
 }
