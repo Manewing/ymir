@@ -11,15 +11,14 @@
 
 namespace ymir::Dungeon {
 
-template <typename TileType, typename TileCord, typename RandomEngineType>
+template <typename TileType, typename TileCord>
 class Context : public BuilderContext {
 public:
   static Rect2d<TileCord> getHallwayRect(Point2d<TileCord> PosA,
                                          Point2d<TileCord> PosB);
 
 public:
-  Context(RandomEngineType &RE, LayeredMap<TileType, TileCord> Map)
-      : RndEng(RE), Map(std::move(Map)) {}
+  Context(LayeredMap<TileType, TileCord> Map) : Map(std::move(Map)) {}
 
   bool haveRoomsHallway(const Dungeon::Room<TileType, TileCord> &A,
                         const Dungeon::Room<TileType, TileCord> &B) const;
@@ -37,15 +36,14 @@ public:
       const Dungeon::Room<TileType, TileCord> &TargetRoom) const;
 
 public:
-  RandomEngineType &RndEng;
   LayeredMap<TileType, TileCord> Map;
   std::list<Dungeon::Room<TileType, TileCord>> Rooms;
   std::vector<Dungeon::Hallway<TileType, TileCord>> Hallways;
 };
 
-template <typename T, typename U, typename RE>
-bool Context<T, U, RE>::haveRoomsHallway(const Dungeon::Room<T, U> &A,
-                                         const Dungeon::Room<T, U> &B) const {
+template <typename T, typename U>
+bool Context<T, U>::haveRoomsHallway(const Dungeon::Room<T, U> &A,
+                                     const Dungeon::Room<T, U> &B) const {
   return std::any_of(Hallways.begin(), Hallways.end(),
                      [&A, &B](const Dungeon::Hallway<T, U> &Hallway) {
                        return (Hallway.Src == &A && Hallway.Dst == &B) ||
@@ -53,8 +51,8 @@ bool Context<T, U, RE>::haveRoomsHallway(const Dungeon::Room<T, U> &A,
                      });
 }
 
-template <typename T, typename U, typename RE>
-bool Context<T, U, RE>::doesRoomFit(const Dungeon::Room<T, U> &Room) const {
+template <typename T, typename U>
+bool Context<T, U>::doesRoomFit(const Dungeon::Room<T, U> &Room) const {
   // If it's not contained in the map, it does not fit
   if (!Map.rect().contains(Room.rect())) {
     return false;
@@ -77,8 +75,8 @@ bool Context<T, U, RE>::doesRoomFit(const Dungeon::Room<T, U> &Room) const {
   return !RoomOverlapsRoom && !RoopmOverlapsHallway;
 }
 
-template <typename T, typename U, typename RE>
-bool Context<T, U, RE>::doesHallwayFit(
+template <typename T, typename U>
+bool Context<T, U>::doesHallwayFit(
     Rect2d<U> HallwayRect, const Dungeon::Room<T, U> *TargetRoom,
     const Dungeon::Room<T, U> *SourceRoom) const {
   // If it's not contained in the map, it does not fit
@@ -97,16 +95,16 @@ bool Context<T, U, RE>::doesHallwayFit(
   return !HallwayOverlapsRooms;
 }
 
-template <typename T, typename U, typename RE>
-bool Context<T, U, RE>::doesRoomAndHallwayFit(
+template <typename T, typename U>
+bool Context<T, U>::doesRoomAndHallwayFit(
     const Dungeon::Room<T, U> &NewRoom, Rect2d<U> HallwayRect,
     const Dungeon::Room<T, U> &TargetRoom) const {
   return doesRoomFit(NewRoom) &&
          doesHallwayFit(HallwayRect, &TargetRoom, &NewRoom);
 }
 
-template <typename T, typename U, typename RE>
-Rect2d<U> Context<T, U, RE>::getHallwayRect(Point2d<U> PosA, Point2d<U> PosB) {
+template <typename T, typename U>
+Rect2d<U> Context<T, U>::getHallwayRect(Point2d<U> PosA, Point2d<U> PosB) {
   auto Hallway = Rect2d<U>::get(PosA, PosB);
   Hallway.Size += Size2d<U>(1, 1);
   return Hallway;

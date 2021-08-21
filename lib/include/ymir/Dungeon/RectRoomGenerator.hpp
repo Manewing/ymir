@@ -47,7 +47,7 @@ Map<T, U> generateMultiRectRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
 
 template <typename T, typename U, typename RE>
 Map<T, U> RectRoomGenerator<T, U, RE>::generateRoomMap(Size2d<U> Size) {
-  return generateMultiRectRoom(T(), *this->Wall, Size, this->getCtx().RndEng);
+  return generateMultiRectRoom(T(), *this->Wall, Size, this->RndEng);
 }
 
 } // namespace ymir::Dungeon

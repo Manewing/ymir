@@ -1,17 +1,17 @@
 #ifndef YMIR_DUNGEON_CHEST_PLACER_HPP
 #define YMIR_DUNGEON_CHEST_PLACER_HPP
 
-#include <ymir/Dungeon/BuilderBase.hpp>
 #include <ymir/Dungeon/Context.hpp>
+#include <ymir/Dungeon/RandomBuilder.hpp>
 
 namespace ymir::Dungeon {
 template <typename TileType, typename TileCord, typename RandomEngineType>
-class ChestPlacer : public BuilderBase {
+class ChestPlacer : public RandomBuilder<RandomEngineType> {
 public:
   static const char *Type;
 
 public:
-  using BuilderBase::BuilderBase;
+  using RandomBuilder<RandomEngineType>::RandomBuilder;
 
   const char *getType() const override { return Type; }
 
@@ -81,19 +81,19 @@ void addRandomChests(Map<T, U> &M, T Ground, T Wall, T Chest,
 template <typename T, typename U, typename RE>
 void ChestPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
-  Layer = getCfg<std::string>("layer");
-  Wall = getCfg<T>("wall", "dungeon/wall");
-  Chest = getCfg<T>("chest", "dungeon/chest"); // FIXME make local?
-  RoomChestPercentage = getCfg<float>("room_chest_percentage");
+  Layer = this->template getCfg<std::string>("layer");
+  Wall = this->template getCfg<T>("wall", "dungeon/wall");
+  Chest = this->template getCfg<T>("chest", "dungeon/chest");
+  RoomChestPercentage = this->template getCfg<float>("room_chest_percentage");
 }
 
 template <typename T, typename U, typename RE>
 void ChestPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::run(Pass, C);
-  auto &Ctx = C.get<Context<T, U, RE>>();
+  auto &Ctx = C.get<Context<T, U>>();
   // TODO drop the map all together and add objects to rooms instead
   addRandomChests(Ctx.Map.get(Layer), T(), *Wall, *Chest, Ctx.Rooms,
-                  Ctx.RndEng, RoomChestPercentage);
+                  this->RndEng, RoomChestPercentage);
 }
 
 } // namespace ymir::Dungeon

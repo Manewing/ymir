@@ -5,7 +5,7 @@
 
 namespace ymir::Dungeon {
 
-template <typename TileType, typename TileCord, typename RandEngType>
+template <typename TileType, typename TileCord>
 class MapFiller : public BuilderBase {
 public:
   static const char *Type;
@@ -22,20 +22,20 @@ private:
   std::optional<TileType> Tile;
 };
 
-template <typename T, typename U, typename RE>
-const char *MapFiller<T, U, RE>::Type = "map_filler";
+template <typename T, typename U>
+const char *MapFiller<T, U>::Type = "map_filler";
 
-template <typename T, typename U, typename RE>
-void MapFiller<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
+template <typename T, typename U>
+void MapFiller<T, U>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
   Layer = getCfg<std::string>("layer");
   Tile = getCfg<T>("tile");
 }
 
-template <typename T, typename U, typename RE>
-void MapFiller<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
+template <typename T, typename U>
+void MapFiller<T, U>::run(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::run(Pass, C);
-  auto &Ctx = C.get<Context<T, U, RE>>();
+  auto &Ctx = C.get<Context<T, U>>();
   Ctx.Map.get(Layer).fillRect(*Tile);
 }
 

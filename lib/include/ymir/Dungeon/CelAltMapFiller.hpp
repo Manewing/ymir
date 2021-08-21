@@ -1,17 +1,17 @@
 #ifndef YMIR_DUNGEON_CELALT_MAP_FILLER_HPP
 #define YMIR_DUNGEON_CELALT_MAP_FILLER_HPP
 
-#include <ymir/Dungeon/BuilderBase.hpp>
+#include <ymir/Dungeon/RandomBuilder.hpp>
 
 namespace ymir::Dungeon {
 
 template <typename TileType, typename TileCord, typename RandEngType>
-class CelAltMapFiller : public BuilderBase {
+class CelAltMapFiller : public RandomBuilder<RandEngType> {
 public:
   static const char *Type;
 
 public:
-  using BuilderBase::BuilderBase;
+  using RandomBuilder<RandEngType>::RandomBuilder;
 
   const char *getType() const override { return Type; }
   void init(BuilderPass &Pass, BuilderContext &C) override;
@@ -34,22 +34,23 @@ const char *CelAltMapFiller<T, U, RE>::Type = "celalt_map_filler";
 
 template <typename T, typename U, typename RE>
 void CelAltMapFiller<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::init(Pass, C);
-  Layer = getCfg<std::string>("layer");
-  Tile = getCfg<T>("tile");
-  ClearTile = getCfgOr<T>("clear_tile", T());
-  Rect = getCfgOpt<Rect2d<U>>("rect");
-  SpawnChance = getCfgOr<float>("spawn_chance", SpawnChance);
-  ReplaceThres = getCfgOr<unsigned>("replace_thres", ReplaceThres);
-  Iterations = getCfgOr<unsigned>("iterations", Iterations);
-  SmoothThres = getCfgOr<unsigned>("smooth_thres", SmoothThres);
-  KillThres = getCfgOr<unsigned>("kill_thres", KillThres);
+  RandomBuilder<RE>::init(Pass, C);
+  Layer = this->template getCfg<std::string>("layer");
+  Tile = this->template getCfg<T>("tile");
+  ClearTile = this->template getCfgOr<T>("clear_tile", T());
+  Rect = this->template getCfgOpt<Rect2d<U>>("rect");
+  SpawnChance = this->template getCfgOr<float>("spawn_chance", SpawnChance);
+  ReplaceThres =
+      this->template getCfgOr<unsigned>("replace_thres", ReplaceThres);
+  Iterations = this->template getCfgOr<unsigned>("iterations", Iterations);
+  SmoothThres = this->template getCfgOr<unsigned>("smooth_thres", SmoothThres);
+  KillThres = this->template getCfgOr<unsigned>("kill_thres", KillThres);
 }
 
 template <typename T, typename U, typename RE>
 void CelAltMapFiller<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::run(Pass, C);
-  auto &Ctx = C.get<Context<T, U, RE>>();
+  auto &Ctx = C.get<Context<T, U>>();
 
   // FIXME we could use a buffer map here and by that avoid killing previously
   // generated patterns
@@ -65,7 +66,7 @@ void CelAltMapFiller<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   if (Rect.has_value()) {
     R = *Rect;
   }
-  ymir::fillRectRandom(M, *Tile, SpawnChance, Ctx.RndEng, R);
+  ymir::fillRectRandom(M, *Tile, SpawnChance, this->RndEng, R);
 
   // Run replacement
   for (std::size_t Idx = 0; Idx < Iterations; Idx++) {

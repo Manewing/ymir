@@ -58,7 +58,7 @@ void RandomRoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
 template <typename T, typename U, typename RE>
 Room<T, U> RandomRoomGenerator<T, U, RE>::generate() {
   std::uniform_real_distribution<float> Uni(0.0, 1.0);
-  auto Value = Uni(this->getCtx().RndEng);
+  auto Value = Uni(this->RndEng);
 
   for (auto const &[RoomGen, Prob] : RoomGenProbs) {
     if (Value <= Prob) {

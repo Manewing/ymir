@@ -1,15 +1,15 @@
 #ifndef YMIR_DUNGEON_ROOM_PLACER_HPP
 #define YMIR_DUNGEON_ROOM_PLACER_HPP
 
-#include <ymir/Dungeon/BuilderBase.hpp>
 #include <ymir/Dungeon/Context.hpp>
+#include <ymir/Dungeon/RandomBuilder.hpp>
 #include <ymir/Dungeon/Room.hpp>
 #include <ymir/Dungeon/RoomGenerator.hpp>
 
 namespace ymir::Dungeon {
 
 template <typename TileType, typename TileCord, typename RandEngType>
-class RoomPlacer : public BuilderBase {
+class RoomPlacer : public RandomBuilder<RandEngType> {
 public:
   using RoomGeneratorType = RoomGenerator<TileType, TileCord, RandEngType>;
 
@@ -17,7 +17,7 @@ public:
   static const char *Type;
 
 public:
-  using BuilderBase::BuilderBase;
+  using RandomBuilder<RandEngType>::RandomBuilder;
   const char *getType() const override { return Type; }
 
   void init(BuilderPass &Pass, BuilderContext &C) override;
@@ -30,7 +30,7 @@ private:
   Room<TileType, TileCord> generateInitialRoom(Map<TileType, TileCord> &M,
                                                RandEngType &RE);
 
-  bool tryToInsertRoom(Context<TileType, TileCord, RandEngType> &Ctx,
+  bool tryToInsertRoom(Context<TileType, TileCord> &Ctx,
                        Dungeon::Room<TileType, TileCord> &NewRoom,
                        Dungeon::Door<TileCord> &RoomDoor,
                        Dungeon::Room<TileType, TileCord> &TargetRoom,
@@ -78,23 +78,23 @@ Room<T, U> RoomPlacer<T, U, RE>::generateInitialRoom(Map<T, U> &M, RE &RndEng) {
 
 template <typename T, typename U, typename RE>
 void RoomPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::init(Pass, C);
-  auto RoomGenName = getCfg<std::string>("room_generator");
-  RoomGen = &getPass().template get<RoomGeneratorType>(RoomGenName);
-  Layer = getCfg<std::string>("layer");
-  Ground = getCfg<T>("ground", "dungeon/ground");
-  Wall = getCfg<T>("wall", "dungeon/wall");
-  NumNewRoomAttempts = getCfg<unsigned>("num_new_room_attempts");
+  RandomBuilder<RE>::init(Pass, C);
+  auto RoomGenName = this->template getCfg<std::string>("room_generator");
+  RoomGen = &this->getPass().template get<RoomGeneratorType>(RoomGenName);
+  Layer = this->template getCfg<std::string>("layer");
+  Ground = this->template getCfg<T>("ground", "dungeon/ground");
+  Wall = this->template getCfg<T>("wall", "dungeon/wall");
+  NumNewRoomAttempts = this->template getCfg<unsigned>("num_new_room_attempts");
 }
 
 template <typename T, typename U, typename RE>
 void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::run(Pass, C);
-  auto &Ctx = C.get<Context<T, U, RE>>();
+  auto &Ctx = C.get<Context<T, U>>();
   auto &M = Ctx.Map.get(Layer);
 
   // Create initial room
-  auto InitialRoom = generateInitialRoom(M, Ctx.RndEng);
+  auto InitialRoom = generateInitialRoom(M, this->RndEng);
   Ctx.Rooms.push_back(std::move(InitialRoom));
 
   // Until we have no new room attempts left try to insert new rooms
@@ -107,7 +107,7 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
     if (SuitableDoors.empty()) {
       continue;
     }
-    std::shuffle(SuitableDoors.begin(), SuitableDoors.end(), Ctx.RndEng);
+    std::shuffle(SuitableDoors.begin(), SuitableDoors.end(), this->RndEng);
 
     // Iterate over all suitable doors and try to insert the room into the
     // dungeon with a hallway starting from the door
@@ -134,7 +134,7 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
 }
 
 template <typename T, typename U, typename RE>
-bool RoomPlacer<T, U, RE>::tryToInsertRoom(Context<T, U, RE> &Ctx,
+bool RoomPlacer<T, U, RE>::tryToInsertRoom(Context<T, U> &Ctx,
                                            Dungeon::Room<T, U> &NewRoom,
                                            Dungeon::Door<U> &RoomDoor,
                                            Dungeon::Room<T, U> &TargetRoom,
@@ -150,8 +150,7 @@ bool RoomPlacer<T, U, RE>::tryToInsertRoom(Context<T, U, RE> &Ctx,
     // Create hallway between target and new room
     auto TargetDoorPos = TargetRoom.Pos + Door.Pos;
     auto NewDoorPos = NewRoom.Pos + RoomDoor.Pos;
-    auto HallwayRect =
-        Context<T, U, RE>::getHallwayRect(TargetDoorPos, NewDoorPos);
+    auto HallwayRect = Context<T, U>::getHallwayRect(TargetDoorPos, NewDoorPos);
 
     // check if room overlaps or hallway overlaps
     if (!Ctx.doesRoomAndHallwayFit(NewRoom, HallwayRect, TargetRoom)) {
