@@ -6,6 +6,7 @@ add_executable(
   DungeonDoorTest.cpp
   DungeonRoomTest.cpp
   TypesTest.cpp
+  StringTest.cpp
 )
 
 target_link_libraries(${TARGET}

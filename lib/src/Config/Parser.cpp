@@ -122,7 +122,7 @@ void Parser::parseInternal(std::istream &In) {
 }
 
 void Parser::parseLine(std::string Line) {
-  trim(Line);
+  transform_trim(Line);
   if (Line.empty() || Line[0] == '#') {
     return;
   }
