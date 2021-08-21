@@ -52,7 +52,7 @@ Map<T, U> generateCaveRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
 
 template <typename T, typename U, typename RE>
 Map<T, U> CaveRoomGenerator<T, U, RE>::generateRoomMap(Size2d<U> Size) {
-  return generateCaveRoom(*this->Ground, *this->Wall, Size,
+  return generateCaveRoom(T(), *this->Wall, Size,
                           this->getCtx().RndEng);
 }
 

@@ -27,7 +27,6 @@ protected:
   CtxType &getCtx() { return BuilderBase::getCtx<CtxType>(); }
 
 protected:
-  std::optional<TileType> Ground;
   std::optional<TileType> Wall;
   Rect2d<TileCord> RoomMinMax;
 };
@@ -39,7 +38,6 @@ template <typename T, typename U, typename RE>
 void RoomGenerator<T, U, RE>::init(BuilderPass &Pass, BuilderContext &Ctx) {
   BuilderBase::init(Pass, Ctx);
   // TODO move to strings to common place
-  Ground = getCfg<T>("ground", "dungeon/ground");
   Wall = getCfg<T>("wall", "dungeon/wall");
   RoomMinMax = getCfg<Rect2d<U>>("room_size_min_max",
                                  "room_generator/room_size_min_max");
@@ -51,7 +49,7 @@ Room<T, U> RoomGenerator<T, U, RE>::generate() {
   for (int Attempts = 0; Attempts < 100; Attempts++) {
     const auto RoomSize = randomSize2d<U>(this->RoomMinMax, getCtx().RndEng);
     auto RoomMap = generateRoomMap(RoomSize);
-    auto RoomDoors = getDoorCandidates(RoomMap, *this->Ground);
+    auto RoomDoors = getDoorCandidates(RoomMap, T());
     if (!RoomDoors.empty()) {
       return {std::move(RoomMap), std::move(RoomDoors)};
     }

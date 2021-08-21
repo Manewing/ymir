@@ -91,9 +91,10 @@ template <typename T, typename U, typename RE>
 void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::run(Pass, C);
   auto &Ctx = C.get<Context<T, U, RE>>();
+  auto &M = Ctx.Map.get(Layer);
 
   // Create initial room
-  auto InitialRoom = generateInitialRoom(Ctx.Map.get(Layer), Ctx.RndEng);
+  auto InitialRoom = generateInitialRoom(M, Ctx.RndEng);
   Ctx.Rooms.push_back(std::move(InitialRoom));
 
   // Until we have no new room attempts left try to insert new rooms
@@ -125,10 +126,10 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
 
   // Add rooms and hallways to the map
   for (const auto &Room : Ctx.Rooms) {
-    Ctx.Map.get(Layer).merge(Room.M, Room.Pos);
+    M.merge(Room.M, Room.Pos);
   }
   for (const auto &Hallway : Ctx.Hallways) {
-    Ctx.Map.get(Layer).fillRect(*Ground, Hallway.Rect);
+    M.fillRect(*Ground, Hallway.Rect);
   }
 }
 
