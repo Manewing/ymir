@@ -9,6 +9,7 @@
 #include <ymir/Dungeon/Door.hpp>
 #include <ymir/Dungeon/Room.hpp>
 #include <ymir/Map.hpp>
+#include <ymir/MapIo.hpp>
 
 namespace {
 
@@ -18,32 +19,28 @@ template <typename Type>[[maybe_unused]] std::string dump(const Type &T) {
   return SS.str();
 }
 
-[[maybe_unused]] ymir::Map<char, int>
-getMap(const std::vector<std::string> &MapRepr) {
-  if (MapRepr.empty()) {
-    return ymir::Map<char, int>(0, 0);
-  }
-  const auto Height = MapRepr.size();
-  const auto Width = MapRepr.at(0).size();
-  const auto AllSameWidth = std::all_of(
-      MapRepr.begin(), MapRepr.end(),
-      [Width](const std::string &Str) { return Str.size() == Width; });
-  if (!AllSameWidth) {
-    throw std::out_of_range("No all rows have same length");
-  }
-
-  ymir::Map<char, int> Map(Width, Height);
-  ymir::Point2d<int> Pos = {0, 0};
-  for (const auto &Row : MapRepr) {
-    for (const char Char : Row) {
-      Map.setTile(Pos, Char);
-      Pos.X++;
+[[maybe_unused]] std::optional<ymir::Point2d<int>>
+getMarkerPos(ymir::Map<char, int> &Map, char Marker,
+             std::optional<char> Replace = std::nullopt) {
+  std::optional<ymir::Point2d<int>> MarkerPos;
+  Map.forEach([&MarkerPos, &Replace, Marker](auto Pos, char &Tile) {
+    if (Tile == Marker) {
+      MarkerPos = Pos;
+      if (Replace) {
+        Tile = *Replace;
+      }
     }
-    Pos.X = 0;
-    Pos.Y++;
-  }
-  return Map;
+  });
+  return MarkerPos;
 }
+
+[[maybe_unused]] void markPath(const std::vector<ymir::Point2d<int>> &Path,
+                               ymir::Map<char, int> &Map, char Marker = 'x') {
+  for (const auto &Pos : Path) {
+    Map.setTile(Pos, Marker);
+  }
+}
+
 [[maybe_unused]] ymir::Dir2d getDir2d(char Char) {
   switch (Char) {
   case 'v':
@@ -62,7 +59,7 @@ getMap(const std::vector<std::string> &MapRepr) {
 
 [[maybe_unused]] ymir::Dungeon::Room<char, int>
 getRoom(const std::vector<std::string> &RoomRepr) {
-  ymir::Map<char, int> M = getMap(RoomRepr);
+  ymir::Map<char, int> M = ymir::loadMap(RoomRepr);
   ymir::Dungeon::Room<char, int> R{M, {}};
   R.M.forEach([&R](ymir::Point2d<int> Pos, char Char) {
     if (auto Dir = getDir2d(Char); Dir != ymir::Dir2d::NONE) {
