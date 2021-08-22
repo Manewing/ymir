@@ -28,6 +28,8 @@ inline bool operator!=(const DefaultColor &, const DefaultColor &) noexcept {
 std::ostream &operator<<(std::ostream &Out, const DefaultColor &DC);
 
 struct RgbColor {
+  static ymir::RgbColor getHeatMapColor(float Min, float Max, float Value);
+
   uint8_t R = 0;
   uint8_t G = 0;
   uint8_t B = 0;
@@ -68,6 +70,7 @@ struct ColoredUniChar {
   TermColor Color = NoColor{};
 
   ColoredUniChar() = default;
+  ColoredUniChar(char Char): Char(Char) {}
   ColoredUniChar(UniChar Char) : Char(Char) {}
   ColoredUniChar(UniChar Char, TermColor Color) : Char(Char), Color(Color) {}
   ColoredUniChar &operator=(const UniChar &Char);

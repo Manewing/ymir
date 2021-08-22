@@ -14,6 +14,16 @@ std::ostream &operator<<(std::ostream &Out, const DefaultColor & /*DC*/) {
   return Out;
 }
 
+ymir::RgbColor RgbColor::getHeatMapColor(float Min, float Max, float Value) {
+  Value = std::max(Min, std::min(Value, Max));
+  float Ratio = 2 * (Value - Min) / (Max - Min);
+  int R = std::max(0, static_cast<int>(255 * (1 - Ratio)));
+  int B = std::max(0, static_cast<int>(255 * (Ratio - 1)));
+  int G = 255 - B - R;
+  return {static_cast<uint8_t>(R), static_cast<uint8_t>(G),
+          static_cast<uint8_t>(B)};
+}
+
 std::ostream &operator<<(std::ostream &Out, const RgbColor &Color) {
   // FIXME check if we have a tty, disable if we don't have a terminal
   Out << "\033[";
