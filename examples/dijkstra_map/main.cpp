@@ -27,8 +27,7 @@ ymir::ColoredUniChar getHeatMapColorChar(int Max, int Value) {
 }
 
 ymir::Map<ymir::ColoredUniChar, int>
-makeHeatMap(const ymir::Map<char, int> &Map,
-            const ymir::Map<int, int> &DM) {
+makeHeatMap(const ymir::Map<char, int> &Map, const ymir::Map<int, int> &DM) {
   ymir::Map<ymir::ColoredUniChar, int> HM(Map.getSize());
   int MaxDist = *std::max_element(DM.begin(), DM.end());
 
