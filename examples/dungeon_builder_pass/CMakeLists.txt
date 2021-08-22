@@ -20,7 +20,7 @@ add_test(
     ${PROJECT_SOURCE_DIR}/test/scripts/check_output.py
       --ref ${CMAKE_CURRENT_SOURCE_DIR}/references/rect_dungeon.txt
       --target ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}
-      --args ${CMAKE_CURRENT_SOURCE_DIR}/configs/rect_dungeon.cfg 2039660508
+      --args ${CMAKE_CURRENT_SOURCE_DIR}/configs/rect_dungeon.cfg 3691402910
 )
 
 add_test(
