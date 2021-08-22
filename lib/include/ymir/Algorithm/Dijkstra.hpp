@@ -22,6 +22,11 @@ template <typename TileCord, typename Derived> struct TileDirections {
   }
 };
 
+///
+///   x
+///  x@x
+///   x
+///
 template <typename TileCord>
 struct FourTileDirections
     : public TileDirections<TileCord, FourTileDirections<TileCord>> {
@@ -36,6 +41,11 @@ struct FourTileDirections
   }
 };
 
+///
+///  xxx
+///  x@x
+///  xxx
+///
 template <typename TileCord>
 struct EightTileDirections
     : public TileDirections<TileCord, EightTileDirections<TileCord>> {
@@ -52,7 +62,7 @@ struct EightTileDirections
 
 template <typename TileCord>
 auto getDijkstraQueue(const std::vector<ymir::Point2d<TileCord>> &Starts) {
-  using PosDist = std::tuple<unsigned, TileCord, TileCord>;
+  using PosDist = std::tuple<int, TileCord, TileCord>;
   std::priority_queue<PosDist, std::vector<PosDist>, std::greater<PosDist>> Q;
   for (const auto &Start : Starts) {
     Q.push({0, Start.X, Start.Y});
@@ -62,11 +72,13 @@ auto getDijkstraQueue(const std::vector<ymir::Point2d<TileCord>> &Starts) {
 
 template <typename TileCord, typename UnaryPred,
           typename DirectionProvider = FourTileDirections<TileCord>>
-ymir::Map<unsigned, TileCord>
+ymir::Map<int, TileCord>
 getDijkstraMap(ymir::Size2d<TileCord> MapSize,
                const std::vector<ymir::Point2d<TileCord>> &Starts,
                UnaryPred IsBlocked) {
-  ymir::Map<unsigned, TileCord> DM(MapSize);
+  ymir::Map<int, TileCord> DM(MapSize);
+
+  // Mark the entire map as unvisited
   DM.fill(-1);
 
   auto Queue = getDijkstraQueue(Starts);
@@ -77,9 +89,11 @@ getDijkstraMap(ymir::Size2d<TileCord> MapSize,
     Queue.pop();
     DM.setTile(Pos, Dist);
 
-    unsigned NextDist = Dist + 1;
+    // Queue everything that is not blocked and not yet visited in reach of the
+    // current position
+    int NextDist = Dist + 1;
     auto QueuePos = [&Queue, &IsBlocked, NextDist](auto Pos, auto &Tile) {
-      if (IsBlocked(Pos) || Tile != unsigned(-1)) {
+      if (IsBlocked(Pos) || Tile != -1) {
         return;
       }
       Tile = NextDist;
@@ -92,9 +106,9 @@ getDijkstraMap(ymir::Size2d<TileCord> MapSize,
 
 template <typename TileCord, typename UnaryPred,
           typename DirectionProvider = FourTileDirections<TileCord>>
-ymir::Map<unsigned, TileCord> getDijkstraMap(ymir::Size2d<TileCord> MapSize,
-                                             ymir::Point2d<TileCord> Start,
-                                             UnaryPred IsBlocked) {
+ymir::Map<int, TileCord> getDijkstraMap(ymir::Size2d<TileCord> MapSize,
+                                        ymir::Point2d<TileCord> Start,
+                                        UnaryPred IsBlocked) {
   return getDijkstraMap<TileCord, UnaryPred, DirectionProvider>(
       MapSize, std::vector{Start}, IsBlocked);
 }
@@ -102,10 +116,10 @@ ymir::Map<unsigned, TileCord> getDijkstraMap(ymir::Size2d<TileCord> MapSize,
 template <typename TileCord,
           typename DirectionProvider = FourTileDirections<TileCord>>
 std::vector<ymir::Point2d<TileCord>>
-getPathFromDijkstraMap(const ymir::Map<unsigned, TileCord> &DM,
+getPathFromDijkstraMap(const ymir::Map<int, TileCord> &DM,
                        ymir::Point2d<TileCord> End) {
-  unsigned Dist = DM.getTile(End);
-  if (Dist == unsigned(-1)) {
+  int Dist = DM.getTile(End);
+  if (Dist == -1) {
     return {};
   }
 
@@ -116,7 +130,7 @@ getPathFromDijkstraMap(const ymir::Map<unsigned, TileCord> &DM,
     ymir::Point2d<TileCord> NextPos;
 
     auto FindMinDist = [&NextPos, &Dist](auto Pos, auto &Tile) {
-      if (Tile < Dist) {
+      if (Tile < Dist && Tile != -1) {
         Dist = Tile;
         NextPos = Pos;
       }

@@ -5,7 +5,7 @@
 #include <ymir/MapIo.hpp>
 #include <ymir/Terminal.hpp>
 
-char getHeatMapChar(unsigned Value) {
+char getHeatMapChar(int Value) {
   if (Value == 0) {
     return '@';
   }
@@ -21,25 +21,20 @@ char getHeatMapChar(unsigned Value) {
   return '.';
 }
 
-ymir::ColoredUniChar getHeatMapColorChar(unsigned Max, unsigned Value) {
+ymir::ColoredUniChar getHeatMapColorChar(int Max, int Value) {
   return {getHeatMapChar(Value),
           ymir::RgbColor::getHeatMapColor(0, Max, Value)};
 }
 
 ymir::Map<ymir::ColoredUniChar, int>
 makeHeatMap(const ymir::Map<char, int> &Map,
-            const ymir::Map<unsigned, int> &DM) {
+            const ymir::Map<int, int> &DM) {
   ymir::Map<ymir::ColoredUniChar, int> HM(Map.getSize());
-  unsigned MaxDist = 0;
-  DM.forEachElem([&MaxDist](unsigned Dist) {
-    if (Dist != unsigned(-1)) {
-      MaxDist = std::max(Dist, MaxDist);
-    }
-  });
+  int MaxDist = *std::max_element(DM.begin(), DM.end());
 
   Map.forEach([&HM, &DM, MaxDist](auto Pos, auto Tile) {
-    unsigned Dist = DM.getTile(Pos);
-    if (Dist != unsigned(-1) && Dist != 0) {
+    int Dist = DM.getTile(Pos);
+    if (Dist > 0) {
       auto Char = getHeatMapColorChar(MaxDist, DM.getTile(Pos));
       HM.setTile(Pos, Char);
     } else {

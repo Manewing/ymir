@@ -70,7 +70,7 @@ struct ColoredUniChar {
   TermColor Color = NoColor{};
 
   ColoredUniChar() = default;
-  ColoredUniChar(char Char): Char(Char) {}
+  ColoredUniChar(char Char) : Char(Char) {}
   ColoredUniChar(UniChar Char) : Char(Char) {}
   ColoredUniChar(UniChar Char, TermColor Color) : Char(Char), Color(Color) {}
   ColoredUniChar &operator=(const UniChar &Char);

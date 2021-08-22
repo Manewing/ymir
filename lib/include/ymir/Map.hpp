@@ -6,6 +6,7 @@
 #include <cassert>
 #include <iostream>
 #include <optional>
+#include <iterator>
 #include <vector>
 #include <ymir/Types.hpp>
 
@@ -16,6 +17,10 @@ public:
   using TileType = T;
   using TileCord = U;
   using TilePos = Point2d<TileCord>;
+  using DataType = std::vector<TileType>;
+
+  using iterator = typename DataType::iterator;
+  using const_iterator = typename DataType::const_iterator;
 
   template <typename TX, typename UX>
   friend bool operator==(const Map<TX, UX> &Lhs, const Map<TX, UX> &Rhs);
@@ -138,6 +143,21 @@ public:
       }
     });
     return Result;
+  }
+
+  iterator begin() { return Data.begin(); }
+  iterator end() { return Data.end(); }
+  const_iterator begin() const { return Data.begin(); }
+  const_iterator end() const { return Data.end(); }
+
+  ymir::Point2d<TileCord> toPos(iterator It) {
+    auto Dist = static_cast<TileCord>(std::distance(Data.begin(), It));
+    return {Dist % Size.W, Dist / Size.W};
+  }
+
+  ymir::Point2d<TileCord> toPos(const_iterator It) const {
+    auto Dist = static_cast<TileCord>(std::distance(Data.begin(), It));
+    return {Dist % Size.W, Dist / Size.W};
   }
 
   void merge(const Map &Other, Point2d<TileCord> Pos = {0, 0}) {

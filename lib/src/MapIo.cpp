@@ -1,6 +1,6 @@
-#include <ymir/MapIo.hpp>
-#include <fstream>
 #include <algorithm>
+#include <fstream>
+#include <ymir/MapIo.hpp>
 
 namespace ymir {
 

@@ -39,7 +39,7 @@ TEST(AlgorithmDijkstraTest, FindPath) {
       "##xxxxxxxxxx##",
       "##############",
   });
-  EXPECT_EQ(Map, MapRef);
+  EXPECT_EQ(Map, MapRef) << "Map:\n" << Map << "\nMap Ref:\n" << MapRef;
 }
 
 } // namespace
