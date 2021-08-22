@@ -1,6 +1,7 @@
 #ifndef YMIR_MAP_HPP
 #define YMIR_MAP_HPP
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <iostream>
@@ -97,7 +98,7 @@ public:
     auto R = getContained(Rect);
     for (auto PY = R.Pos.Y; PY < R.Pos.Y + R.Size.H && PY < Size.H; PY++) {
       for (auto PX = R.Pos.X; PX < R.Pos.X + R.Size.W && PX < Size.W; PX++) {
-        Func({PX, PY}, getTile({PX, PY}));
+        Func(ymir::Point2d<TileCord>{PX, PY}, getTile({PX, PY}));
       }
     }
   }
@@ -107,13 +108,19 @@ public:
     auto R = getContained(Rect);
     for (auto PY = R.Pos.Y; PY < R.Pos.Y + R.Size.H && PY < Size.H; PY++) {
       for (auto PX = R.Pos.X; PX < R.Pos.X + R.Size.W && PX < Size.W; PX++) {
-        Func({PX, PY}, getTile({PX, PY}));
+        Func(ymir::Point2d<TileCord>{PX, PY}, getTile({PX, PY}));
       }
     }
   }
 
+  void fill(TileType Tile) { std::fill(Data.begin(), Data.end(), Tile); }
+
   void fillRect(TileType Tile, std::optional<Rect2d<TileCord>> Rect = {}) {
     forEachElem([&Tile](TileType &TL) { TL = Tile; }, Rect);
+  }
+
+  void replaceTile(TileType Target, TileType Replacement) {
+    std::replace(Data.begin(), Data.end(), Target, Replacement);
   }
 
   void merge(const Map &Other, Point2d<TileCord> Pos = {0, 0}) {
