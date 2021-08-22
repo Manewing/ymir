@@ -32,6 +32,13 @@ public:
 
   inline void setTile(TilePos P, TileType Tile) { getTile(P) = Tile; }
 
+  void setTiles(const std::vector<ymir::Point2d<TileCord>> &TilePos,
+                TileType Tile) {
+    for (auto const &Pos : TilePos) {
+      setTile(Pos, Tile);
+    }
+  }
+
   inline TileType &getTile(TilePos P) { return Data.at(P.X + P.Y * Size.W); }
 
   inline const TileType &getTile(TilePos P) const {
@@ -121,6 +128,16 @@ public:
 
   void replaceTile(TileType Target, TileType Replacement) {
     std::replace(Data.begin(), Data.end(), Target, Replacement);
+  }
+
+  std::vector<ymir::Point2d<TileCord>> findTiles(TileType Target) const {
+    std::vector<ymir::Point2d<TileCord>> Result;
+    forEach([&Target, &Result](auto Pos, const auto &Tile) {
+      if (Target == Tile) {
+        Result.push_back(Pos);
+      }
+    });
+    return Result;
   }
 
   void merge(const Map &Other, Point2d<TileCord> Pos = {0, 0}) {

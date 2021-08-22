@@ -1,4 +1,5 @@
-add_subdirectory(simple_caves)
+add_subdirectory(dijkstra_map)
+add_subdirectory(dungeon_builder_pass)
 add_subdirectory(procedural_caves)
 add_subdirectory(procedural_dungeon)
-add_subdirectory(dungeon_builder_pass)
+add_subdirectory(simple_caves)
