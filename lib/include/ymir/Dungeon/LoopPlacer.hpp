@@ -23,7 +23,6 @@ protected:
   std::string Layer;
   unsigned MaxLoops = 0;
   unsigned MaxUsedDoors = 0;
-  std::optional<TileType> Ground;
 };
 
 template <typename T, typename U, typename RE>
@@ -83,7 +82,6 @@ template <typename T, typename U, typename RE>
 void LoopPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
   Layer = this->template getCfg<std::string>("layer");
-  Ground = this->template getCfg<T>("ground", "dungeon/ground");
   MaxLoops = this->template getCfg<unsigned>("max_loops");
   MaxUsedDoors = this->template getCfg<unsigned>("max_used_doors");
 }
@@ -119,7 +117,7 @@ void LoopPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
     Hallway.SrcDoor->Used = true;
     Hallway.DstDoor->Used = true;
     Ctx.Hallways.push_back(Hallway);
-    Ctx.Map.get(Layer).fillRect(*Ground, Hallway.Rect);
+    Ctx.Map.get(Layer).fillRect(T(), Hallway.Rect);
   }
 }
 

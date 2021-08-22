@@ -39,7 +39,6 @@ private:
 public:
   RoomGeneratorType *RoomGen = nullptr;
   std::string Layer;
-  std::optional<TileType> Ground = std::nullopt;
   std::optional<TileType> Wall = std::nullopt;
   unsigned NumNewRoomAttempts = 0;
 };
@@ -82,7 +81,6 @@ void RoomPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   auto RoomGenName = this->template getCfg<std::string>("room_generator");
   RoomGen = &this->getPass().template get<RoomGeneratorType>(RoomGenName);
   Layer = this->template getCfg<std::string>("layer");
-  Ground = this->template getCfg<T>("ground", "dungeon/ground");
   Wall = this->template getCfg<T>("wall", "dungeon/wall");
   NumNewRoomAttempts = this->template getCfg<unsigned>("num_new_room_attempts");
 }
@@ -129,7 +127,7 @@ void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
     M.merge(Room.M, Room.Pos);
   }
   for (const auto &Hallway : Ctx.Hallways) {
-    M.fillRect(*Ground, Hallway.Rect);
+    M.fillRect(T(), Hallway.Rect);
   }
 }
 
