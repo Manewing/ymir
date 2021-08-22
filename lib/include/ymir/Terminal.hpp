@@ -73,6 +73,7 @@ struct ColoredUniChar {
   ColoredUniChar(char Char) : Char(Char) {}
   ColoredUniChar(UniChar Char) : Char(Char) {}
   ColoredUniChar(UniChar Char, TermColor Color) : Char(Char), Color(Color) {}
+  ColoredUniChar &operator=(char Char);
   ColoredUniChar &operator=(const UniChar &Char);
   ColoredUniChar &operator=(const TermColor &Color);
 };

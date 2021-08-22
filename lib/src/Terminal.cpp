@@ -76,8 +76,17 @@ UniChar &UniChar::operator=(char Char) {
 }
 
 std::ostream &operator<<(std::ostream &Out, const UniChar &Char) {
-  Out << Char.Data;
+  if (Char.Data[0] == 0) {
+    Out << ' ';
+  } else {
+    Out << Char.Data;
+  }
   return Out;
+}
+
+ColoredUniChar &ColoredUniChar::operator=(char Char) {
+  this->Char = Char;
+  return *this;
 }
 
 ColoredUniChar &ColoredUniChar::operator=(const UniChar &Char) {
