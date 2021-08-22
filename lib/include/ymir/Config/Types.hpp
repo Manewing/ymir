@@ -26,7 +26,7 @@ template <typename U> Size2d<U> parseSize2d(const std::string &Value) {
   if (std::regex_match(Value, Match, Regex)) {
     return Size2d<U>{std::stoi(Match[2]), std::stoi(Match[3])};
   }
-  return Size2d<U>{0, 0};
+  throw std::runtime_error("Invalid SIze2d format: " + Value);
 }
 
 template <typename U> Point2d<U> parsePoint2d(const std::string &Value) {
@@ -36,7 +36,7 @@ template <typename U> Point2d<U> parsePoint2d(const std::string &Value) {
   if (std::regex_match(Value, Match, Regex)) {
     return Point2d<U>{std::stoi(Match[2]), std::stoi(Match[4])};
   }
-  return Point2d<U>{0, 0};
+  throw std::runtime_error("Invalid Point2d format: " + Value);
 }
 
 template <typename U> Rect2d<U> parseRect2d(const std::string &Value) {
@@ -45,7 +45,7 @@ template <typename U> Rect2d<U> parseRect2d(const std::string &Value) {
   if (std::regex_match(Value, Match, Regex)) {
     return Rect2d<U>{parsePoint2d<U>(Match[2]), parseSize2d<U>(Match[3])};
   }
-  return Rect2d<U>{{0, 0}, {0, 0}};
+  throw std::runtime_error("Invalid Rect2d format: " + Value);
 }
 
 Dir2d parseDir2d(const std::string &Value) {
@@ -54,20 +54,27 @@ Dir2d parseDir2d(const std::string &Value) {
   if (std::regex_match(Value, Match, Regex)) {
     return Dir2d::fromString(Match[2]);
   }
-  return Dir2d::NONE;
+  throw std::runtime_error("Invalid Dir2d format: " + Value);
 }
 
-UniChar parseUniChar(const std::string &Value) {
+std::optional<UniChar> tryParseUniChar(const std::string &Value) {
   const char CharDelim = '\'';
   if (Value.size() < 3 || Value.size() > 6 || Value[0] != CharDelim ||
       Value[Value.size() - 1] != CharDelim) {
-    throw std::runtime_error("Invalid unicode char format: " + Value);
+    return {};
   }
   unsigned char Data[4] = {0};
   for (std::size_t Idx = 1; Idx < Value.size() - 1; Idx++) {
     Data[Idx - 1] = Value[Idx];
   }
   return UniChar(Data);
+}
+
+UniChar parseUniChar(const std::string &Value) {
+  if (auto Char = tryParseUniChar(Value)) {
+    return *Char;
+  }
+  throw std::runtime_error("Invalid unicode char format: " + Value);
 }
 
 RgbColor parseRgbColor(const std::string &Value) {
@@ -84,9 +91,8 @@ RgbColor parseRgbColor(const std::string &Value) {
 }
 
 ColoredUniChar parseColoredUniChar(const std::string &Value) {
-  try {
-    return ColoredUniChar{parseUniChar(Value)};
-  } catch (const std::runtime_error &) {
+  if (auto Char = tryParseUniChar(Value)) {
+    return *Char;
   }
   static const std::regex Regex("\\{('.*'), (\"#[0-9a-fA-F]+\")\\}");
   std::smatch Match;
@@ -95,7 +101,7 @@ ColoredUniChar parseColoredUniChar(const std::string &Value) {
     auto Color = parseRgbColor(Match[2]);
     return ColoredUniChar{UC, Color};
   }
-  return ColoredUniChar{};
+  throw std::runtime_error("Invalid colored unicode char format: " + Value);
 }
 
 template <typename U> void registerYmirTypes(Parser &P) {

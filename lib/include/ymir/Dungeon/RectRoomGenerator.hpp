@@ -28,7 +28,7 @@ const char *RectRoomGenerator<T, U, RE>::Type = "rect_room_generator";
 template <typename U, typename T, typename RE>
 Map<T, U> generateMultiRectRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
   Map<T, U> Room(Size);
-  Room.fillRect(Wall);
+  Room.fill(Wall);
 
   for (int L = 0; L < 2; L++) {
     const auto SizeRange = Rect2d<U>{{3, 3}, {Size.W - 4, Size.H - 4}};
