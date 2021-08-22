@@ -28,7 +28,6 @@ private:
 template <typename T, typename U, typename RE>
 const char *ChestPlacer<T, U, RE>::Type = "chest_placer";
 
-// TODO move
 template <typename T, typename U>
 std::vector<ymir::Dungeon::Object<U>>
 findPossibleChestLocations(const Dungeon::Room<T, U> &Room, T Ground, T Wall) {

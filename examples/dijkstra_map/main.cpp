@@ -26,9 +26,10 @@ ymir::ColoredUniChar getHeatMapColorChar(int Max, int Value) {
           ymir::RgbColor::getHeatMapColor(0, Max, Value)};
 }
 
-ymir::Map<ymir::ColoredUniChar, int>
-makeHeatMap(const ymir::Map<char, int> &Map, const ymir::Map<int, int> &DM) {
-  ymir::Map<ymir::ColoredUniChar, int> HM(Map.getSize());
+template <typename T, typename U>
+ymir::Map<ymir::ColoredUniChar, int> makeHeatMap(const ymir::Map<T, U> &Map,
+                                                 const ymir::Map<int, U> &DM) {
+  ymir::Map<ymir::ColoredUniChar, U> HM(Map.getSize());
   int MaxDist = *std::max_element(DM.begin(), DM.end());
 
   Map.forEach([&HM, &DM, MaxDist](auto Pos, auto Tile) {
@@ -37,7 +38,9 @@ makeHeatMap(const ymir::Map<char, int> &Map, const ymir::Map<int, int> &DM) {
       auto Char = getHeatMapColorChar(MaxDist, DM.getTile(Pos));
       HM.setTile(Pos, Char);
     } else {
-      HM.setTile(Pos, {Tile, ymir::NoColor()});
+      ymir::ColoredUniChar Char(Tile);
+      Char.Color = ymir::NoColor{};
+      HM.setTile(Pos, Char);
     }
   });
   return HM;
