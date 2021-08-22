@@ -20,6 +20,8 @@ public:
 public:
   Context(LayeredMap<TileType, TileCord> Map) : Map(std::move(Map)) {}
 
+  bool isInHallway(Point2d<TileCord> Pos) const;
+
   bool haveRoomsHallway(const Dungeon::Room<TileType, TileCord> &A,
                         const Dungeon::Room<TileType, TileCord> &B) const;
 
@@ -40,6 +42,14 @@ public:
   std::list<Dungeon::Room<TileType, TileCord>> Rooms;
   std::vector<Dungeon::Hallway<TileType, TileCord>> Hallways;
 };
+
+template <typename T, typename U>
+bool Context<T, U>::isInHallway(Point2d<U> Pos) const {
+  return std::any_of(Hallways.begin(), Hallways.end(),
+                     [&Pos](const Dungeon::Hallway<T, U> &Hallway) {
+                       return Hallway.Rect.contains(Pos);
+                     });
+}
 
 template <typename T, typename U>
 bool Context<T, U>::haveRoomsHallway(const Dungeon::Room<T, U> &A,
