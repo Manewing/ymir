@@ -6,8 +6,8 @@ using namespace ymir;
 
 namespace {
 
-using FourTileDirections = ymir::Algorithm::FourTileDirections<int>;
-using EightTileDirections = ymir::Algorithm::EightTileDirections<int>;
+using FourTileDirections = ymir::FourTileDirections<int>;
+using EightTileDirections = ymir::EightTileDirections<int>;
 
 template <typename DirectionProvider>
 void findAndMarkPath(ymir::Map<char, int> &Map) {

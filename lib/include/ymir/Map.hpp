@@ -5,8 +5,8 @@
 #include <array>
 #include <cassert>
 #include <iostream>
-#include <optional>
 #include <iterator>
+#include <optional>
 #include <vector>
 #include <ymir/Types.hpp>
 
@@ -57,16 +57,17 @@ public:
     return getTile(P) == Tile;
   }
 
-  std::size_t getNeighborCount(TilePos P, TileType Tile) const {
+  template <typename DirectionProvider = EightTileDirections<TileCord>>
+  std::size_t getNeighborCount(
+      TilePos P, TileType Tile,
+      [[maybe_unused]] DirectionProvider DirProv = DirectionProvider()) const {
     std::size_t Count = 0;
-    Count += isTile({P.X + 1, P.Y + 1}, Tile);
-    Count += isTile({P.X + 1, P.Y - 1}, Tile);
-    Count += isTile({P.X + 1, P.Y}, Tile);
-    Count += isTile({P.X - 1, P.Y + 1}, Tile);
-    Count += isTile({P.X - 1, P.Y - 1}, Tile);
-    Count += isTile({P.X - 1, P.Y}, Tile);
-    Count += isTile({P.X, P.Y + 1}, Tile);
-    Count += isTile({P.X, P.Y - 1}, Tile);
+
+    DirectionProvider::forEach(*this, P, [Tile, &Count](auto, auto CT) {
+      if (CT == Tile) {
+        Count++;
+      }
+    });
     return Count;
   }
 
