@@ -64,8 +64,11 @@ std::optional<UniChar> tryParseUniChar(const std::string &Value) {
     return {};
   }
   unsigned char Data[4] = {0};
-  for (std::size_t Idx = 1; Idx < Value.size() - 1; Idx++) {
-    Data[Idx - 1] = Value[Idx];
+
+  // Allow escaped for '\''
+  std::size_t Offset = Value[1] == '\\' ? 2 : 1;
+  for (std::size_t Idx = Offset; Idx < Value.size() - 1; Idx++) {
+    Data[Idx - Offset] = Value[Idx];
   }
   return UniChar(Data);
 }
