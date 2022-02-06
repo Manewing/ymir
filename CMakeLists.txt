@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS
 
 add_subdirectory(lib)
 
-option(BUILD_TESTS "If to build unit tests (need google-test)" OFF)
+option(BUILD_TESTS "If to build unit tests (needs google-test)" OFF)
 if (BUILD_TESTS)
   enable_testing()
   add_subdirectory(test)
