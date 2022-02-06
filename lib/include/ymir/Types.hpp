@@ -210,6 +210,8 @@ public:
     HORIZONTAL = LEFT | RIGHT
   } Dir2dValue;
 
+  static Dir2d fromString(std::string Str);
+
   Dir2d() = default;
   inline constexpr Dir2d(Dir2dValue Value) : Value(Value) {}
   inline constexpr operator Dir2dValue() const { return Value; }
@@ -271,6 +273,59 @@ template <typename U> Point2d<U> operator+(Dir2d Dir, const Point2d<U> &P) {
 template <typename U> Point2d<U> operator-(const Point2d<U> &P, Dir2d Dir) {
   return Dir.opposing().advance(P);
 }
+
+template <typename TileCord, typename Derived> struct TileDirections {
+  template <typename MapType, typename BinaryFunc>
+  static void forEach(MapType &Map, ymir::Point2d<TileCord> Start,
+                      BinaryFunc Func) {
+    for (const auto &Direction : Derived::get()) {
+      auto Pos = Start + Direction;
+      if (!Map.contains(Pos)) {
+        continue;
+      }
+      auto &Tile = Map.getTile(Pos);
+      Func(Pos, Tile);
+    }
+  }
+};
+
+///
+///   x
+///  x@x
+///   x
+///
+template <typename TileCord>
+struct FourTileDirections
+    : public TileDirections<TileCord, FourTileDirections<TileCord>> {
+  static const auto &get() {
+    static const std::array Directions = {
+        ymir::Point2d<TileCord>{-1, 0},
+        ymir::Point2d<TileCord>{1, 0},
+        ymir::Point2d<TileCord>{0, -1},
+        ymir::Point2d<TileCord>{0, 1},
+    };
+    return Directions;
+  }
+};
+
+///
+///  xxx
+///  x@x
+///  xxx
+///
+template <typename TileCord>
+struct EightTileDirections
+    : public TileDirections<TileCord, EightTileDirections<TileCord>> {
+  static const auto &get() {
+    static const std::array Directions = {
+        ymir::Point2d<TileCord>{-1, 0}, ymir::Point2d<TileCord>{1, 0},
+        ymir::Point2d<TileCord>{0, -1}, ymir::Point2d<TileCord>{0, 1},
+        ymir::Point2d<TileCord>{-1, 1}, ymir::Point2d<TileCord>{-1, -1},
+        ymir::Point2d<TileCord>{1, 1},  ymir::Point2d<TileCord>{1, -1},
+    };
+    return Directions;
+  }
+};
 
 } // namespace ymir
 

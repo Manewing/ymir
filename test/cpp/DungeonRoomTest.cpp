@@ -1,6 +1,7 @@
 #include "TestHelpers.hpp"
 #include <gtest/gtest.h>
 #include <ymir/Dungeon/Room.hpp>
+#include <ymir/MapIo.hpp>
 
 using namespace ymir;
 using namespace ymir::Dungeon;
@@ -17,48 +18,48 @@ TEST(DungeonRoomTest, Attributes) {
 
 TEST(DungeonRoomTest, GetDoorCandidates) {
   {
-    Map<char, int> M = getMap({"################", //
-                               "################", //
-                               "####      ######", //
-                               "####        ####", //
-                               "####        ####", //
-                               "####      ######", //
-                               "#####   ########", //
-                               "################"});
+    Map<char, int> M = loadMap({"################", //
+                                "################", //
+                                "####      ######", //
+                                "####        ####", //
+                                "####        ####", //
+                                "####      ######", //
+                                "#####   ########", //
+                                "################"});
     auto Doors = getDoorCandidates(M, ' ');
     Room<char, int> R{M, Doors};
 
-    Map<char, int> MRef = getMap({"################", //
-                                  "#####^^^^#######", //
-                                  "####      ######", //
-                                  "###<        ####", //
-                                  "###<        ####", //
-                                  "####      ######", //
-                                  "#####   ########", //
-                                  "######v#########"});
+    Map<char, int> MRef = loadMap({"################", //
+                                   "#####^^^^#######", //
+                                   "####      ######", //
+                                   "###<        ####", //
+                                   "###<        ####", //
+                                   "####      ######", //
+                                   "#####   ########", //
+                                   "######v#########"});
     internal::markDoors(R.M, R.Doors);
     EXPECT_EQ(R.M, MRef);
   }
   {
-    Map<char, int> M = getMap({"################", //
-                               "################", //
-                               "################", //
-                               "####   #########", //
-                               "####   #########", //
-                               "####   #########", //
-                               "################", //
-                               "################"});
+    Map<char, int> M = loadMap({"################", //
+                                "################", //
+                                "################", //
+                                "####   #########", //
+                                "####   #########", //
+                                "####   #########", //
+                                "################", //
+                                "################"});
     auto Doors = getDoorCandidates(M, ' ');
     Room<char, int> R{M, Doors};
 
-    Map<char, int> MRef = getMap({"################", //
-                                  "################", //
-                                  "#####^##########", //
-                                  "####   #########", //
-                                  "###<   >########", //
-                                  "####   #########", //
-                                  "#####v##########", //
-                                  "################"});
+    Map<char, int> MRef = loadMap({"################", //
+                                   "################", //
+                                   "#####^##########", //
+                                   "####   #########", //
+                                   "###<   >########", //
+                                   "####   #########", //
+                                   "#####v##########", //
+                                   "################"});
     internal::markDoors(R.M, R.Doors);
     EXPECT_EQ(R.M, MRef);
   }
@@ -87,8 +88,6 @@ TEST(DungeonRoomTest, GetDoor) {
 }
 
 TEST(DungeonRoomTest, GetNumUsedDoors) {
-//  using Door = ymir::Dungeon::Door<int>;
-
   // Empty
   {
     Room<char, int> R{Map<char, int>({}), {}};
@@ -96,21 +95,20 @@ TEST(DungeonRoomTest, GetNumUsedDoors) {
   }
   // Non-Empty
   {
-    Room<char, int> R{Map<char, int>({}), {
-      {{0, 0}, Dir2d::LEFT, true},
-      {{0, 1}, Dir2d::LEFT, false},
-      {{0, 2}, Dir2d::LEFT, false},
-      {{13, 6}, Dir2d::RIGHT, false},
-      {{14, 6}, Dir2d::RIGHT, true},
-      {{15, 6}, Dir2d::RIGHT, false},
-    }};
+    Room<char, int> R{Map<char, int>({}),
+                      {
+                          {{0, 0}, Dir2d::LEFT, true},
+                          {{0, 1}, Dir2d::LEFT, false},
+                          {{0, 2}, Dir2d::LEFT, false},
+                          {{13, 6}, Dir2d::RIGHT, false},
+                          {{14, 6}, Dir2d::RIGHT, true},
+                          {{15, 6}, Dir2d::RIGHT, false},
+                      }};
     EXPECT_EQ(R.getNumUsedDoors(), 2);
   }
 }
 
 TEST(DungeonRoomTest, BlocksDoor) {
-//  using Door = ymir::Dungeon::Door<int>;
-
   // Empty
   {
     Room<char, int> R{Map<char, int>({}), {}};
@@ -119,16 +117,15 @@ TEST(DungeonRoomTest, BlocksDoor) {
 
   // Non-empty
   {
-    Room<char, int> R{Map<char, int>({}), {
-      {{0, 0}, Dir2d::LEFT, true},
-      {{0, 1}, Dir2d::LEFT, false},
-      {{0, 2}, Dir2d::LEFT, false},
-      {{13, 6}, Dir2d::RIGHT, false},
-      {{13, 7}, Dir2d::RIGHT, true},
-      {{13, 8}, Dir2d::RIGHT, false},
-      {{20, 20}, Dir2d::DOWN, false},
-      {{10, 4}, Dir2d::UP, false}
-    }};
+    Room<char, int> R{Map<char, int>({}),
+                      {{{0, 0}, Dir2d::LEFT, true},
+                       {{0, 1}, Dir2d::LEFT, false},
+                       {{0, 2}, Dir2d::LEFT, false},
+                       {{13, 6}, Dir2d::RIGHT, false},
+                       {{13, 7}, Dir2d::RIGHT, true},
+                       {{13, 8}, Dir2d::RIGHT, false},
+                       {{20, 20}, Dir2d::DOWN, false},
+                       {{10, 4}, Dir2d::UP, false}}};
     EXPECT_TRUE(R.blocksDoor({0, 0}, /*Used=*/true));
     EXPECT_TRUE(R.blocksDoor({1, 0}, /*Used=*/true));
     EXPECT_TRUE(R.blocksDoor({12, 7}, /*Used=*/true));

@@ -1,8 +1,33 @@
+#include <algorithm>
+#include <iostream>
 #include <sstream>
 #include <tuple>
 #include <ymir/Types.hpp>
 
 namespace ymir {
+
+Dir2d Dir2d::fromString(std::string Str) {
+  Dir2d Dir = NONE;
+  static const std::array<std::pair<Dir2dValue, const char *>, 6> Strs = {{
+      {UP, "UP"},
+      {DOWN, "DOWN"},
+      {LEFT, "LEFT"},
+      {RIGHT, "RIGHT"},
+      {HORIZONTAL, "HORIZONTAL"},
+      {VERTICAL, "VERTICAL"},
+  }};
+
+  std::replace(Str.begin(), Str.end(), '|', ' ');
+  std::stringstream SS(Str);
+  while (SS >> Str) {
+    for (auto const &[Val, Name] : Strs) {
+      if (Name == Str) {
+        Dir |= Val;
+      }
+    }
+  }
+  return Dir;
+}
 
 std::string Dir2d::str() const {
   switch (Value) {
@@ -17,7 +42,7 @@ std::string Dir2d::str() const {
   }
 
   std::stringstream SS;
-  const std::array<std::pair<Dir2dValue, const char *>, 4> Strs = {
+  static const std::array<std::pair<Dir2dValue, const char *>, 4> Strs = {
       {{UP, "UP"}, {DOWN, "DOWN"}, {LEFT, "LEFT"}, {RIGHT, "RIGHT"}}};
 
   const char *Separator = "";

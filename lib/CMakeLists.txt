@@ -1,7 +1,15 @@
 set(TARGET ymir)
 
 set(SOURCE_FILES
+  src/Config/AnyDict.cpp
+  src/Config/Parser.cpp
+  src/Config/String.cpp
+  src/Dungeon/BuilderBase.cpp
+  src/Dungeon/BuilderPass.cpp
   src/Map.cpp
+  src/MapIo.cpp
+  src/Terminal.cpp
+  src/TypeHelpers.cpp
   src/Types.cpp
 )
 

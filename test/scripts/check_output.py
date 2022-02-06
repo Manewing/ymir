@@ -26,11 +26,14 @@ def parse_args(args):
                         help="Arguments for target executable")
     return parser.parse_args(args[1:])
 
+def runCmd(args: list) -> str:
+    print(f"Run: {' '.join(args):s}", file=sys.stderr)
+    return subprocess.check_output(args).decode("utf-8")
 
 def main(args):
     args = parse_args(args)
 
-    output = subprocess.check_output([args.target] + args.args).decode("utf-8")
+    output = runCmd([args.target] + args.args)
     if UPDATE_REFS:
         with open(args.ref, "w") as f:
             f.write(output)

@@ -16,7 +16,6 @@ TEST(DungeonDoorTest, Attributes) {
   auto DPos = D;
   D.Pos = {1, 2};
   EXPECT_NE(D, DPos);
-
 }
 
 TEST(DungeonDoorTest, Output) {

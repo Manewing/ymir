@@ -5,8 +5,7 @@
 
 namespace ymir::Dungeon {
 
-template <typename T, typename U>
-struct Hallway {
+template <typename T, typename U> struct Hallway {
   Rect2d<U> Rect;
   Room<T, U> *Src = nullptr;
   Door<U> *SrcDoor = nullptr;
@@ -14,6 +13,6 @@ struct Hallway {
   Door<U> *DstDoor = nullptr;
 };
 
-}
+} // namespace ymir::Dungeon
 
 #endif // #ifndef YMIR_DUNGEON_HALLWAY_H
