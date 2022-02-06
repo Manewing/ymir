@@ -25,7 +25,7 @@ void BuilderPass::setSequence(std::vector<std::string> Sequence) {
 void BuilderPass::init(BuilderContext &Ctx) {
   InitCtxPtr = &Ctx;
   for (auto const &BuilderName : Sequence) {
-    getInternal(BuilderName).init(*this, Ctx);
+    getInternal(BuilderName);
   }
   InitCtxPtr = nullptr;
 }
