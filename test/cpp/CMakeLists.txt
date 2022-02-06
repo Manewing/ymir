@@ -3,6 +3,7 @@ set (TARGET YmirUnittest)
 add_executable(
   ${TARGET}
   AlgorithmDijkstraTest.cpp
+  AlgorithmLineOfSightTest.cpp
   ConfigParserTest.cpp
   ConfigTypesTest.cpp
   DungeonDoorTest.cpp

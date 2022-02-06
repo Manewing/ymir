@@ -33,6 +33,7 @@ set(HEADER_FILES
   include/ymir/Config/Types.hpp
   include/ymir/Terminal.hpp
   include/ymir/Algorithm/Dijkstra.hpp
+  include/ymir/Algorithm/LineOfSight.hpp
   include/ymir/MapFilter.hpp
   include/ymir/CallularAutomata.hpp
   include/ymir/Enum.hpp
