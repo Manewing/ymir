@@ -58,12 +58,14 @@ findPossibleLocations(const Dungeon::Room<T, U> &Room, T Ground, T Wall) {
 
 template <typename T, typename U, typename RE>
 void FilterPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::init(Pass, C);
+  RandomBuilder<RE>::init(Pass, C);
   FilterLayer = this->template getCfg<std::string>("filter_layer");
   PlaceLayer = this->template getCfg<std::string>("place_layer");
   FilterTile = this->template getCfg<T>("filter_tile");
   PlaceTile = this->template getCfg<T>("place_tile");
   PlacePercentage = this->template getCfg<float>("place_percentage");
+
+  // FIXME create factor for filter checkers
   Filter4xCountThresMin =
       this->template getCfgOpt<unsigned>("filter4x_count_thres_min");
   Filter4xCountThresMax =
@@ -96,7 +98,7 @@ bool FilterPlacer<T, U, RE>::check8xFilter(const Map<T, U> &M,
 
 template <typename T, typename U, typename RE>
 void FilterPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::run(Pass, C);
+  RandomBuilder<RE>::run(Pass, C);
   auto &Ctx = C.get<Context<T, U>>();
   auto &FM = Ctx.Map.get(FilterLayer);
   auto &PM = Ctx.Map.get(PlaceLayer);

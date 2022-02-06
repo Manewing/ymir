@@ -15,8 +15,8 @@ public:
     bool SaltWithName = getCfgOr<bool>("use_salt", "dungeon/use_salt", true);
     unsigned Seed = getCfgOr<unsigned>("seed", "dungeon/seed", 0);
     if (SaltWithName) {
-      std::hash<std::string> Hasher;
-      Seed ^= Hasher(getName());
+      std::hash<std::string> NameHasher;
+      Seed = NameHasher(getName()) ^ Seed;
     }
     RndEng.seed(Seed);
   }

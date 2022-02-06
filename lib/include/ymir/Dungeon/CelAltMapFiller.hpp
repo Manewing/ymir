@@ -49,7 +49,7 @@ void CelAltMapFiller<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
 
 template <typename T, typename U, typename RE>
 void CelAltMapFiller<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::run(Pass, C);
+  RandomBuilder<RE>::run(Pass, C);
   auto &Ctx = C.get<Context<T, U>>();
 
   // FIXME we could use a buffer map here and by that avoid killing previously
