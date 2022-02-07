@@ -84,6 +84,14 @@ public:
     return Count;
   }
 
+  template <typename DirectionProvider = EightTileDirections<TileCord>>
+  std::size_t getNotNeighborCount(
+      TilePos P, TileType Tile,
+      [[maybe_unused]] DirectionProvider DirProv = DirectionProvider()) const {
+    return DirectionProvider::Directions.size() -
+           getNeighborCount(P, Tile, DirProv);
+  }
+
   Rect2d<TileCord> rect() const { return Rect2d<TileCord>{{0, 0}, Size}; }
 
   bool contains(Point2d<TileCord> P) const { return rect().contains(P); }

@@ -15,7 +15,7 @@ set(HEADER_FILES
   include/ymir/Dungeon/CelAltMapFiller.hpp
   include/ymir/Dungeon/BuilderPass.hpp
   include/ymir/Dungeon/FilterPlacer.hpp
-  include/ymir/Dungeon/ChestPlacer.hpp
+  include/ymir/Dungeon/RoomEntityPlacer.hpp
   include/ymir/Dungeon/RandomRoomGenerator.hpp
   include/ymir/Dungeon/LoopPlacer.hpp
   include/ymir/Dungeon/StartEndPlacer.hpp

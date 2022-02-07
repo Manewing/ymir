@@ -5,7 +5,7 @@
 #include <ymir/Dungeon/BuilderPass.hpp>
 #include <ymir/Dungeon/CaveRoomGenerator.hpp>
 #include <ymir/Dungeon/CelAltMapFiller.hpp>
-#include <ymir/Dungeon/ChestPlacer.hpp>
+#include <ymir/Dungeon/RoomEntityPlacer.hpp>
 #include <ymir/Dungeon/LoopPlacer.hpp>
 #include <ymir/Dungeon/MapFiller.hpp>
 #include <ymir/Dungeon/RandomRoomGenerator.hpp>
@@ -23,7 +23,7 @@ void registerBuilders(ymir::Dungeon::BuilderPass &Pass) {
   Pass.registerBuilder<ymir::Dungeon::CaveRoomGenerator<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::RectRoomGenerator<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::RandomRoomGenerator<T, U, RE>>();
-  Pass.registerBuilder<ymir::Dungeon::ChestPlacer<T, U, RE>>();
+  Pass.registerBuilder<ymir::Dungeon::RoomEntityPlacer<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::RoomPlacer<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::LoopPlacer<T, U, RE>>();
   Pass.registerBuilder<ymir::Dungeon::MapFiller<T, U>>();
