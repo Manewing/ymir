@@ -55,10 +55,6 @@ set(SOURCE_FILES
 add_library(${TARGET} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 add_library(${TARGET}_Static STATIC ${HEADER_FILES} ${SOURCE_FILES})
 
-set_target_properties(${TARGET} PROPERTIES
-  PUBLIC_HEADER "${HEADER_FILES}"
-)
-
 set_target_properties(${TARGET}_Static PROPERTIES OUTPUT_NAME ${TARGET})
 set_property(TARGET ${TARGET}_Static PROPERTY POSITION_INDEPENDENT_CODE 1)
 
@@ -66,6 +62,13 @@ target_include_directories(${TARGET} PUBLIC include)
 target_include_directories(${TARGET}_Static PUBLIC include)
 
 install(
+  DIRECTORY include/
+  DESTINATION include/
+  COMPONENT header_files
+  FILES_MATCHING PATTERN "*.hpp"
+)
+
+
+install(
   TARGETS ${TARGET} ${TARGET}_Static
-  PUBLIC_HEADER DESTINATION include/ymir
 )
