@@ -71,10 +71,10 @@ int main(int Argc, char *Argv[]) {
     Pass.setBuilderAlias(Builder, Alias);
   }
 
-  Pass.setSequence(Cfg.getSubDict("sequence/").values<std::string>());
+  Pass.setSequence(Cfg.asList<std::string>("sequence/"));
   Pass.configure(Cfg);
 
-  const auto Layers = Cfg.getSubDict("layers/").values<std::string>();
+  const auto Layers = Cfg.asList<std::string>("layers/");
   const auto Size = Cfg.get<ymir::Size2d<int>>("dungeon/size");
   ymir::LayeredMap<ymir::ColoredUniChar, int> Map(Layers, Size);
   ymir::Dungeon::Context<ymir::ColoredUniChar, int> Ctx(Map);

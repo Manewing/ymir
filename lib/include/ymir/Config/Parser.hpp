@@ -14,6 +14,7 @@ class Parser {
 public:
   static const std::regex HeaderRe;
   static const std::regex AssignRe;
+  static const std::regex ListItemRe;
 
   static char parseChar(const std::string &Value);
   static std::string parseString(const std::string &Value);
@@ -50,15 +51,22 @@ public:
     return get<T>(Header + "/" + Name);
   }
 
+  template <typename T> auto asList(const std::string &Name) {
+    return Configuration.asList<T>(Name + "/");
+  }
+
 private:
   void parseInternal(std::istream &In);
   void parseLine(std::string Line);
+  bool parseAssignment(const std::string& Line);
+  bool parseListItem(const std::string &Line);
   const ParserCallbackType &getTypeParser(const std::string &Type);
 
 private:
   std::string CurrentHeader;
   std::map<std::string, ParserCallbackType> ParserCallbacks;
   AnyDict Configuration;
+  std::vector<std::any>* CurrentList = nullptr;
 };
 
 } // namespace ymir::Config

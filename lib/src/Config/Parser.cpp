@@ -8,6 +8,8 @@ const std::regex Parser::HeaderRe =
     std::regex(R"~(\s*\[([a-z/A-Z_0-9]+)\]\s*)~");
 const std::regex Parser::AssignRe =
     std::regex(R"~(([a-zA-Z_0-9]+)(:\s*([a-zA-Z_0-9]+))?\s*=\s*(.+))~");
+const std::regex Parser::ListItemRe =
+    std::regex(R"~(\s*-\s*(:\s*([a-zA-Z_0-9]+))?\s*(.+))~");
 
 char Parser::parseChar(const std::string &Value) {
   const char CharDelim = '\'';
@@ -160,23 +162,54 @@ void Parser::parseLine(std::string Line) {
   std::smatch HeaderMatch;
   if (std::regex_match(Line, HeaderMatch, HeaderRe)) {
     CurrentHeader = HeaderMatch[1];
+    CurrentList = nullptr;
     return;
   }
-  std::smatch AssignMatch;
-  if (std::regex_match(Line, AssignMatch, AssignRe)) {
-    const std::string Name = AssignMatch[1];
-    const std::string Type = AssignMatch[3];
-    const std::string Value = AssignMatch[4];
-    try {
-      set(CurrentHeader, Name, getTypeParser(Type)(Value));
-    } catch (std::exception &E) {
-      throw std::runtime_error("While parsing line '" + Line +
-                               "': " + E.what());
-    }
+
+  if (parseListItem(Line)) {
+    return;
+  }
+  if (parseAssignment(Line)) {
     return;
   }
 
   throw std::runtime_error("Syntax error for line: " + Line);
+}
+
+bool Parser::parseAssignment(const std::string &Line) {
+  std::smatch AssignMatch;
+  if (!std::regex_match(Line, AssignMatch, AssignRe)) {
+    return false;
+  }
+  const std::string Name = AssignMatch[1];
+  const std::string Type = AssignMatch[3];
+  const std::string Value = AssignMatch[4];
+  try {
+    set(CurrentHeader, Name, getTypeParser(Type)(Value));
+  } catch (std::exception &E) {
+    throw std::runtime_error("While parsing line '" + Line + "': " + E.what());
+  }
+  return true;
+}
+
+bool Parser::parseListItem(const std::string &Line) {
+  std::smatch ListItemMatch;
+  if (!std::regex_match(Line, ListItemMatch, ListItemRe)) {
+    return false;
+  }
+  const std::string Type = ListItemMatch[2];
+  const std::string Value = ListItemMatch[3];
+  try {
+    auto ListItem = getTypeParser(Type)(Value);
+    if (CurrentList == nullptr) {
+      set(CurrentHeader, "", std::vector<std::any>());
+      CurrentList = &get<std::vector<std::any>>(CurrentHeader, "");
+    }
+    CurrentList->push_back(std::move(ListItem));
+  } catch (std::exception &E) {
+    throw std::runtime_error("While parsing line '" + Line + "': " + E.what());
+  }
+  return true;
 }
 
 const Parser::ParserCallbackType &

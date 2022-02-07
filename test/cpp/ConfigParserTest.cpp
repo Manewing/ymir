@@ -31,4 +31,11 @@ TEST(ConfigParserTest, Char) {
   EXPECT_EQ(Parser.get<char>("hdr", "val_2"), '\'');
 }
 
+TEST(ConfigParserTest, List) {
+  Config::Parser Parser;
+  Parser.parse("[hdr]\n- \"x\"\n - \"abcd\"");
+  EXPECT_EQ(Parser.asList<std::string>("hdr"),
+            std::vector<std::string>({"x", "abcd"}));
+}
+
 } // namespace

@@ -36,6 +36,16 @@ public:
         const_cast<std::any *>(&getInternal(Key, typeid(T))));
   }
 
+  template <typename T> inline std::vector<T> asList(const std::string &Key) {
+    const auto &List = get<std::vector<std::any>>(Key);
+    std::vector<T> CastedList;
+    CastedList.reserve(List.size());
+    for (const auto &Elem : List) {
+      CastedList.push_back(*std::any_cast<T>(&Elem));
+    }
+    return CastedList;
+  }
+
   template <typename T> inline T getOr(const std::string &Key, T Default) {
     if (count(Key)) {
       return get<T>(Key);
