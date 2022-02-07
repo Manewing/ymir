@@ -7,7 +7,7 @@
 
 namespace ymir {
 
-template <typename TileType, typename TileCord> class LayeredMap {
+template <typename TileType, typename TileCord = int> class LayeredMap {
 public:
   using MapType = Map<TileType, TileCord>;
 
@@ -27,6 +27,7 @@ public:
   }
 
   inline Size2d<TileCord> getSize() const { return Size; }
+  std::size_t getNumLayers() const { return Layers.size(); }
   Rect2d<TileCord> rect() const { return Rect2d<TileCord>{{0, 0}, Size}; }
   bool contains(Point2d<TileCord> P) const { return rect().contains(P); }
 

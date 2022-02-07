@@ -11,10 +11,16 @@ const std::regex Parser::AssignRe =
 
 char Parser::parseChar(const std::string &Value) {
   const char CharDelim = '\'';
-  if (Value.size() != 3 || Value[0] != CharDelim ||
-      Value[Value.size() - 1] != CharDelim) {
+  bool IsInvalidChar =
+      Value.size() != 3 || Value[0] != CharDelim || Value[2] != CharDelim;
+  bool IsInvalidEscapedChar = Value.size() != 4 || Value[0] != CharDelim ||
+                              Value[1] != '\\' || Value[3] != CharDelim;
+  if (IsInvalidChar && IsInvalidEscapedChar) {
     throw std::runtime_error("Invalid char format: " + Value +
                              " only ASCII allowed");
+  }
+  if (!IsInvalidEscapedChar) {
+    return Value[2];
   }
   return Value[1];
 }

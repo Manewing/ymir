@@ -57,17 +57,30 @@ public:
     return getTile(P) == Tile;
   }
 
+  /// Iterates over neighbors of the current position that are within the bounds
+  // of the map, calls binary function for each position and tile.
+  template <typename BinaryFunction,
+            typename DirectionProvider = EightTileDirections<TileCord>>
+  void checkNeighbors(
+      TilePos P, BinaryFunction Func,
+      [[maybe_unused]] DirectionProvider DirProv = DirectionProvider()) const {
+    DirectionProvider::forEach(*this, P, Func);
+  }
+
   template <typename DirectionProvider = EightTileDirections<TileCord>>
   std::size_t getNeighborCount(
       TilePos P, TileType Tile,
       [[maybe_unused]] DirectionProvider DirProv = DirectionProvider()) const {
     std::size_t Count = 0;
-
-    DirectionProvider::forEach(*this, P, [Tile, &Count](auto, auto CT) {
-      if (CT == Tile) {
-        Count++;
-      }
-    });
+    checkNeighbors(
+        P,
+        [Tile, &Count](auto, auto CT) {
+          if (CT == Tile) {
+            Count++;
+          }
+          return true;
+        },
+        DirProv);
     return Count;
   }
 

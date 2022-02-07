@@ -18,7 +18,7 @@ public:
                                          Point2d<TileCord> PosB);
 
 public:
-  Context(LayeredMap<TileType, TileCord> Map) : Map(std::move(Map)) {}
+  Context(LayeredMap<TileType, TileCord> &Map) : Map(Map) {}
 
   bool isInHallway(Point2d<TileCord> Pos) const;
 
@@ -38,7 +38,7 @@ public:
       const Dungeon::Room<TileType, TileCord> &TargetRoom) const;
 
 public:
-  LayeredMap<TileType, TileCord> Map;
+  LayeredMap<TileType, TileCord> &Map;
   std::list<Dungeon::Room<TileType, TileCord>> Rooms;
   std::vector<Dungeon::Hallway<TileType, TileCord>> Hallways;
 };

@@ -24,4 +24,11 @@ TEST(ConfigParserTest, String) {
   EXPECT_EQ(Parser.get<std::string>("hdr", "val"), "test");
 }
 
+TEST(ConfigParserTest, Char) {
+  Config::Parser Parser;
+  Parser.parse("[hdr]\nval = 'x'\nval_2 = '\\''");
+  EXPECT_EQ(Parser.get<char>("hdr", "val"), 'x');
+  EXPECT_EQ(Parser.get<char>("hdr", "val_2"), '\'');
+}
+
 } // namespace

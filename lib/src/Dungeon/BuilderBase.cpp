@@ -1,5 +1,6 @@
 #include <ymir/Dungeon/BuilderBase.hpp>
 #include <ymir/Dungeon/BuilderPass.hpp>
+#include <iostream>
 
 namespace ymir::Dungeon {
 
@@ -17,6 +18,7 @@ void BuilderBase::init(BuilderPass &Pass, BuilderContext &Ctx) {
 }
 
 void BuilderBase::run(BuilderPass &Pass, BuilderContext &Ctx) {
+  std::cerr << "running: " << getName() << std::endl;
   if (CurrentPassPtr != &Pass) {
     throw std::runtime_error("CurrentPassPtr != &Pass"); // TODO
   }

@@ -9,8 +9,8 @@ namespace ymir::Algorithm {
 
 template <typename SeePosPred, typename TileCord>
 void traverseLOS(SeePosPred SeePos, ymir::Point2d<TileCord> Start,
-                 unsigned int Range, double RadStep = 0.1,
-                 double StepSize = 0.1) {
+                 unsigned int Range, double RadStep = 0.03,
+                 double StepSize = 0.5) {
   // Adapt step size based on range
   StepSize = StepSize / Range;
 
@@ -22,8 +22,8 @@ void traverseLOS(SeePosPred SeePos, ymir::Point2d<TileCord> Start,
     // Step towards target position
     double RelativeDist = 0.0;
     while (RelativeDist < 1.0) {
-      TileCord Tx = TileCord(Start.X + 0.5 + RelativeDist * Dx);
-      TileCord Ty = TileCord(Start.Y + 0.5 + RelativeDist * Dy);
+      TileCord Tx = TileCord(double(Start.X) + 0.5 + RelativeDist * Dx);
+      TileCord Ty = TileCord(double(Start.Y) + 0.5 + RelativeDist * Dy);
 
       ymir::Point2d<TileCord> Pos{Tx, Ty};
       if (!SeePos(Pos)) {

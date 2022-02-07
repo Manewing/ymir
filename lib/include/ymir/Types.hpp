@@ -17,8 +17,8 @@ template <typename T> struct Size2d {
   ValueType W = 0;
   ValueType H = 0;
 
-  Size2d() = default;
-  Size2d(ValueType W, ValueType H) : W(W), H(H) {}
+  constexpr Size2d() = default;
+  constexpr Size2d(ValueType W, ValueType H) : W(W), H(H) {}
 
   inline Size2d &operator+=(const Size2d<T> &Rhs) {
     W += Rhs.W;
@@ -53,8 +53,8 @@ template <typename T> struct Point2d {
   ValueType X = 0;
   ValueType Y = 0;
 
-  Point2d() = default;
-  Point2d(ValueType X, ValueType Y) : X(X), Y(Y) {}
+  constexpr Point2d() = default;
+  constexpr Point2d(ValueType X, ValueType Y) : X(X), Y(Y) {}
 
   inline Point2d &operator+=(const Point2d<T> &Rhs) {
     X -= Rhs.X;
@@ -134,9 +134,9 @@ template <typename T> struct Rect2d {
   /// Size of the rectangle
   Size2d<T> Size;
 
-  Rect2d() = default;
-  Rect2d(Point2d<T> Pos, Size2d<T> Size) : Pos(Pos), Size(Size) {}
-  Rect2d(Size2d<T> Size) : Pos(0, 0), Size(Size) {}
+  constexpr Rect2d() = default;
+  constexpr Rect2d(Point2d<T> Pos, Size2d<T> Size) : Pos(Pos), Size(Size) {}
+  constexpr Rect2d(Size2d<T> Size) : Pos(0, 0), Size(Size) {}
 
   bool empty() const { return Size.W <= 0 || Size.H <= 0; }
 
@@ -284,7 +284,9 @@ template <typename TileCord, typename Derived> struct TileDirections {
         continue;
       }
       auto &Tile = Map.getTile(Pos);
-      Func(Pos, Tile);
+      if (!Func(Pos, Tile)) {
+        return;
+      }
     }
   }
 };
@@ -297,15 +299,13 @@ template <typename TileCord, typename Derived> struct TileDirections {
 template <typename TileCord>
 struct FourTileDirections
     : public TileDirections<TileCord, FourTileDirections<TileCord>> {
-  static const auto &get() {
-    static const std::array Directions = {
-        ymir::Point2d<TileCord>{-1, 0},
-        ymir::Point2d<TileCord>{1, 0},
-        ymir::Point2d<TileCord>{0, -1},
-        ymir::Point2d<TileCord>{0, 1},
-    };
-    return Directions;
-  }
+  static constexpr std::array Directions = {
+      ymir::Point2d<TileCord>{-1, 0},
+      ymir::Point2d<TileCord>{1, 0},
+      ymir::Point2d<TileCord>{0, -1},
+      ymir::Point2d<TileCord>{0, 1},
+  };
+  static constexpr auto &get() { return Directions; }
 };
 
 ///
@@ -316,15 +316,13 @@ struct FourTileDirections
 template <typename TileCord>
 struct EightTileDirections
     : public TileDirections<TileCord, EightTileDirections<TileCord>> {
-  static const auto &get() {
-    static const std::array Directions = {
-        ymir::Point2d<TileCord>{-1, 0}, ymir::Point2d<TileCord>{1, 0},
-        ymir::Point2d<TileCord>{0, -1}, ymir::Point2d<TileCord>{0, 1},
-        ymir::Point2d<TileCord>{-1, 1}, ymir::Point2d<TileCord>{-1, -1},
-        ymir::Point2d<TileCord>{1, 1},  ymir::Point2d<TileCord>{1, -1},
-    };
-    return Directions;
-  }
+  static constexpr std::array Directions = {
+      ymir::Point2d<TileCord>{-1, 0}, ymir::Point2d<TileCord>{1, 0},
+      ymir::Point2d<TileCord>{0, -1}, ymir::Point2d<TileCord>{0, 1},
+      ymir::Point2d<TileCord>{-1, 1}, ymir::Point2d<TileCord>{-1, -1},
+      ymir::Point2d<TileCord>{1, 1},  ymir::Point2d<TileCord>{1, -1},
+  };
+  static constexpr auto &get() { return Directions; }
 };
 
 } // namespace ymir

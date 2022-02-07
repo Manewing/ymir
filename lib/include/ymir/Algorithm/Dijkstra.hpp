@@ -42,10 +42,11 @@ ymir::Map<int, TileCord> getDijkstraMap(
     int NextDist = Dist + 1;
     auto QueuePos = [&Queue, &IsBlocked, NextDist](auto Pos, auto &Tile) {
       if (IsBlocked(Pos) || Tile != -1) {
-        return;
+        return true;
       }
       Tile = NextDist;
       Queue.push({NextDist, Pos.X, Pos.Y});
+      return true;
     };
     DirectionProvider::forEach(DM, Pos, QueuePos);
   }
@@ -82,6 +83,7 @@ std::vector<ymir::Point2d<TileCord>> getPathFromDijkstraMap(
         Dist = Tile;
         NextPos = Pos;
       }
+      return true;
     };
     DirectionProvider::forEach(DM, Pos, FindMinDist);
     if (NextPos == Pos) {
