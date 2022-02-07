@@ -32,9 +32,14 @@ void BuilderPass::init(BuilderContext &Ctx) {
 
 void BuilderPass::run(BuilderContext &Ctx) {
   for (auto const &BuilderName : Sequence) {
-    Builders.at(BuilderName)->run(*this, Ctx);
+    try {
+      Builders.at(BuilderName)->run(*this, Ctx);
+    } catch (const std::exception &E) {
+      throw std::runtime_error("While running " + BuilderName + ": " +
+                               E.what());
+    }
   }
-}
+} // namespace ymir::Dungeon
 
 BuilderBase &BuilderPass::getInternal(const std::string &BuilderName) {
 

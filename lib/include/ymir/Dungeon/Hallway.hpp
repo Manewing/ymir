@@ -11,6 +11,8 @@ template <typename T, typename U> struct Hallway {
   Door<U> *SrcDoor = nullptr;
   Room<T, U> *Dst = nullptr;
   Door<U> *DstDoor = nullptr;
+
+  Rect2d<U> rect() const { return Rect; }
 };
 
 } // namespace ymir::Dungeon

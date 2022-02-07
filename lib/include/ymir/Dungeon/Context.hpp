@@ -20,6 +20,7 @@ public:
 public:
   Context(LayeredMap<TileType, TileCord> &Map) : Map(Map) {}
 
+  bool isInRoom(Point2d<TileCord> Pos) const;
   bool isInHallway(Point2d<TileCord> Pos) const;
 
   bool haveRoomsHallway(const Dungeon::Room<TileType, TileCord> &A,
@@ -43,11 +44,21 @@ public:
   std::vector<Dungeon::Hallway<TileType, TileCord>> Hallways;
 };
 
+// Returns true if position is inside room and the position is empty
+template <typename T, typename U>
+bool Context<T, U>::isInRoom(Point2d<U> Pos) const {
+  return std::any_of(Rooms.begin(), Rooms.end(),
+                     [&Pos](const Dungeon::Room<T, U> &Room) {
+                       return Room.rect().contains(Pos) &&
+                              Room.M.getTile(Pos - Room.Pos) == T();
+                     });
+}
+
 template <typename T, typename U>
 bool Context<T, U>::isInHallway(Point2d<U> Pos) const {
   return std::any_of(Hallways.begin(), Hallways.end(),
                      [&Pos](const Dungeon::Hallway<T, U> &Hallway) {
-                       return Hallway.Rect.contains(Pos);
+                       return Hallway.rect().contains(Pos);
                      });
 }
 

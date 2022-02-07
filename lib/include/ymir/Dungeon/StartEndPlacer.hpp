@@ -55,7 +55,7 @@ Point2d<U> StartEndPlacer<T, U, RE>::findFreeTileForStart() {
 
   std::vector<ymir::Point2d<U>> FreeTiles;
   Map.forEach([&Ctx, &FreeTiles](auto Pos, auto &Tile) {
-    if (Tile != T() || Ctx.isInHallway(Pos)) {
+    if (Tile != T() || !Ctx.isInRoom(Pos)) {
       return;
     }
     FreeTiles.push_back(Pos);
@@ -83,7 +83,7 @@ StartEndPlacer<T, U, RE>::findFreeTilesForEnd(Point2d<U> StartPos) {
   std::vector<ymir::Point2d<U>> PossibleEnds;
   Map.forEach([&DM, MinEndDistance, &PossibleEnds, &Ctx](auto Pos, auto &Tile) {
     if (Tile != T() || DM.getTile(Pos) < MinEndDistance ||
-        Ctx.isInHallway(Pos)) {
+        !Ctx.isInRoom(Pos)) {
       return;
     }
     PossibleEnds.push_back(Pos);
