@@ -26,6 +26,8 @@ public:
   friend bool operator==(const Map<TX, UX> &Lhs, const Map<TX, UX> &Rhs);
 
 public:
+  Map() = default;
+
   // TODO allow passing tile for default value when resizing
   explicit Map(Size2d<TileCord> Size) : Size(Size) {
     Data.resize(Size.W * Size.H);
@@ -155,6 +157,16 @@ public:
 
   void replaceTile(TileType Target, TileType Replacement) {
     std::replace(Data.begin(), Data.end(), Target, Replacement);
+  }
+
+  std::vector<ymir::Point2d<TileCord>> findTilesNot(TileType Target) const {
+    std::vector<ymir::Point2d<TileCord>> Result;
+    forEach([&Target, &Result](auto Pos, const auto &Tile) {
+      if (Target != Tile) {
+        Result.push_back(Pos);
+      }
+    });
+    return Result;
   }
 
   std::vector<ymir::Point2d<TileCord>> findTiles(TileType Target) const {

@@ -12,6 +12,8 @@ public:
   using MapType = Map<TileType, TileCord>;
 
 public:
+  LayeredMap() = default;
+
   LayeredMap(std::size_t NumLayers, Size2d<TileCord> Size)
       : Size(Size), Layers(), Names() {
     Layers.resize(NumLayers, MapType(Size));
