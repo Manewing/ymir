@@ -22,6 +22,9 @@ void findAndMarkPath(ymir::Map<char, int> &Map, unsigned MaxLength = -1) {
   auto Path = ymir::Algorithm::getPathFromDijkstraMap(
       DM, End, DirectionProvider(), MaxLength);
   Map.setTiles(Path, 'x');
+  if (!Path.empty()) {
+    Map.setTile(End, 'x');
+  }
 }
 
 TEST(AlgorithmDijkstraTest, FindPathFourTileTunnel) {

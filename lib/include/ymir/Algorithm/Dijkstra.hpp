@@ -5,6 +5,7 @@
 #include <tuple>
 #include <ymir/Map.hpp>
 #include <ymir/Types.hpp>
+#include <limits>
 
 namespace ymir::Algorithm {
 
@@ -63,19 +64,17 @@ getDijkstraMap(ymir::Size2d<TileCord> MapSize, ymir::Point2d<TileCord> Start,
       MapSize, std::vector{Start}, IsBlocked, DirProv);
 }
 
+// Returns a path from a dijkstra map, starting at End finds path towards Start
+// for which dijkstra map was created.
 template <typename TileCord,
           typename DirectionProvider = FourTileDirections<TileCord>>
 std::vector<ymir::Point2d<TileCord>> getPathFromDijkstraMap(
     const ymir::Map<int, TileCord> &DM, ymir::Point2d<TileCord> End,
     DirectionProvider DirProv = DirectionProvider(), unsigned MaxLength = -1) {
-  int Dist = DM.getTile(End);
-  if (Dist == -1) {
-    return {};
-  }
-
-  std::vector<ymir::Point2d<TileCord>> Path = {End};
+  int Dist = std::numeric_limits<int>::max();
+  std::vector<ymir::Point2d<TileCord>> Path = {};
   ymir::Point2d<TileCord> Pos = End;
-  while (Dist != 0 && (Path.size() - 1) < MaxLength) {
+  while (Dist != 0 && Path.size() < MaxLength) {
 
     ymir::Point2d<TileCord> NextPos = Pos;
     auto FindMinDist = [&NextPos, &Dist](auto Pos, auto &Tile) {
