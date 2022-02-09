@@ -67,7 +67,7 @@ template <typename TileCord,
           typename DirectionProvider = FourTileDirections<TileCord>>
 std::vector<ymir::Point2d<TileCord>> getPathFromDijkstraMap(
     const ymir::Map<int, TileCord> &DM, ymir::Point2d<TileCord> End,
-    [[maybe_unused]] DirectionProvider DirProv = DirectionProvider()) {
+    DirectionProvider DirProv = DirectionProvider(), unsigned MaxLength = -1) {
   int Dist = DM.getTile(End);
   if (Dist == -1) {
     return {};
@@ -75,7 +75,7 @@ std::vector<ymir::Point2d<TileCord>> getPathFromDijkstraMap(
 
   std::vector<ymir::Point2d<TileCord>> Path = {End};
   ymir::Point2d<TileCord> Pos = End;
-  while (Dist != 0) {
+  while (Dist != 0 && (Path.size() - 1) < MaxLength) {
 
     ymir::Point2d<TileCord> NextPos = Pos;
     auto FindMinDist = [&NextPos, &Dist](auto Pos, auto &Tile) {
@@ -85,7 +85,7 @@ std::vector<ymir::Point2d<TileCord>> getPathFromDijkstraMap(
       }
       return true;
     };
-    DirectionProvider::forEach(DM, Pos, FindMinDist);
+    DirProv.forEach(DM, Pos, FindMinDist);
     if (NextPos == Pos) {
       return {};
     }
