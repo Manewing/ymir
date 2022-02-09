@@ -2,15 +2,14 @@
 #define YMIR_ALGORITHM_LINE_OF_SIGHT_HPP
 
 #include <cmath>
-#include <ymir/Map.hpp>
 #include <iostream>
+#include <ymir/Map.hpp>
 
 namespace ymir::Algorithm {
 
 template <typename SeePosPred, typename TileCord>
-void traverseLOS(SeePosPred SeePos, ymir::Point2d<TileCord> Start,
-                 unsigned int Range, double RadStep = 0.03,
-                 double StepSize = 0.5) {
+void traverseLOS(SeePosPred SeePos, Point2d<TileCord> Start, unsigned Range,
+                 double StepSize = 0.5, double RadStep = 0.03) {
   // Adapt step size based on range
   StepSize = StepSize / Range;
 
@@ -32,6 +31,24 @@ void traverseLOS(SeePosPred SeePos, ymir::Point2d<TileCord> Start,
       RelativeDist += StepSize;
     }
   }
+}
+template <typename IsLOSBlockedPred, typename TileCord>
+bool isInLOS(IsLOSBlockedPred IsLOSBlocked, Point2d<TileCord> Start,
+             Point2d<TileCord> Target, unsigned Range, double StepSize = 0.5) {
+  try {
+    // FIXME do not check entire line of sight,, i.e. 360°, instead
+    // only for a specific cone in direction of the target, we need to
+    // do this in order to align LOS to target with the entire LOS
+    traverseLOS([IsLOSBlocked, Target](auto Pos) {
+      if (Target == Pos) {
+        throw Target;
+      }
+      return !IsLOSBlocked(Pos);
+    }, Start, Range, StepSize);
+  } catch(Point2d<TileCord>) {
+    return true;
+  }
+  return false;
 }
 
 } // namespace ymir::Algorithm

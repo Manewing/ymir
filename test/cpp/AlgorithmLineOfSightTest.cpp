@@ -31,7 +31,14 @@ void markLineOfSight(ymir::Map<char, int> &Map, ymir::Point2d<int> Pos,
       Pos, Range);
 }
 
-TEST(AlgorithmLineOfSight, SimpleBox) {
+struct IsLOSBlocked {
+  ymir::Map<char, int> &Map;
+  bool operator()(ymir::Point2d<int> Pos) const {
+    return Map.getTile(Pos) == '%' || Map.getTile(Pos) == '#';
+  }
+};
+
+TEST(AlgorithmLineOfSight, TraverseLOSSimpleBox) {
   auto Map = loadMap({
       "%%%%%%%%%%%%%%",
       "%%%%%%%%%%%%%%",
@@ -57,7 +64,33 @@ TEST(AlgorithmLineOfSight, SimpleBox) {
   EXPECT_EQ(Map, MapRef) << "Map:\n" << Map << "\nMap Ref:\n" << MapRef;
 }
 
-TEST(AlgorithmLineOfSight, NextToWall) {
+TEST(AlgorithmLineOfSight, TraverseLOSSimpleBoxObstacle) {
+  auto Map = loadMap({
+      "%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%",
+      "%%          %%",
+      "%%  @ %     %%",
+      "%%          %%",
+      "%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%",
+  });
+  auto Pos = getMarkerPos(Map, '@', ' ');
+  markLineOfSight(Map, *Pos, 100);
+
+  Map.getTile(*Pos) = '@';
+  auto MapRef = loadMap({
+      "%%%%%%%%%%%%%%",
+      "%##########%%%",
+      "%#........  %%",
+      "%#..@.#     %%",
+      "%#........  %%",
+      "%##########%%%",
+      "%%%%%%%%%%%%%%",
+  });
+  EXPECT_EQ(Map, MapRef) << "Map:\n" << Map << "\nMap Ref:\n" << MapRef;
+}
+
+TEST(AlgorithmLineOfSight, TraverseLOSNextToWall) {
   auto Map = loadMap({
       "%%%%%%%%%%%%%%",
       "%%%%%%%%%%%%%%",
@@ -83,7 +116,7 @@ TEST(AlgorithmLineOfSight, NextToWall) {
   EXPECT_EQ(Map, MapRef) << "Map:\n" << Map << "\nMap Ref:\n" << MapRef;
 }
 
-TEST(AlgorithmLineOfSight, BoxWithBarriers) {
+TEST(AlgorithmLineOfSight, TraverseLOSBoxWithBarriers) {
   auto Map = loadMap({
       "%%%%%%%%%%%%%%%%%%%%%%%%%",
       "%%%%%%%%%%%%%%%%%%%%%%%%%",
@@ -107,6 +140,154 @@ TEST(AlgorithmLineOfSight, BoxWithBarriers) {
       "%%%%%%%%%%%%%%%%%%%%%%%%%",
   });
   EXPECT_EQ(Map, MapRef) << "Map:\n" << Map << "\nMap Ref:\n" << MapRef;
+}
+
+
+TEST(AlgorithmLineOfSight, TraverseLOSBoxWithBarriersNextToBarrier) {
+  auto Map = loadMap({
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%        %@           %%",
+      "%%                     %%",
+      "%%             %       %%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+  });
+  auto Pos = getMarkerPos(Map, '@', ' ');
+  markLineOfSight(Map, *Pos, 10);
+
+  Map.getTile(*Pos) = '@';
+  auto MapRef = loadMap({
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%%%%%%%%%#######%#%%%%%%",
+      "%%        #@.......... %%",
+      "%%       ............  %%",
+      "%%     ........#.....  %%",
+      "%%%%%%%#########%%%##%%%%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+  });
+  EXPECT_EQ(Map, MapRef) << "Map:\n" << Map << "\nMap Ref:\n" << MapRef;
+}
+
+TEST(AlgorithmLineOfSight, TraverseLOSBoxWithBarriersDistant) {
+  auto Map = loadMap({
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%        %            %%",
+      "%%@                    %%",
+      "%%             %       %%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+  });
+  auto Pos = getMarkerPos(Map, '@', ' ');
+  markLineOfSight(Map, *Pos, 10);
+
+  Map.getTile(*Pos) = '@';
+  auto MapRef = loadMap({
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%##########%%%%%%%%%%%%%%",
+      "%#........#            %%",
+      "%#@..........          %%",
+      "%#..........   %       %%",
+      "%##########%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+  });
+  EXPECT_EQ(Map, MapRef) << "Map:\n" << Map << "\nMap Ref:\n" << MapRef;
+}
+
+TEST(AlgorithmLineOfSight, IsInLOSSimpleBox) {
+  auto Map = loadMap({
+      "%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%",
+      "%%          %%",
+      "%%    @     %%",
+      "%%     X    %%",
+      "%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%",
+  });
+  auto Start = getMarkerPos(Map, '@');
+  auto Target = getMarkerPos(Map, 'X');
+  ASSERT_TRUE(Start && Target);
+  EXPECT_TRUE(Algorithm::isInLOS(IsLOSBlocked{Map}, *Start, *Target, 10))
+      << Map;
+  EXPECT_TRUE(Algorithm::isInLOS(IsLOSBlocked{Map}, *Target, *Start, 10))
+      << Map;
+}
+
+TEST(AlgorithmLineOfSight, IsInLOSSimpleBoxObstacle) {
+  auto Map = loadMap({
+      "%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%",
+      "%%          %%",
+      "%%  @ %     %%",
+      "%%     X    %%",
+      "%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%",
+  });
+  auto Start = getMarkerPos(Map, '@');
+  auto Target = getMarkerPos(Map, 'X');
+  ASSERT_TRUE(Start && Target);
+  EXPECT_TRUE(Algorithm::isInLOS(IsLOSBlocked{Map}, *Start, *Target, 10))
+      << Map;
+  EXPECT_TRUE(Algorithm::isInLOS(IsLOSBlocked{Map}, *Target, *Start, 10))
+      << Map;
+}
+
+TEST(AlgorithmLineOfSight, IsInLOSSimpleBoxObstacleOutOfLOS) {
+  auto Map = loadMap({
+      "%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%",
+      "%%          %%",
+      "%%  @ % X   %%",
+      "%%          %%",
+      "%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%",
+  });
+  auto Start = getMarkerPos(Map, '@');
+  auto Target = getMarkerPos(Map, 'X');
+  ASSERT_TRUE(Start && Target);
+  EXPECT_FALSE(Algorithm::isInLOS(IsLOSBlocked{Map}, *Start, *Target, 10))
+      << Map;
+  EXPECT_FALSE(Algorithm::isInLOS(IsLOSBlocked{Map}, *Target, *Start, 10))
+      << Map;
+}
+
+TEST(AlgorithmLineOfSight, IsInLOSBoxWithBarries) {
+  auto Map = loadMap({
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%        %X           %%",
+      "%%    @                %%",
+      "%%             %       %%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+  });
+  auto Start = getMarkerPos(Map, '@');
+  auto Target = getMarkerPos(Map, 'X');
+  ASSERT_TRUE(Start && Target);
+  EXPECT_TRUE(Algorithm::isInLOS(IsLOSBlocked{Map}, *Start, *Target, 10))
+      << Map;
+  EXPECT_FALSE(Algorithm::isInLOS(IsLOSBlocked{Map}, *Target, *Start, 10))
+      << Map;
+}
+
+TEST(AlgorithmLineOfSight, IsInLOSBoxWithBarriesOutOfLOSDistant) {
+  auto Map = loadMap({
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%        %X           %%",
+      "%%@                    %%",
+      "%%             %       %%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+      "%%%%%%%%%%%%%%%%%%%%%%%%%",
+  });
+  auto Start = getMarkerPos(Map, '@');
+  auto Target = getMarkerPos(Map, 'X');
+  ASSERT_TRUE(Start && Target);
+  EXPECT_FALSE(Algorithm::isInLOS(IsLOSBlocked{Map}, *Start, *Target, 10))
+      << Map;
+  EXPECT_FALSE(Algorithm::isInLOS(IsLOSBlocked{Map}, *Target, *Start, 10))
+      << Map;
 }
 
 } // namespace
