@@ -99,6 +99,28 @@ ColoredUniChar &ColoredUniChar::operator=(const TermColor &Color) {
   return *this;
 }
 
+char getHeatMapChar(int Value) {
+
+  if (Value == 0) {
+    return '@';
+  }
+  if (Value < 10) {
+    return '0' + Value;
+  }
+  if (Value - 10 < 26) {
+    return 'A' + Value - 10;
+  }
+  if (Value - 36 < 26) {
+    return 'a' + Value - 36;
+  }
+  return '.';
+}
+
+ColoredUniChar ColoredUniChar::getHeatMapColorChar(int Max, int Value) {
+  return {getHeatMapChar(Value),
+          ymir::RgbColor::getHeatMapColor(0, Max, Value)};
+}
+
 std::ostream &operator<<(std::ostream &Out, const ColoredUniChar &Char) {
 
   Out << Char.Color << Char.Char;

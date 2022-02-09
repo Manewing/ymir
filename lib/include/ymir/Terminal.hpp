@@ -66,6 +66,8 @@ inline bool operator!=(const UniChar &Lhs, const UniChar &Rhs) noexcept {
 std::ostream &operator<<(std::ostream &Out, const UniChar &Char);
 
 struct ColoredUniChar {
+  static ymir::ColoredUniChar getHeatMapColorChar(int Max, int Value);
+
   UniChar Char;
   TermColor Color = NoColor{};
 
