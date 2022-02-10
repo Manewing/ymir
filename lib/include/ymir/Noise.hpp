@@ -63,10 +63,11 @@ template <typename TileType, typename RndGenType, typename U>
 void fillRectRandom(Map<TileType, U> &M, TileType Tile, float Chance,
                     RndGenType &RndGen,
                     std::optional<Rect2d<typename nd<U>::type>> Rect = {}) {
-  std::uniform_real_distribution<float> Uni(0, 1);
+  std::uniform_int_distribution<int> Uni(0, 1000000);
+  int IntChance = Chance * 1000000;
   M.forEachElem(
-      [&Uni, &RndGen, Chance, Tile](TileType &MapTile) {
-        if (Uni(RndGen) < Chance) {
+      [&Uni, &RndGen, IntChance, Tile](TileType &MapTile) {
+        if (Uni(RndGen) < IntChance) {
           MapTile = Tile;
         }
       },
@@ -78,11 +79,12 @@ void fillRectSeedRandom(Map<TileType, U> &M, TileType Tile, float Chance,
                         RndGenType &RndGen,
                         std::optional<Rect2d<typename nd<U>::type>> Rect = {},
                         Point2d<U> Offset = {0, 0}) {
-  std::uniform_real_distribution<float> Uni(0, 1);
+  std::uniform_int_distribution<int> Uni(0, 1000000);
+  int IntChance = Chance * 1000000;
   M.forEach(
-      [&Uni, &RndGen, Chance, Tile, Offset](Point2d<U> P, TileType &MapTile) {
+      [&Uni, &RndGen, IntChance, Tile, Offset](Point2d<U> P, TileType &MapTile) {
         RndGen.seed((P.X + Offset.X) | (P.Y + Offset.Y));
-        if (Uni(RndGen) < Chance) {
+        if (Uni(RndGen) < IntChance) {
           MapTile = Tile;
         }
       },
