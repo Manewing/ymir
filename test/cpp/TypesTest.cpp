@@ -150,28 +150,58 @@ TEST(Rect2dTest, Methods) {
     EXPECT_FALSE(E.contains(Point2d<float>{-5, 0}));
     EXPECT_FALSE(E.contains(Point2d<float>{-2, 1}));
   }
+}
 
-  // Test contains rect
-  {
-    Rect2d<int> A{{0, 0}, {10, 10}};
+TEST(Rect2dTest, ContainsRect) {
+  // Int
+  Rect2d<int> A{{0, 0}, {10, 10}};
 
-    EXPECT_TRUE(A.contains(A)) << "Rect contains itself";
+  EXPECT_TRUE(A.contains(A)) << "Rect contains itself";
 
-    EXPECT_TRUE(A.contains(Rect2d<int>{{5, 5}, {5, 5}}))
-        << "Rect contains rect that align with border";
+  EXPECT_TRUE(A.contains(Rect2d<int>{{5, 5}, {5, 5}}))
+      << "Rect contains rect that align with border";
 
-    EXPECT_TRUE(A.contains(Rect2d<int>{{5, 5}, {3, 3}}));
-    EXPECT_FALSE(A.contains(Rect2d<int>{{5, 5}, {5, 6}}));
+  EXPECT_TRUE(A.contains(Rect2d<int>{{5, 5}, {3, 3}}));
+  EXPECT_FALSE(A.contains(Rect2d<int>{{5, 5}, {5, 6}}));
 
-    Rect2d<float> B{{0, 0}, {10, 10}};
-    EXPECT_TRUE(B.contains(B)) << "Rect contains itself";
+  // Float
+  Rect2d<float> B{{0, 0}, {10, 10}};
+  EXPECT_TRUE(B.contains(B)) << "Rect contains itself";
 
-    EXPECT_TRUE(B.contains(Rect2d<float>{{5, 5}, {5, 5}}))
-        << "Rect contains rect that align with border";
+  EXPECT_TRUE(B.contains(Rect2d<float>{{5, 5}, {5, 5}}))
+      << "Rect contains rect that align with border";
 
-    EXPECT_TRUE(B.contains({{5, 4.7}, {3.3, 3.3}}));
-    EXPECT_FALSE(B.contains(Rect2d<float>{{5, 5}, {5.1, 5.0}}));
-  }
+  EXPECT_TRUE(B.contains({{5, 4.7}, {3.3, 3.3}}));
+  EXPECT_FALSE(B.contains(Rect2d<float>{{5, 5}, {5.1, 5.0}}));
+}
+
+TEST(Rect2dTest, OverlapsRect) {
+  // Int
+  Rect2d<int> A{{0, 0}, {10, 10}};
+
+  EXPECT_TRUE(A.overlaps(A)) << "Rect must overlap with itself";
+
+  EXPECT_TRUE(A.overlaps(Rect2d<int>{{5, 5}, {5, 5}}))
+      << "Rect overlaps rect that align with border";
+  EXPECT_FALSE(A.overlaps(Rect2d<int>{{-5, -5}, {5, 5}}))
+      << "Rect does not overlap rect that ends at border";
+  EXPECT_FALSE(A.overlaps(Rect2d<int>{{-6, -6}, {5, 5}}));
+
+  EXPECT_TRUE(A.overlaps(Rect2d<int>{{5, 5}, {3, 3}}));
+  EXPECT_TRUE(A.overlaps(Rect2d<int>{{5, 5}, {5, 6}}));
+  EXPECT_FALSE(A.overlaps(Rect2d<int>{{0, 15}, {5, 6}}));
+
+  // Float
+  Rect2d<float> B{{0, 0}, {10, 10}};
+  EXPECT_TRUE(B.overlaps(B)) << "Rect overlaps itself";
+
+  EXPECT_TRUE(B.overlaps(Rect2d<float>{{5, 5}, {5, 5}}))
+      << "Rect overlaps rect that align with border";
+
+  EXPECT_TRUE(B.overlaps({{5, -5}, {10, 10}}));
+  EXPECT_TRUE(B.overlaps({{5, 4.7}, {3.3, 3.3}}));
+  EXPECT_TRUE(B.overlaps(Rect2d<float>{{5, 5}, {5.1, 5.0}}));
+  EXPECT_FALSE(B.overlaps(Rect2d<float>{{11, 11}, {5.1, 5.0}}));
 }
 
 TEST(Rect2dTest, Operators) {
@@ -180,11 +210,13 @@ TEST(Rect2dTest, Operators) {
     Rect2d<int> A{{4, 4}, {3, 3}};
     Rect2d<int> B{{-1, -1}, {50, 50}};
     Rect2d<int> C{{-2, 3}, {6, 4}};
+    Rect2d<int> D{{7, 7}, {3, 3}};
 
     EXPECT_EQ(A & A, A) << "Rect intersection with iteself should yield itself";
     EXPECT_EQ(A & B, A) << "Should be completely contained";
     EXPECT_EQ(A & C, Rect2d<int>({0, 0}, {0, 0}));
     EXPECT_EQ(B & C, Rect2d<int>({-1, 3}, {5, 4}));
+    EXPECT_EQ(A & D, Rect2d<int>{}) << "On border should be empty";
 
     Rect2d<float> E{{4, 4}, {3, 3}};
     Rect2d<float> F{{-1.2, -1.3}, {50, 50}};
@@ -194,6 +226,20 @@ TEST(Rect2dTest, Operators) {
     EXPECT_EQ(E & F, E) << "Should be completely contained";
     EXPECT_EQ(E & G, Rect2d<float>({0, 0}, {0, 0}));
     EXPECT_FALSE((F & G).empty());
+  }
+}
+
+TEST(Rect2dTest, OverlapIntersectionConsistency) {
+  Rect2d<int> Base{{0, 0}, {50, 50}};
+  for (int X = -25; X < 75; X++) {
+    for (int Y = -25; Y < 75; Y++) {
+      Rect2d<int> Other{{X, Y}, {10, 10}};
+      auto Intersection = Base & Other;
+      bool Overlap = Base.overlaps(Other);
+      EXPECT_EQ(Intersection.empty(), !Overlap)
+          << "Inconsistent: " << Base << " & " << Other << " = " << Intersection
+          << ", overlap? " << (Overlap ? "yes" : "no");
+    }
   }
 }
 

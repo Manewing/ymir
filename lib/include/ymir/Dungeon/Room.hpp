@@ -57,7 +57,7 @@ template <typename T, typename U> struct Room {
     return Dirs;
   }
 
-  Rect2d<U> rect() const { return {Pos, M.getSize()}; }
+  inline Rect2d<U> rect() const { return {Pos, M.getSize()}; }
 };
 
 namespace internal {

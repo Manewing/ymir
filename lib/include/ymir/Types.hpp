@@ -140,17 +140,27 @@ template <typename T> struct Rect2d {
 
   bool empty() const { return Size.W <= 0 || Size.H <= 0; }
 
+  // Returns true if the given point is contained in the rect
   bool contains(const Point2d<T> &P) const {
     const auto Pos2 = Pos + Size;
     return Pos.X <= P.X && P.X < Pos2.X && Pos.Y <= P.Y && P.Y < Pos2.Y;
   }
 
+  // Returns true if this rect completely contains the other rect
   bool contains(const Rect2d<T> &Other) const {
     const auto Pos2 = Pos + Size;
     const auto OtherPos2 = Other.Pos + Other.Size;
     return contains(Other.Pos) &&
            (Pos.X <= OtherPos2.X && OtherPos2.X <= Pos2.X &&
             Pos.Y <= OtherPos2.Y && OtherPos2.Y <= Pos2.Y);
+  }
+
+  // Returns true if the other rect overlaps with this rect
+  bool overlaps(const Rect2d<T> &Other) const {
+    const auto ThisPos = Pos + Size;
+    const auto OtherPos = Other.Pos + Other.Size;
+    return (Pos.X < OtherPos.X && ThisPos.X > Other.Pos.X &&
+            Pos.Y < OtherPos.Y && ThisPos.Y > Other.Pos.Y);
   }
 
   static Rect2d<T> get(Point2d<T> Pos1, Point2d<T> Pos2) {

@@ -83,14 +83,12 @@ bool Context<T, U>::doesRoomFit(const Dungeon::Room<T, U> &Room) const {
   bool RoomOverlapsRoom =
       std::any_of(Rooms.begin(), Rooms.end(),
                   [&Room](const Dungeon::Room<T, U> &OtherRoom) {
-                    auto Overlap = OtherRoom.rect() & Room.rect();
-                    return !Overlap.empty();
+                    return Room.rect().overlaps(OtherRoom.rect());
                   });
   bool RoopmOverlapsHallway =
       std::any_of(Hallways.begin(), Hallways.end(),
                   [&Room](const Dungeon::Hallway<T, U> &Hallway) {
-                    auto Overlap = Hallway.Rect & Room.rect();
-                    return !Overlap.empty();
+                    return Room.rect().overlaps(Hallway.rect());
                   });
 
   return !RoomOverlapsRoom && !RoopmOverlapsHallway;
