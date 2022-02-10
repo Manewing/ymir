@@ -137,21 +137,29 @@ bool RoomPlacer<T, U, RE>::tryToInsertRoom(Context<T, U> &Ctx,
                                            Dungeon::Door<U> &RoomDoor,
                                            Dungeon::Room<T, U> &TargetRoom,
                                            Dungeon::Door<U> &Door) {
-
   // get position for alignment
   ymir::Point2d<U> AlignmentPos = TargetRoom.Pos + Door.Pos + Door.Dir;
   for (; Ctx.Map.contains(AlignmentPos); AlignmentPos += Door.Dir) {
 
     // Calculate the new room position for the next alignment
     NewRoom.Pos = AlignmentPos - RoomDoor.Pos;
+    if (!Ctx.Map.rect().contains(NewRoom.rect())) {
+      break;
+    }
 
     // Create hallway between target and new room
     auto TargetDoorPos = TargetRoom.Pos + Door.Pos;
     auto NewDoorPos = NewRoom.Pos + RoomDoor.Pos;
     auto HallwayRect = Context<T, U>::getHallwayRect(TargetDoorPos, NewDoorPos);
 
-    // check if room overlaps or hallway overlaps
-    if (!Ctx.doesRoomAndHallwayFit(NewRoom, HallwayRect, TargetRoom)) {
+    // If the hallway does not fit there is no point in further checking we can
+    // abort the search here, it will never fit
+    if (!Ctx.doesHallwayFit(HallwayRect, &TargetRoom, &NewRoom)) {
+      break;
+    }
+
+    // Check if room overlaps, if so we may make it fit by moving it further
+    if (!Ctx.doesRoomFit(NewRoom)) {
       continue;
     }
 
