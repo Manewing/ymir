@@ -75,20 +75,21 @@ bool Context<T, U>::haveRoomsHallway(const Dungeon::Room<T, U> &A,
 template <typename T, typename U>
 bool Context<T, U>::doesRoomFit(const Dungeon::Room<T, U> &Room) const {
   // If it's not contained in the map, it does not fit
-  if (!Map.rect().contains(Room.rect())) {
+  const auto RoomRect = Room.rect();
+  if (!Map.rect().contains(RoomRect)) {
     return false;
   }
 
   // Check that the room neiter overlaps with another room nor with a hallway
   bool RoomOverlapsRoom =
       std::any_of(Rooms.begin(), Rooms.end(),
-                  [&Room](const Dungeon::Room<T, U> &OtherRoom) {
-                    return Room.rect().overlaps(OtherRoom.rect());
+                  [RoomRect](const Dungeon::Room<T, U> &OtherRoom) {
+                    return RoomRect.overlaps(OtherRoom.rect());
                   });
   bool RoopmOverlapsHallway =
       std::any_of(Hallways.begin(), Hallways.end(),
-                  [&Room](const Dungeon::Hallway<T, U> &Hallway) {
-                    return Room.rect().overlaps(Hallway.rect());
+                  [RoomRect](const Dungeon::Hallway<T, U> &Hallway) {
+                    return RoomRect.overlaps(Hallway.rect());
                   });
 
   return !RoomOverlapsRoom && !RoopmOverlapsHallway;
@@ -102,15 +103,16 @@ bool Context<T, U>::doesHallwayFit(
   if (!Map.rect().contains(HallwayRect)) {
     return false;
   }
+
   bool HallwayOverlapsRooms = std::any_of(
       Rooms.begin(), Rooms.end(),
       [&HallwayRect, TargetRoom, SourceRoom](const Dungeon::Room<T, U> &Room) {
         if (&Room == TargetRoom || &Room == SourceRoom) {
           return false;
         }
-        auto HallwayOverlap = Room.rect() & HallwayRect;
-        return !HallwayOverlap.empty();
+        return Room.rect().overlaps(HallwayRect);
       });
+
   return !HallwayOverlapsRooms;
 }
 
