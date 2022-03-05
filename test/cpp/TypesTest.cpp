@@ -26,13 +26,25 @@ TEST(Size2dTest, Operators) {
 }
 
 TEST(Point2dTest, Comparison) {
-  Point2d<int> A{3, 3}, B{4, 4};
+  Point2d<int> A{4, 3}, B{4, 4};
   EXPECT_EQ(A, A);
   EXPECT_NE(A, B);
+  EXPECT_TRUE(A < B);
+  EXPECT_TRUE(A <= B);
+  EXPECT_FALSE(A > B);
+  EXPECT_FALSE(A >= B);
+  EXPECT_FALSE(A > A);
+  EXPECT_FALSE(A < A);
+  EXPECT_TRUE(A >= A);
+  EXPECT_TRUE(A <= A);
 
   Point2d<float> C{-1.5, 0}, D{0.2, 0};
   EXPECT_EQ(C, C);
   EXPECT_NE(C, D);
+  EXPECT_TRUE(C < D);
+  EXPECT_TRUE(C <= D);
+  EXPECT_FALSE(C > D);
+  EXPECT_FALSE(C >= D);
 }
 
 TEST(Point2dTest, Methods) {

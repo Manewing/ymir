@@ -83,6 +83,26 @@ inline bool operator!=(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
 }
 
 template <typename T>
+inline bool operator<(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
+  return std::tie(Lhs.X, Lhs.Y) < std::tie(Rhs.X, Rhs.Y);
+}
+
+template <typename T>
+inline bool operator<=(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
+  return std::tie(Lhs.X, Lhs.Y) <= std::tie(Rhs.X, Rhs.Y);
+}
+
+template <typename T>
+inline bool operator>(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
+  return std::tie(Lhs.X, Lhs.Y) > std::tie(Rhs.X, Rhs.Y);
+}
+
+template <typename T>
+inline bool operator>=(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
+  return std::tie(Lhs.X, Lhs.Y) >= std::tie(Rhs.X, Rhs.Y);
+}
+
+template <typename T>
 inline Point2d<T> operator+(const Point2d<T> &Lhs,
                             const Point2d<T> &Rhs) noexcept {
   return {Lhs.X + Rhs.X, Lhs.Y + Rhs.Y};

@@ -21,6 +21,8 @@ public:
 
   using iterator = typename DataType::iterator;
   using const_iterator = typename DataType::const_iterator;
+  using reference = typename DataType::reference;
+  using const_reference = typename DataType::const_reference;
 
   template <typename TX, typename UX>
   friend bool operator==(const Map<TX, UX> &Lhs, const Map<TX, UX> &Rhs);
@@ -46,9 +48,9 @@ public:
     }
   }
 
-  inline TileType &getTile(TilePos P) { return Data.at(P.X + P.Y * Size.W); }
+  inline reference getTile(TilePos P) { return Data.at(P.X + P.Y * Size.W); }
 
-  inline const TileType &getTile(TilePos P) const {
+  inline const_reference getTile(TilePos P) const {
     return Data.at(P.X + P.Y * Size.W);
   }
 
