@@ -38,6 +38,8 @@ public:
   MapType &get(const std::string &LayerName);
   const MapType &get(const std::string &LayerName) const;
 
+  const std::vector<MapType> &getLayers() const { return Layers; }
+
   MapType render(TileType Transparent = TileType()) const;
 
 private:
@@ -64,6 +66,7 @@ const Map<T, U> &LayeredMap<T, U>::get(const std::string &LayerName) const {
 template <typename T, typename U>
 Map<T, U> LayeredMap<T, U>::render(T Transparent) const {
   Map<T, U> Map(Size);
+  Map.fill(Transparent);
   for (auto const &Layer : Layers) {
     Layer.forEach([Transparent, &Map](Point2d<U> Pos, T Tile) {
       if (Tile == Transparent) {

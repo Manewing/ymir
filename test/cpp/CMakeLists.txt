@@ -8,6 +8,7 @@ add_executable(
   ConfigTypesTest.cpp
   DungeonDoorTest.cpp
   DungeonRoomTest.cpp
+  LayeredMapTest.cpp
   MapTest.cpp
   StringTest.cpp
   TypesTest.cpp

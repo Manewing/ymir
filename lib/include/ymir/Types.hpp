@@ -57,8 +57,8 @@ template <typename T> struct Point2d {
   constexpr Point2d(ValueType X, ValueType Y) : X(X), Y(Y) {}
 
   inline Point2d &operator+=(const Point2d<T> &Rhs) {
-    X -= Rhs.X;
-    Y -= Rhs.Y;
+    X += Rhs.X;
+    Y += Rhs.Y;
     return *this;
   }
 

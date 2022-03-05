@@ -89,6 +89,15 @@ TEST(Point2dTest, Operators) {
     EXPECT_EQ(S + A, (Point2d<float>{4, 11}));
     EXPECT_EQ(A - S, (Point2d<float>{-2, 5}));
   }
+
+  {
+    Point2d<int> A{1, 8}, B{1, -4};
+
+    A += B;
+    EXPECT_EQ(A, (Point2d<int>{2, 4}));
+    A -= B;
+    EXPECT_EQ(A, (Point2d<int>{1, 8}));
+  }
 }
 
 TEST(Rect2dTest, Comparison) {
