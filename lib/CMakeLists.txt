@@ -53,6 +53,7 @@ set(SOURCE_FILES
   src/Terminal.cpp
   src/TypeHelpers.cpp
   src/Types.cpp
+  src/Utility.cpp
 )
 
 add_library(${TARGET} SHARED ${HEADER_FILES} ${SOURCE_FILES})
