@@ -4,6 +4,7 @@ add_executable(
   ${TARGET}
   AlgorithmDijkstraTest.cpp
   AlgorithmLineOfSightTest.cpp
+  AlgorithmVectorAlgebraTest.cpp
   ConfigParserTest.cpp
   ConfigTypesTest.cpp
   DungeonDoorTest.cpp
