@@ -1,9 +1,10 @@
-#ifndef YMIR_DUNGEON_BUILDER_BASE_H
-#define YMIR_DUNGEON_BUILDER_BASE_H
+#ifndef YMIR_DUNGEON_BUILDER_BASE_HPP
+#define YMIR_DUNGEON_BUILDER_BASE_HPP
 
 #include <optional>
 #include <ymir/Config/AnyDict.hpp>
 #include <ymir/Dungeon/BuilderPass.hpp>
+#include <ymir/Logging.h>
 
 namespace ymir::Dungeon {
 
@@ -14,6 +15,9 @@ public:
   template <typename T> T &get() { return dynamic_cast<T &>(*this); }
 
   template <typename T> T *get_or_null() { return dynamic_cast<T *>(this); }
+
+public:
+  Logger *Log = nullptr;
 };
 
 class BuilderBase {
@@ -106,4 +110,4 @@ private:
 
 } // namespace ymir::Dungeon
 
-#endif // #ifndef YMIR_DUNGEON_BUILDER_BASE_H
+#endif // #ifndef YMIR_DUNGEON_BUILDER_BASE_HPP

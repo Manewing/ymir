@@ -1,6 +1,7 @@
 #include <ymir/Dungeon/BuilderBase.hpp>
 #include <ymir/Dungeon/BuilderPass.hpp>
 #include <ymir/TypeHelpers.hpp>
+#include <ymir/Utility.h>
 
 namespace ymir::Dungeon {
 
@@ -33,7 +34,17 @@ void BuilderPass::init(BuilderContext &Ctx) {
 void BuilderPass::run(BuilderContext &Ctx) {
   for (auto const &BuilderName : Sequence) {
     try {
-      Builders.at(BuilderName)->run(*this, Ctx);
+      if (Ctx.Log) {
+        Ctx.Log->info() << "running builder: " << BuilderName;
+      }
+
+      auto MilliSeconds = measureRuntime([this, &Ctx, &BuilderName]() {
+        Builders.at(BuilderName)->run(*this, Ctx);
+      });
+
+      if (Ctx.Log) {
+        Ctx.Log->info() << "  -> done, took: " << MilliSeconds << "ms";
+      }
     } catch (const std::exception &E) {
       throw std::runtime_error("While running " + BuilderName + ": " +
                                E.what());

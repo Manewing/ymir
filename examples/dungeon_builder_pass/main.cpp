@@ -77,7 +77,11 @@ int main(int Argc, char *Argv[]) {
   const auto Layers = Cfg.asList<std::string>("layers/");
   const auto Size = Cfg.get<ymir::Size2d<int>>("dungeon/size");
   ymir::LayeredMap<ymir::ColoredUniChar, int> Map(Layers, Size);
+
   ymir::Dungeon::Context<ymir::ColoredUniChar, int> Ctx(Map);
+  ymir::Logger Log("dungeon_builder");
+  Log.addHandler(std::make_shared<ymir::StderrLogHandler>());
+  Ctx.Log = &Log;
 
   Pass.init(Ctx);
   Pass.run(Ctx);
