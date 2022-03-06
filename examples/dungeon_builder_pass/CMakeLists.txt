@@ -40,3 +40,12 @@ add_test(
       --target ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}
       --args ${CMAKE_CURRENT_SOURCE_DIR}/configs/random_dungeon.cfg 355145
 )
+
+add_test(
+  NAME ${TARGET}_complex_dungeon
+  COMMAND
+    ${PROJECT_SOURCE_DIR}/test/scripts/check_output.py
+      --ref ${CMAKE_CURRENT_SOURCE_DIR}/references/complex_dungeon.txt
+      --target ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}
+      --args ${CMAKE_CURRENT_SOURCE_DIR}/configs/complex_dungeon.cfg 1019159168
+)

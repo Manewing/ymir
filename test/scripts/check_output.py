@@ -26,9 +26,11 @@ def parse_args(args):
                         help="Arguments for target executable")
     return parser.parse_args(args[1:])
 
+
 def runCmd(args: list) -> str:
     print(f"Run: {' '.join(args):s}", file=sys.stderr)
     return subprocess.check_output(args).decode("utf-8")
+
 
 def main(args):
     args = parse_args(args)
@@ -40,8 +42,13 @@ def main(args):
         return 0
 
     with open(args.ref, "r") as f:
-      ref_output = f.read()
+        ref_output = f.read()
     if output == ref_output:
+        return 0
+
+    if "UPDATE_REFERENCES" in os.environ:
+        with open(args.ref, "w") as f:
+            f.write(output)
         return 0
 
     diff = difflib.ndiff(output.splitlines(keepends=True),
