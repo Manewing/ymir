@@ -181,6 +181,9 @@ public:
     return Result;
   }
 
+  std::vector<TileType> &getData() { return Data; }
+  const std::vector<TileType> &getData() const { return Data; }
+
   iterator begin() { return Data.begin(); }
   iterator end() { return Data.end(); }
   const_iterator begin() const { return Data.begin(); }

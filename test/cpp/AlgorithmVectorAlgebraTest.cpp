@@ -123,6 +123,37 @@ TEST(AlgorithmVectorAlgebra, AlgebraWrapperBinaryOperators) {
     std::vector<int> RefValues = {2, 1, 2, 2, 3};
     EXPECT_EQ(ValuesC, RefValues);
   }
+
+  // AlgebraWrapper binary operators: (AW, AV), (AV, AW)
+  {
+    ValuesCW = ((ValuesAW * 3) + ValuesBW) / 4;
+    std::vector<int> RefValues = {1, 2, 3, 4, 5};
+    EXPECT_EQ(ValuesC, RefValues);
+  }
+
+  {
+    ValuesCW = (ValuesBW + (ValuesAW * 3)) / 4;
+    std::vector<int> RefValues = {1, 2, 3, 4, 5};
+    EXPECT_EQ(ValuesC, RefValues);
+  }
+
+  {
+    ValuesCW = ((ValuesBW * (ValuesAW * 1) + (ValuesAW * 1) * ValuesBW)) / 2;
+    std::vector<int> RefValues = {0, 6, 14, 24, 36};
+    EXPECT_EQ(ValuesC, RefValues);
+  }
+
+  {
+    ValuesCW = (ValuesBW / (ValuesAW + 1) + (ValuesAW * 1) / ValuesBW);
+    std::vector<int> RefValues = {5, 3, 2, 2, 1};
+    EXPECT_EQ(ValuesC, RefValues);
+  }
+
+  {
+    ValuesCW = (ValuesBW - (ValuesAW * 1)) + ((ValuesAW * 1) - ValuesBW);
+    std::vector<int> RefValues = {0, 0, 0, 0, 0};
+    EXPECT_EQ(ValuesC, RefValues);
+  }
 }
 
 TEST(AlgorithmVectorAlgebra, AlgebraViewBinaryOperators) {
@@ -167,6 +198,15 @@ TEST(AlgorithmVectorAlgebra, ComplexEquation) {
   VC = VA / 2 + VB * 3 + 5;
   std::vector<int> RefValues = {20, 23, 27, 30, 34};
   EXPECT_EQ(ValuesC, RefValues);
+}
+
+TEST(AlgorithmVectorAlgebra, ComplexEquationSelfAssignment) {
+  std::vector<int> ValuesA = {0, 1, 2, 3, 4};
+  const std::vector<int> ValuesB = {5, 6, 7, 8, 9};
+  auto [VA, VB] = ymir::Algorithm::algebra(ValuesA, ValuesB);
+  VA = VA / 2 + VB * 3 + 5;
+  std::vector<int> RefValues = {20, 23, 27, 30, 34};
+  EXPECT_EQ(ValuesA, RefValues);
 }
 
 } // namespace
