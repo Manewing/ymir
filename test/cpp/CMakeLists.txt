@@ -11,6 +11,7 @@ add_executable(
   LayeredMapTest.cpp
   LoggingTest.cpp
   MapTest.cpp
+  NoiseTest.cpp
   StringTest.cpp
   TypesTest.cpp
 )

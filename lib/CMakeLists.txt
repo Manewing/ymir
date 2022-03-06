@@ -50,6 +50,7 @@ set(SOURCE_FILES
   src/Logging.cpp
   src/Map.cpp
   src/MapIo.cpp
+  src/Noise.cpp
   src/Terminal.cpp
   src/TypeHelpers.cpp
   src/Types.cpp

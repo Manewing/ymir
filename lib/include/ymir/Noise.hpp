@@ -3,6 +3,7 @@
 
 #include <iterator>
 #include <random>
+#include <ymir/Map.hpp>
 #include <ymir/Types.hpp>
 
 namespace ymir {
@@ -12,7 +13,7 @@ class WyHashRndEng {
 public:
   using result_type = uint64_t;
 
-  uint64_t operator()() {
+  inline uint64_t operator()() {
     WyHash += 0x60bee2bee120fc15;
     __uint128_t Tmp;
     Tmp = (__uint128_t)WyHash * 0xa3b195354a39b70d;
@@ -82,7 +83,8 @@ void fillRectSeedRandom(Map<TileType, U> &M, TileType Tile, float Chance,
   std::uniform_int_distribution<int> Uni(0, 1000000);
   int IntChance = Chance * 1000000;
   M.forEach(
-      [&Uni, &RndGen, IntChance, Tile, Offset](Point2d<U> P, TileType &MapTile) {
+      [&Uni, &RndGen, IntChance, Tile, Offset](Point2d<U> P,
+                                               TileType &MapTile) {
         RndGen.seed((P.X + Offset.X) | (P.Y + Offset.Y));
         if (Uni(RndGen) < IntChance) {
           MapTile = Tile;
@@ -97,6 +99,47 @@ Iter randomIterator(Iter Begin, Iter End, RE &RndEng) {
   std::advance(Begin, Uni(RndEng));
   return Begin;
 }
+
+namespace Simplex {
+
+float noise2d(float X, float Y, unsigned Octaves, float Persistence,
+              float Lacunarity);
+
+float noise3d(float X, float Y, float Z, unsigned Octaves, float Persistence,
+              float Lacunarity);
+
+float noise4d(float X, float Y, float Z, float W, unsigned Octaves,
+              float Persistence, float Lacunarity);
+
+template <typename TileCord>
+Map<float, TileCord>
+generateNoiseMap(Size2d<TileCord> Size, Point2d<TileCord> Offset = {0, 0},
+                 int Seed = 0, float Scale = 1.0f, int Octaves = 1,
+                 float Persistence = 0.5f, float Lacunarity = 2.0f) {
+  Map<float, TileCord> M(Size);
+  M.forEach([Seed, Scale, Offset, Octaves, Persistence, Lacunarity](auto Pos,
+                                                                    auto &T) {
+    auto GblPos = Pos + Offset;
+    T = noise3d(float(GblPos.X) / Scale, float(GblPos.Y) / Scale, Seed, Octaves,
+                Persistence, Lacunarity);
+  });
+  return M;
+}
+
+} // namespace Simplex
+
+namespace Perlin {
+
+float noise1d(float X, int RepeatX, int Base, unsigned Octaves,
+              float Persistence, float Lacunarity);
+
+float noise2d(float X, float Y, int RepeatX, int RepeatY, int Base,
+              unsigned Octaves, float Persistence, float Lacunarity);
+
+float noise3d(float X, float Y, float Z, int RepeatX, int RepeatY, int RepeatZ,
+              int Base, unsigned Octaves, float Persistence, float Lacunarity);
+
+} // namespace Perlin
 
 } // namespace ymir
 

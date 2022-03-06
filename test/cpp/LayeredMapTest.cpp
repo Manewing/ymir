@@ -1,3 +1,4 @@
+#include "TestHelpers.hpp"
 #include <gtest/gtest.h>
 #include <ymir/LayeredMap.hpp>
 #include <ymir/Map.hpp>
@@ -23,9 +24,7 @@ TEST(LayeredMapTest, Render) {
       "#x#",
       "###",
   });
-  EXPECT_EQ(RenderedMap, RefRenderedMap) << "Map:\n"
-                                         << RenderedMap << "\nMap Ref:\n"
-                                         << RefRenderedMap;
+  EXPECT_MAP_EQ(RenderedMap, RefRenderedMap);
 }
 
 } // namespace

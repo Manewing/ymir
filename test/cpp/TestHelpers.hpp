@@ -2,7 +2,6 @@
 #define YMIR_TEST_HELPERS_HPP
 
 #include <algorithm>
-#include <cassert>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -68,6 +67,9 @@ getRoom(const std::vector<std::string> &RoomRepr) {
   });
   return R;
 }
+
+#define EXPECT_MAP_EQ(Map, MapRef)                                             \
+  EXPECT_EQ(Map, MapRef) << "Map:\n" << Map << "\nMap Ref:\n" << MapRef << "\n";
 
 } // namespace
 
