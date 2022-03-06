@@ -9,6 +9,7 @@ add_executable(
   DungeonDoorTest.cpp
   DungeonRoomTest.cpp
   LayeredMapTest.cpp
+  LoggingTest.cpp
   MapTest.cpp
   StringTest.cpp
   TypesTest.cpp

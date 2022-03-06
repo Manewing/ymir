@@ -47,6 +47,7 @@ set(SOURCE_FILES
   src/Config/String.cpp
   src/Dungeon/BuilderBase.cpp
   src/Dungeon/BuilderPass.cpp
+  src/Logging.cpp
   src/Map.cpp
   src/MapIo.cpp
   src/Terminal.cpp
