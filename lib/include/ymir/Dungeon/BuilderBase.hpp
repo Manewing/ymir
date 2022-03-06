@@ -4,7 +4,7 @@
 #include <optional>
 #include <ymir/Config/AnyDict.hpp>
 #include <ymir/Dungeon/BuilderPass.hpp>
-#include <ymir/Logging.h>
+#include <ymir/Logging.hpp>
 
 namespace ymir::Dungeon {
 

@@ -1,7 +1,7 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
-#include <ymir/Logging.h>
+#include <ymir/Logging.hpp>
 
 namespace ymir {
 
