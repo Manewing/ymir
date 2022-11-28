@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <tuple>
+#include <array>
 #include <ymir/Types.hpp>
 
 namespace ymir {
