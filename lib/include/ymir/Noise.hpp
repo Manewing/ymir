@@ -23,9 +23,9 @@ public:
     return M2;
   }
 
-  constexpr inline uint64_t min() const { return 0; }
+  static constexpr inline uint64_t min() { return 0; }
 
-  constexpr inline uint64_t max() const { return static_cast<uint64_t>(-1); }
+  static constexpr inline uint64_t max() { return static_cast<uint64_t>(-1); }
 
   inline void seed(uint64_t Seed) { WyHash = Seed; }
 
