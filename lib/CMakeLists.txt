@@ -27,15 +27,16 @@ set(HEADER_FILES
   include/ymir/Dungeon/RandomBuilder.hpp
   include/ymir/Dungeon/RandomRoomGenerator.hpp
   include/ymir/Dungeon/RectRoomGenerator.hpp
+  include/ymir/Dungeon/Room.hpp
   include/ymir/Dungeon/RoomEntityPlacer.hpp
   include/ymir/Dungeon/RoomGenerator.hpp
-  include/ymir/Dungeon/Room.hpp
   include/ymir/Dungeon/RoomPlacer.hpp
   include/ymir/Dungeon/StartEndPlacer.hpp
   include/ymir/Enum.hpp
   include/ymir/LayeredMap.hpp
-  include/ymir/MapFilter.hpp
+  include/ymir/Logging.hpp
   include/ymir/Map.hpp
+  include/ymir/MapFilter.hpp
   include/ymir/MapIo.hpp
   include/ymir/Noise.hpp
   include/ymir/Terminal.hpp

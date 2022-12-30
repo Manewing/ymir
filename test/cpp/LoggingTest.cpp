@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <ymir/Logging.h>
+#include <ymir/Logging.hpp>
 
 namespace {
 
