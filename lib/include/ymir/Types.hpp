@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <iostream>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -307,7 +308,7 @@ template <typename U> Point2d<U> operator-(const Point2d<U> &P, Dir2d Dir) {
 template <typename TileCord, typename Derived> struct TileDirections {
   template <typename MapType, typename BinaryFunc>
   static inline void forEach(MapType &Map, ymir::Point2d<TileCord> Start,
-                      BinaryFunc Func) {
+                             BinaryFunc Func) {
     for (const auto &Direction : Derived::get()) {
       auto Pos = Start + Direction;
       if (!Map.contains(Pos)) {

@@ -1,4 +1,5 @@
 #include <fstream>
+#include <optional>
 #include <sstream>
 #include <ymir/Config/Parser.hpp>
 #include <ymir/Config/String.hpp>
