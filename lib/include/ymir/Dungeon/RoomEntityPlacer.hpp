@@ -71,11 +71,14 @@ void addRandomRoomEntitys(Map<T, U> &M, T RoomEntity,
       continue;
     }
     auto Locations = findPossibleRoomEntityLocations(Room, CheckBlocksDoor);
-    if (Locations.empty()) {
-      continue;
+    std::shuffle(Locations.begin(), Locations.end(), RndEng);
+    for (const auto &Loc : Locations) {
+      if (M.getTile(Loc.Pos) != T()) {
+        continue;
+      }
+      M.setTile(Loc.Pos, RoomEntity);
+      break;
     }
-    auto It = randomIterator(Locations.begin(), Locations.end(), RndEng);
-    M.setTile(It->Pos, RoomEntity);
   }
 }
 
