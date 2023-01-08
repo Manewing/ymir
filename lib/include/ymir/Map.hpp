@@ -31,13 +31,18 @@ public:
   Map() = default;
 
   // TODO allow passing tile for default value when resizing
-  explicit Map(Size2d<TileCord> Size) : Size(Size) {
-    Data.resize(Size.W * Size.H);
-  }
+  explicit Map(Size2d<TileCord> Size) : Size(Size) { resize(Size); }
 
   Map(TileCord Width, TileCord Height) : Map(Size2d<TileCord>{Width, Height}) {}
 
-  inline Size2d<TileCord> getSize() const { return Size; }
+  Size2d<TileCord> getSize() const { return Size; }
+
+  bool empty() const { return Data.empty(); }
+
+  void resize(Size2d<TileCord> Size) {
+    this->Size = Size;
+    Data.resize(Size.W * Size.H);
+  }
 
   inline void setTile(TilePos P, TileType Tile) { getTile(P) = Tile; }
 
