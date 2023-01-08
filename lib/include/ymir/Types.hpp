@@ -11,7 +11,9 @@
 
 namespace ymir {
 
-template <typename T> struct nd { typedef T type; };
+template <typename T> struct nd {
+  typedef T type;
+};
 
 template <typename T> struct Size2d {
   using ValueType = T;
@@ -337,6 +339,12 @@ struct FourTileDirections
       ymir::Point2d<TileCord>{0, 1},
   };
   static constexpr auto &get() { return Directions; }
+
+  static constexpr bool isNextTo(const ymir::Point2d<TileCord> &A,
+                                 const ymir::Point2d<TileCord> &B) {
+    auto Diff = (A - B).abs();
+    return (Diff.X == 1 && Diff.Y == 0) || (Diff.X == 0 && Diff.Y == 1);
+  }
 };
 
 ///
@@ -354,6 +362,12 @@ struct EightTileDirections
       ymir::Point2d<TileCord>{1, 1},  ymir::Point2d<TileCord>{1, -1},
   };
   static constexpr auto &get() { return Directions; }
+
+  static constexpr bool isNextTo(const ymir::Point2d<TileCord> &A,
+                                 const ymir::Point2d<TileCord> &B) {
+    auto Diff = (A - B).abs();
+    return Diff.X <= 1 && Diff.Y <= 1 && (Diff.X != 0 || Diff.Y != 0);
+  }
 };
 
 } // namespace ymir

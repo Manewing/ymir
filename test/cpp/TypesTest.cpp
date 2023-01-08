@@ -315,4 +315,23 @@ TEST(Dir2dTest, Output) {
   }
 }
 
+TEST(FourTileDirections, IsNextTo) {
+  EXPECT_TRUE(FourTileDirections<int>::isNextTo({0, 0}, {1, 0}));
+  EXPECT_TRUE(FourTileDirections<int>::isNextTo({1, 1}, {1, 0}));
+  EXPECT_FALSE(FourTileDirections<int>::isNextTo({1, 1}, {0, 0}));
+  EXPECT_FALSE(FourTileDirections<int>::isNextTo({2, 1}, {1, 0}));
+  EXPECT_FALSE(FourTileDirections<int>::isNextTo({2, 1}, {1, 10}));
+  EXPECT_FALSE(FourTileDirections<int>::isNextTo({1, 1}, {1, 1}));
+}
+
+TEST(EightTileDirections, IsNextTo) {
+  EXPECT_TRUE(EightTileDirections<int>::isNextTo({0, 0}, {1, 0}));
+  EXPECT_TRUE(EightTileDirections<int>::isNextTo({1, 1}, {1, 0}));
+  EXPECT_TRUE(EightTileDirections<int>::isNextTo({1, 1}, {0, 0}));
+  EXPECT_TRUE(EightTileDirections<int>::isNextTo({2, 1}, {1, 0}));
+  EXPECT_FALSE(EightTileDirections<int>::isNextTo({2, 1}, {1, 10}));
+  EXPECT_FALSE(EightTileDirections<int>::isNextTo({2, 1}, {1, 3}));
+  EXPECT_FALSE(EightTileDirections<int>::isNextTo({1, 1}, {1, 1}));
+}
+
 } // namespace
