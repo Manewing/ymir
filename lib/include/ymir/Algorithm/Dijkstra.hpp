@@ -68,19 +68,23 @@ getDijkstraMap(ymir::Size2d<TileCord> MapSize, ymir::Point2d<TileCord> Start,
 // for which dijkstra map was created.
 template <typename TileCord,
           typename DirectionProvider = FourTileDirections<TileCord>>
-std::vector<ymir::Point2d<TileCord>> getPathFromDijkstraMap(
-    const ymir::Map<int, TileCord> &DM, const ymir::Point2d<TileCord> &Start,
-    const ymir::Point2d<TileCord> &End,
-    DirectionProvider DirProv = DirectionProvider(), unsigned MaxLength = -1) {
+std::vector<ymir::Point2d<TileCord>>
+getPathFromDijkstraMap(const ymir::Map<int, TileCord> &DM,
+                       const ymir::Point2d<TileCord> &Start,
+                       const ymir::Point2d<TileCord> &End,
+                       DirectionProvider DirProv = DirectionProvider(),
+                       unsigned MaxLength = -1, bool AllowCloserEqual = false) {
   int Dist = std::numeric_limits<int>::max();
   std::vector<ymir::Point2d<TileCord>> Path = {};
   ymir::Point2d<TileCord> PathPos = End;
 
   while (Dist != 0 && Path.size() < MaxLength) {
     ymir::Point2d<TileCord> NextPos = PathPos;
-    const auto FindMinDist = [&NextPos, &Dist, &Start](auto Pos, auto &Tile) {
-      if ((Tile < Dist || (Tile <= Dist &&
-                           Point2d<TileCord>::isCloser(Pos, NextPos, Start))) &&
+    const auto FindMinDist = [&NextPos, &Dist, &Start,
+                              AllowCloserEqual](auto Pos, auto &Tile) {
+      if ((Tile < Dist ||
+           (Tile <= Dist && Point2d<TileCord>::isCloser(Pos, NextPos, Start,
+                                                        AllowCloserEqual))) &&
           Tile != -1) {
         Dist = Tile;
         NextPos = Pos;

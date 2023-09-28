@@ -81,9 +81,12 @@ template <typename T> struct Point2d {
   }
 
   /// Returns true if A is closer to Target than B
-  static bool isCloser(const Point2d<ValueType> &A,
-                              const Point2d<ValueType> &B,
-                              const Point2d<ValueType> &Target) {
+  static bool isCloser(const Point2d<ValueType> &A, const Point2d<ValueType> &B,
+                       const Point2d<ValueType> &Target,
+                       bool AllowEqual = false) {
+    if (AllowEqual) {
+      return manhattenDistance(A, Target) <= manhattenDistance(B, Target);
+    }
     return manhattenDistance(A, Target) < manhattenDistance(B, Target);
   }
 };
