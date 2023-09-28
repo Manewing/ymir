@@ -1,11 +1,11 @@
 #ifndef YMIR_ALGORITHM_DIJKSTRA_HPP
 #define YMIR_ALGORITHM_DIJKSTRA_HPP
 
+#include <limits>
 #include <queue>
 #include <tuple>
 #include <ymir/Map.hpp>
 #include <ymir/Types.hpp>
-#include <limits>
 
 namespace ymir::Algorithm {
 
@@ -69,27 +69,30 @@ getDijkstraMap(ymir::Size2d<TileCord> MapSize, ymir::Point2d<TileCord> Start,
 template <typename TileCord,
           typename DirectionProvider = FourTileDirections<TileCord>>
 std::vector<ymir::Point2d<TileCord>> getPathFromDijkstraMap(
-    const ymir::Map<int, TileCord> &DM, ymir::Point2d<TileCord> End,
+    const ymir::Map<int, TileCord> &DM, const ymir::Point2d<TileCord> &Start,
+    const ymir::Point2d<TileCord> &End,
     DirectionProvider DirProv = DirectionProvider(), unsigned MaxLength = -1) {
   int Dist = std::numeric_limits<int>::max();
   std::vector<ymir::Point2d<TileCord>> Path = {};
-  ymir::Point2d<TileCord> Pos = End;
-  while (Dist != 0 && Path.size() < MaxLength) {
+  ymir::Point2d<TileCord> PathPos = End;
 
-    ymir::Point2d<TileCord> NextPos = Pos;
-    auto FindMinDist = [&NextPos, &Dist](auto Pos, auto &Tile) {
-      if (Tile < Dist && Tile != -1) {
+  while (Dist != 0 && Path.size() < MaxLength) {
+    ymir::Point2d<TileCord> NextPos = PathPos;
+    const auto FindMinDist = [&NextPos, &Dist, &Start](auto Pos, auto &Tile) {
+      if ((Tile < Dist || (Tile <= Dist &&
+                           Point2d<TileCord>::isCloser(Pos, NextPos, Start))) &&
+          Tile != -1) {
         Dist = Tile;
         NextPos = Pos;
       }
       return true;
     };
-    DirProv.forEach(DM, Pos, FindMinDist);
-    if (NextPos == Pos) {
+    DirProv.forEach(DM, PathPos, FindMinDist);
+    if (NextPos == PathPos) {
       return {};
     }
-    Pos = NextPos;
-    Path.push_back(Pos);
+    PathPos = NextPos;
+    Path.push_back(PathPos);
   }
 
   return Path;

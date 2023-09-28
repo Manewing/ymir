@@ -1,8 +1,8 @@
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include <sstream>
 #include <tuple>
-#include <array>
 #include <ymir/Types.hpp>
 
 namespace ymir {
@@ -30,16 +30,24 @@ Dir2d Dir2d::fromString(std::string Str) {
   return Dir;
 }
 
-Dir2d Dir2d::fromVector(int X, int Y) {
+Dir2d Dir2d::fromMaxComponent(const int X, const int Y) {
   if (X == 0 && Y == 0) {
     return NONE;
-  } else if (X == 0) {
+  } else if (std::abs(X) < std::abs(Y)) {
     return Y > 0 ? DOWN : UP;
-  } else if (Y == 0) {
+  } else if (std::abs(X) > std::abs(Y)) {
     return X > 0 ? RIGHT : LEFT;
-  } else {
+  }
+  return X > 0 ? RIGHT : LEFT;
+}
+
+Dir2d Dir2d::fromVector(const int X, const int Y) {
+  if (X == 0 && Y == 0) {
     return NONE;
   }
+  auto H = (X == 0 ? NONE : (X > 0 ? RIGHT : LEFT));
+  auto V = (Y == 0 ? NONE : (Y > 0 ? DOWN : UP));
+  return H | V;
 }
 
 std::string Dir2d::str() const {

@@ -38,7 +38,7 @@ int main(int Argc, char *Argv[]) {
 
   if (Starts.size() == 1) {
     for (const auto &End : Ends) {
-      auto Path = ymir::Algorithm::getPathFromDijkstraMap(DM, End);
+      auto Path = ymir::Algorithm::getPathFromDijkstraMap(DM, Starts.at(0), End);
       std::cout << "Dijkstra Path:\n"
                 << ymir::Algorithm::markPath(Map, Starts.at(0), End, Path)
                 << std::endl;

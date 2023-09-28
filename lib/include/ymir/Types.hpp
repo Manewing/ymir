@@ -73,6 +73,19 @@ template <typename T> struct Point2d {
 
   Point2d<ValueType> abs() const { return {std::abs(X), std::abs(Y)}; }
   Point2d<ValueType> positive() const { return {X < 0 ? 0 : X, Y < 0 ? 0 : Y}; }
+
+  static ValueType manhattenDistance(const Point2d<ValueType> &A,
+                                     const Point2d<ValueType> &B) {
+    auto Diff = (A - B).abs();
+    return Diff.X + Diff.Y;
+  }
+
+  /// Returns true if A is closer to Target than B
+  static bool isCloser(const Point2d<ValueType> &A,
+                              const Point2d<ValueType> &B,
+                              const Point2d<ValueType> &Target) {
+    return manhattenDistance(A, Target) < manhattenDistance(B, Target);
+  }
 };
 
 template <typename T>
@@ -244,10 +257,24 @@ public:
   } Dir2dValue;
 
   static Dir2d fromString(std::string Str);
-  static Dir2d fromVector(int X, int Y);
 
-  template<typename T>
-  static Dir2d fromVector(const Point2d<T> &P) {
+  /// Returns the direction of the maximum component (absolute) of (X,Y) as a
+  /// single direction
+  static Dir2d fromMaxComponent(const int X, const int Y);
+
+  /// Returns the direction of the maximum component (absolute) of P as a single
+  /// direction
+  template <typename T> static Dir2d fromMaxComponent(const Point2d<T> &P) {
+    return fromVector(P.X, P.Y);
+  }
+
+  /// Returns the direction of the vector (X,Y) as a composite direction (e.g.
+  /// UP | RIGHT)
+  static Dir2d fromVector(const int X, const int Y);
+
+  /// Returns the direction of the vector P as a composite direction (e.g. UP |
+  /// RIGHT)
+  template <typename T> static Dir2d fromVector(const Point2d<T> &P) {
     return fromVector(P.X, P.Y);
   }
 

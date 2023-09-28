@@ -20,7 +20,7 @@ void findAndMarkPath(ymir::Map<char, int> &Map, unsigned MaxLength = -1) {
       [&Map](auto Pos) { return Map.getTile(Pos) != ' '; },
       DirectionProvider());
   auto Path = ymir::Algorithm::getPathFromDijkstraMap(
-      DM, End, DirectionProvider(), MaxLength);
+      DM, Start, End, DirectionProvider(), MaxLength);
   Map.setTiles(Path, 'x');
   if (!Path.empty()) {
     Map.setTile(End, 'x');
@@ -66,8 +66,8 @@ TEST(AlgorithmDijkstraTest, FindPathMaxLength) {
   auto MapRef = loadMap({
       "##############",
       "##############",
-      "#xxxx#########",
-      "#   xxx     ##",
+      "#xx  #########",
+      "# xxxxx     ##",
       "########### ##",
       "##          ##",
       "##############",
@@ -90,8 +90,8 @@ TEST(AlgorithmDijkstraTest, FindPathFourTileTunnelInverted) {
   auto MapRef = loadMap({
       "##############",
       "##############",
-      "#xxxx#########",
-      "#   xxxxxxxx##",
+      "#xx  #########",
+      "# xxxxxxxxxx##",
       "###########x##",
       "##xxxxxxxxxx##",
       "##############",
@@ -162,8 +162,8 @@ TEST(AlgorithmDijkstraTest, FindPathEightTile) {
   auto MapRef = loadMap({
       "##############",
       "##############",
-      "#x   #########",
-      "# xxxxxxxxx ##",
+      "#xxxx#########",
+      "#    xxxxxx ##",
       "###########x##",
       "##xxxxxxxxx ##",
       "##############",
