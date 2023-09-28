@@ -246,6 +246,11 @@ public:
   static Dir2d fromString(std::string Str);
   static Dir2d fromVector(int X, int Y);
 
+  template<typename T>
+  static Dir2d fromVector(const Point2d<T> &P) {
+    return fromVector(P.X, P.Y);
+  }
+
   Dir2d() = default;
   inline constexpr Dir2d(Dir2dValue Value) : Value(Value) {}
   inline constexpr operator Dir2dValue() const { return Value; }
