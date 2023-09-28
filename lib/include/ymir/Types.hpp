@@ -244,6 +244,7 @@ public:
   } Dir2dValue;
 
   static Dir2d fromString(std::string Str);
+  static Dir2d fromVector(int X, int Y);
 
   Dir2d() = default;
   inline constexpr Dir2d(Dir2dValue Value) : Value(Value) {}

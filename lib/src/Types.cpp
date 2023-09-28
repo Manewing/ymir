@@ -30,6 +30,18 @@ Dir2d Dir2d::fromString(std::string Str) {
   return Dir;
 }
 
+Dir2d Dir2d::fromVector(int X, int Y) {
+  if (X == 0 && Y == 0) {
+    return NONE;
+  } else if (X == 0) {
+    return Y > 0 ? DOWN : UP;
+  } else if (Y == 0) {
+    return X > 0 ? RIGHT : LEFT;
+  } else {
+    return NONE;
+  }
+}
+
 std::string Dir2d::str() const {
   switch (Value) {
   case NONE:
