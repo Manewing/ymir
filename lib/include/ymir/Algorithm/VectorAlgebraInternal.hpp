@@ -10,12 +10,12 @@ namespace ymir::Algorithm {
 
 namespace internal {
 /// Just like std::divides, but flips "x / y" to "y / x"
-template <typename T> struct InverseDivides : std::binary_function<T, T, T> {
+template <typename T> struct InverseDivides {
   constexpr T operator()(const T &X, const T &Y) const { return Y / X; }
 };
 
 /// Just like std::minus, but flips "x - y" to "y - x"
-template <typename T> struct InverseMinus : std::binary_function<T, T, T> {
+template <typename T> struct InverseMinus {
   constexpr T operator()(const T &X, const T &Y) const { return Y - X; }
 };
 
