@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <unordered_map>
 #include <ymir/Map.hpp>
 
 namespace ymir::Algorithm {
@@ -13,6 +14,11 @@ void traverseLOS(SeePosPred SeePos, Point2d<TileCord> Start, unsigned Range,
   // Adapt step size based on range
   StepSize = StepSize / Range;
 
+  // Always seen the starting position
+  SeePos(Start);
+
+  std::unordered_map<Point2d<TileCord>, bool> Visited;
+
   for (double Rad = 0; Rad < M_PI * 2; Rad += RadStep) {
     // Compute distance in each axis to traverse
     const double Dx = std::cos(Rad) * Range;
@@ -20,15 +26,31 @@ void traverseLOS(SeePosPred SeePos, Point2d<TileCord> Start, unsigned Range,
 
     // Step towards target position
     double RelativeDist = 0.0;
+    TileCord LastX = Start.X;
+    TileCord LastY = Start.Y;
     while (RelativeDist < 1.0) {
       TileCord Tx = TileCord(double(Start.X) + 0.5 + RelativeDist * Dx);
       TileCord Ty = TileCord(double(Start.Y) + 0.5 + RelativeDist * Dy);
+      RelativeDist += StepSize;
+      if (Tx == LastX && Ty == LastY) {
+        continue;
+      }
+      Point2d<TileCord> Pos{Tx, Ty};
+      auto It = Visited.find(Pos);
+      if (It != Visited.end()) {
+        if (It->second) {
+          break;
+        }
+        continue;
+      }
 
-      ymir::Point2d<TileCord> Pos{Tx, Ty};
-      if (!SeePos(Pos)) {
+      LastX = Tx;
+      LastY = Ty;
+      const auto LosBlocked = !SeePos(Pos);
+      Visited[Pos] = LosBlocked;
+      if (LosBlocked) {
         break;
       }
-      RelativeDist += StepSize;
     }
   }
 }
@@ -39,13 +61,15 @@ bool isInLOS(IsLOSBlockedPred IsLOSBlocked, Point2d<TileCord> Start,
     // FIXME do not check entire line of sight,, i.e. 360°, instead
     // only for a specific cone in direction of the target, we need to
     // do this in order to align LOS to target with the entire LOS
-    traverseLOS([IsLOSBlocked, Target](auto Pos) {
-      if (Target == Pos) {
-        throw Target;
-      }
-      return !IsLOSBlocked(Pos);
-    }, Start, Range, StepSize);
-  } catch(Point2d<TileCord>) {
+    traverseLOS(
+        [IsLOSBlocked, Target](auto Pos) {
+          if (Target == Pos) {
+            throw Target;
+          }
+          return !IsLOSBlocked(Pos);
+        },
+        Start, Range, StepSize);
+  } catch (Point2d<TileCord>) {
     return true;
   }
   return false;

@@ -408,6 +408,16 @@ struct EightTileDirections
 
 } // namespace ymir
 
+namespace std {
+  // Hash for Point2d
+  template<typename TileCord>
+  struct hash<::ymir::Point2d<TileCord>> {
+    std::size_t operator()(const ::ymir::Point2d<TileCord> &P) const {
+      return std::hash<TileCord>()(P.X) ^ std::hash<TileCord>()(P.Y);
+    }
+  };
+}
+
 YMIR_BITFIELD_ENUM(ymir::Dir2d::Dir2dValue);
 
 #endif // #ifndef YMIR_TYPES_HPP
