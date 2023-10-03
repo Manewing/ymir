@@ -42,9 +42,6 @@ Dir2d Dir2d::fromMaxComponent(const int X, const int Y) {
 }
 
 Dir2d Dir2d::fromVector(const int X, const int Y) {
-  if (X == 0 && Y == 0) {
-    return NONE;
-  }
   auto H = (X == 0 ? NONE : (X > 0 ? RIGHT : LEFT));
   auto V = (Y == 0 ? NONE : (Y > 0 ? DOWN : UP));
   return H | V;

@@ -303,19 +303,17 @@ public:
 
   template <typename U>
   Point2d<U> advance(Point2d<U> Pos = Point2d<U>{0, 0}) const {
-    switch (Value) {
-    case NONE:
-      return Pos + Point2d<U>{0, 0};
-    case DOWN:
-      return Pos + Point2d<U>{0, 1};
-    case UP:
-      return Pos + Point2d<U>{0, -1};
-    case RIGHT:
-      return Pos + Point2d<U>{1, 0};
-    case LEFT:
-      return Pos + Point2d<U>{-1, 0};
-    default:
-      break;
+    if ((Value & DOWN) != NONE) {
+      Pos += Point2d<U>{0, 1};
+    }
+    if ((Value & UP) != NONE) {
+      Pos += Point2d<U>{0, -1};
+    }
+    if ((Value & RIGHT) != NONE) {
+      Pos += Point2d<U>{1, 0};
+    }
+    if ((Value & LEFT) != NONE) {
+      Pos += Point2d<U>{-1, 0};
     }
     return Pos;
   }
@@ -409,14 +407,13 @@ struct EightTileDirections
 } // namespace ymir
 
 namespace std {
-  // Hash for Point2d
-  template<typename TileCord>
-  struct hash<::ymir::Point2d<TileCord>> {
-    std::size_t operator()(const ::ymir::Point2d<TileCord> &P) const {
-      return std::hash<TileCord>()(P.X) ^ std::hash<TileCord>()(P.Y);
-    }
-  };
-}
+// Hash for Point2d
+template <typename TileCord> struct hash<::ymir::Point2d<TileCord>> {
+  std::size_t operator()(const ::ymir::Point2d<TileCord> &P) const {
+    return std::hash<TileCord>()(P.X) ^ std::hash<TileCord>()(P.Y);
+  }
+};
+} // namespace std
 
 YMIR_BITFIELD_ENUM(ymir::Dir2d::Dir2dValue);
 

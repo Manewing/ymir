@@ -22,6 +22,8 @@ private:
   std::string Layer;
   TileType RoomEntity = TileType();
   float RoomPercentage = 5.0;
+  unsigned RoomCountMin = 1;
+  unsigned RoomCountMax = 1;
   bool CheckBlocksDoor = true;
 };
 
@@ -64,20 +66,27 @@ template <typename T, typename U, typename RndEngType>
 void addRandomRoomEntitys(Map<T, U> &M, T RoomEntity,
                           const std::list<ymir::Dungeon::Room<T, U>> &Rooms,
                           RndEngType RndEng, float RoomPercentage,
+                          unsigned RoomCountMin, unsigned RoomCountMax,
                           bool CheckBlocksDoor = true) {
   std::uniform_real_distribution<float> Uni(0.0, 100);
   for (const auto &Room : Rooms) {
     if (Uni(RndEng) > RoomPercentage) {
       continue;
     }
+    std::uniform_int_distribution<unsigned> RndRoomCount(RoomCountMin,
+                                                         RoomCountMax);
+    std::size_t RoomCount = RndRoomCount(RndEng);
     auto Locations = findPossibleRoomEntityLocations(Room, CheckBlocksDoor);
     std::shuffle(Locations.begin(), Locations.end(), RndEng);
+    auto Count = std::min(Locations.size(), RoomCount);
     for (const auto &Loc : Locations) {
       if (M.getTile(Loc.Pos) != T()) {
         continue;
       }
       M.setTile(Loc.Pos, RoomEntity);
-      break;
+      if (--Count == 0) {
+        break;
+      }
     }
   }
 }
@@ -90,6 +99,8 @@ void RoomEntityPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   RoomPercentage = this->template getCfg<float>("room_percentage");
   CheckBlocksDoor =
       this->template getCfgOr<bool>("check_blocks_door", CheckBlocksDoor);
+  RoomCountMin = this->template getCfgOr<unsigned>("room_count_min", RoomCountMin);
+  RoomCountMax = this->template getCfgOr<unsigned>("room_count_max", RoomCountMax);
 }
 
 template <typename T, typename U, typename RE>
@@ -98,7 +109,8 @@ void RoomEntityPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
   auto &Ctx = C.get<Context<T, U>>();
   // TODO drop the map all together and add objects to rooms instead
   addRandomRoomEntitys(Ctx.Map.get(Layer), RoomEntity, Ctx.Rooms, this->RndEng,
-                       RoomPercentage, CheckBlocksDoor);
+                       RoomPercentage, RoomCountMin, RoomCountMax,
+                       CheckBlocksDoor);
 }
 
 } // namespace ymir::Dungeon
