@@ -409,8 +409,11 @@ struct EightTileDirections
 namespace std {
 // Hash for Point2d
 template <typename TileCord> struct hash<::ymir::Point2d<TileCord>> {
-  std::size_t operator()(const ::ymir::Point2d<TileCord> &P) const {
-    return std::hash<TileCord>()(P.X) ^ std::hash<TileCord>()(P.Y);
+  std::size_t operator()(const ::ymir::Point2d<TileCord> &P) const noexcept {
+    std::hash<TileCord> Hasher;
+    auto HX = Hasher(P.X);
+    auto HY = Hasher(P.Y);
+    return HX ^ (HY << 1);
   }
 };
 } // namespace std

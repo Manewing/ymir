@@ -36,8 +36,8 @@ void traverseLOS(SeePosPred SeePos, Point2d<TileCord> Start, unsigned Range,
         continue;
       }
       Point2d<TileCord> Pos{Tx, Ty};
-      auto It = Visited.find(Pos);
-      if (It != Visited.end()) {
+      auto [It, Inserted] = Visited.try_emplace(Pos, false);
+      if (!Inserted) {
         if (It->second) {
           break;
         }
@@ -47,7 +47,7 @@ void traverseLOS(SeePosPred SeePos, Point2d<TileCord> Start, unsigned Range,
       LastX = Tx;
       LastY = Ty;
       const auto LosBlocked = !SeePos(Pos);
-      Visited[Pos] = LosBlocked;
+      It->second = LosBlocked;
       if (LosBlocked) {
         break;
       }
