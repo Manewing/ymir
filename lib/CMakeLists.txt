@@ -49,6 +49,7 @@ set(SOURCE_FILES
   src/Config/AnyDict.cpp
   src/Config/Parser.cpp
   src/Config/String.cpp
+  src/Config/Types.cpp
   src/Dungeon/BuilderBase.cpp
   src/Dungeon/BuilderPass.cpp
   src/Logging.cpp
