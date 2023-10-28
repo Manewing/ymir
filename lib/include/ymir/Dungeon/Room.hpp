@@ -42,6 +42,9 @@ template <typename T, typename U> struct Room {
                          [](const Door<U> &Door) { return Door.Used; });
   }
 
+  /// Returns true if the position would block any door of the room
+  /// \param Pos Position to check
+  /// \param Used If true, only checks used doors
   bool blocksDoor(Point2d<U> Pos, bool Used = true) const {
     return std::any_of(Doors.begin(), Doors.end(),
                        [Pos, Used](const Door<U> &Door) {

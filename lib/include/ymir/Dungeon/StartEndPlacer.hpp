@@ -55,7 +55,7 @@ Point2d<U> StartEndPlacer<T, U, RE>::findFreeTileForStart() {
 
   std::vector<ymir::Point2d<U>> FreeTiles;
   Map.forEach([&Ctx, &FreeTiles](auto Pos, auto &Tile) {
-    if (Tile != T() || !Ctx.isInRoom(Pos)) {
+    if (Tile != T() || !Ctx.isInRoom(Pos) || Ctx.blocksDoor(Pos)) {
       return;
     }
     FreeTiles.push_back(Pos);

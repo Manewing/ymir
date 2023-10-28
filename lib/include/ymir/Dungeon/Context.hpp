@@ -20,7 +20,15 @@ public:
 public:
   Context(LayeredMap<TileType, TileCord> &Map) : Map(Map) {}
 
+  /// Returns true if position is inside room and the position is empty
+  /// \param Pos Position to check
   bool isInRoom(Point2d<TileCord> Pos) const;
+
+  /// Returns true if the position would block any door of a room
+  /// \param Pos Position to check
+  /// \param Used If true, only checks used doors
+  bool blocksDoor(Point2d<TileCord> Pos, bool Used = true) const;
+
   bool isInHallway(Point2d<TileCord> Pos) const;
 
   bool haveRoomsHallway(const Dungeon::Room<TileType, TileCord> &A,
@@ -51,6 +59,14 @@ bool Context<T, U>::isInRoom(Point2d<U> Pos) const {
                      [&Pos](const Dungeon::Room<T, U> &Room) {
                        return Room.rect().contains(Pos) &&
                               Room.M.getTile(Pos - Room.Pos) == T();
+                     });
+}
+
+template <typename T, typename U>
+bool Context<T, U>::blocksDoor(Point2d<U> Pos, bool Used) const {
+  return std::any_of(Rooms.begin(), Rooms.end(),
+                     [&Pos, Used](const Dungeon::Room<T, U> &Room) {
+                       return Room.blocksDoor(Pos - Room.Pos, Used);
                      });
 }
 
