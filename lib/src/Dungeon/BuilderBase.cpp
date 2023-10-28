@@ -1,6 +1,6 @@
+#include <iostream>
 #include <ymir/Dungeon/BuilderBase.hpp>
 #include <ymir/Dungeon/BuilderPass.hpp>
-#include <iostream>
 
 namespace ymir::Dungeon {
 

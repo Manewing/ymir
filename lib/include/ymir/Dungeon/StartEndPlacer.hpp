@@ -83,7 +83,7 @@ StartEndPlacer<T, U, RE>::findFreeTilesForEnd(Point2d<U> StartPos) {
   std::vector<ymir::Point2d<U>> PossibleEnds;
   Map.forEach([&DM, MinEndDistance, &PossibleEnds, &Ctx](auto Pos, auto &Tile) {
     if (Tile != T() || DM.getTile(Pos) < MinEndDistance ||
-        !Ctx.isInRoom(Pos)) {
+        !Ctx.isInRoom(Pos) || Ctx.blocksDoor(Pos)) {
       return;
     }
     PossibleEnds.push_back(Pos);

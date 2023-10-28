@@ -1,6 +1,7 @@
 #ifndef YMIR_TYPES_HPP
 #define YMIR_TYPES_HPP
 
+#include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <optional>
@@ -11,9 +12,7 @@
 
 namespace ymir {
 
-template <typename T> struct nd {
-  typedef T type;
-};
+template <typename T> struct nd { typedef T type; };
 
 template <typename T> struct Size2d {
   using ValueType = T;
@@ -71,8 +70,24 @@ template <typename T> struct Point2d {
     return *this;
   }
 
+  template <typename U> Point2d<U> to() const {
+    return {static_cast<U>(X), static_cast<U>(Y)};
+  }
+
   Point2d<ValueType> abs() const { return {std::abs(X), std::abs(Y)}; }
   Point2d<ValueType> positive() const { return {X < 0 ? 0 : X, Y < 0 ? 0 : Y}; }
+  ValueType length() const { return euclideanDistance(*this, {0, 0}); }
+
+  Point2d<ValueType> normalized() const {
+    auto Len = length();
+    return {X / Len, Y / Len};
+  }
+
+  static ValueType euclideanDistance(const Point2d<ValueType> &A,
+                                     const Point2d<ValueType> &B) {
+    auto Diff = A - B;
+    return std::sqrt(Diff.X * Diff.X + Diff.Y * Diff.Y);
+  }
 
   static ValueType manhattenDistance(const Point2d<ValueType> &A,
                                      const Point2d<ValueType> &B) {
