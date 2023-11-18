@@ -5,14 +5,14 @@
 #include <ymir/Dungeon/BuilderPass.hpp>
 #include <ymir/Dungeon/CaveRoomGenerator.hpp>
 #include <ymir/Dungeon/CelAltMapFiller.hpp>
-#include <ymir/Dungeon/RoomEntityPlacer.hpp>
+#include <ymir/Dungeon/FilterPlacer.hpp>
 #include <ymir/Dungeon/LoopPlacer.hpp>
 #include <ymir/Dungeon/MapFiller.hpp>
 #include <ymir/Dungeon/RandomRoomGenerator.hpp>
 #include <ymir/Dungeon/RectRoomGenerator.hpp>
-#include <ymir/Dungeon/StartEndPlacer.hpp>
-#include <ymir/Dungeon/FilterPlacer.hpp>
+#include <ymir/Dungeon/RoomEntityPlacer.hpp>
 #include <ymir/Dungeon/RoomPlacer.hpp>
+#include <ymir/Dungeon/StartEndPlacer.hpp>
 #include <ymir/Terminal.hpp>
 
 template <typename TileType, typename TileCord, typename RandEngType>
@@ -84,7 +84,14 @@ int main(int Argc, char *Argv[]) {
   Ctx.Log = &Log;
 
   Pass.init(Ctx);
-  Pass.run(Ctx);
+  try {
+    Pass.run(Ctx);
+  } catch (const std::exception &E) {
+    std::cerr << "std::exception: " << E.what() << std::endl
+              << "Seed was: " << *Seed << std::endl
+              << Map.render() << std::endl;
+    throw E;
+  }
 
   std::cout << Ctx.Map.render() << std::endl
             << std::endl
