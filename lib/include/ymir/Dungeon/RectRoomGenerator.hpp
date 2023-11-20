@@ -30,16 +30,24 @@ Map<T, U> generateMultiRectRoom(T Ground, T Wall, Size2d<U> Size, RE &RndEng) {
   Map<T, U> Room(Size);
   Room.fill(Wall);
 
+  Rect2d<U> LastRoom = {Point2d<U>{0, 0}, Size2d<U>{Size.W + 1, Size.H + 1}};
   for (int L = 0; L < 2; L++) {
-    const auto SizeRange = Rect2d<U>{{3, 3}, {Size.W - 4, Size.H - 4}};
-    const auto RandomSubSize = randomSize2d<U>(SizeRange, RndEng);
+    while (true) {
+      const auto SizeRange = Rect2d<U>{{3, 3}, {Size.W - 4, Size.H - 4}};
+      const auto RandomSubSize = randomSize2d<U>(SizeRange, RndEng);
 
-    const auto PosRange = Rect2d<U>{
-        {1, 1}, {Size.W - RandomSubSize.W - 1, Size.H - RandomSubSize.H - 1}};
-    const auto RandomSubPos = randomPoint2d<U>(PosRange, RndEng);
+      const auto PosRange = Rect2d<U>{
+          {1, 1}, {Size.W - RandomSubSize.W - 1, Size.H - RandomSubSize.H - 1}};
+      const auto RandomSubPos = randomPoint2d<U>(PosRange, RndEng);
 
-    const Rect2d<U> FirstRoom = {RandomSubPos, RandomSubSize};
-    Room.fillRect(Ground, FirstRoom);
+      const Rect2d<U> FirstRoom = {RandomSubPos, RandomSubSize};
+      if (!FirstRoom.overlaps(LastRoom)) {
+        continue;
+      }
+      LastRoom = FirstRoom;
+      Room.fillRect(Ground, FirstRoom);
+      break;
+    }
   }
 
   return Room;
