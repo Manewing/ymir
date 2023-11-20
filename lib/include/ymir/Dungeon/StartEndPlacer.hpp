@@ -28,6 +28,7 @@ public:
 
 private:
   std::string Layer;
+  std::string CheckLayer;
   std::optional<TileType> StartTile;
   std::optional<TileType> EndTile;
   unsigned NumEnds = 1;
@@ -41,6 +42,7 @@ template <typename T, typename U, typename RE>
 void StartEndPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
   BuilderBase::init(Pass, C);
   Layer = this->template getCfg<std::string>("layer");
+  CheckLayer = this->template getCfgOr<std::string>("check_layer", Layer);
   StartTile = this->template getCfg<T>("start_tile");
   EndTile = this->template getCfg<T>("end_tile");
   NumEnds = this->template getCfgOr<unsigned>("num_ends", NumEnds);
@@ -72,18 +74,18 @@ std::vector<Point2d<U>>
 StartEndPlacer<T, U, RE>::findFreeTilesForEnd(Point2d<U> StartPos) {
   auto &Ctx = this->template getCtx<Context<T, U>>();
   auto &Map = Ctx.Map.get(Layer);
+  auto &CheckMap = Ctx.Map.get(CheckLayer);
 
-  auto DM =
-      Algorithm::getDijkstraMap(Map.getSize(), StartPos, [&Map](auto Pos) {
-        return Map.getTile(Pos) != T();
-      });
+  auto DM = Algorithm::getDijkstraMap(
+      CheckMap.getSize(), StartPos,
+      [&CheckMap](auto Pos) { return CheckMap.getTile(Pos) != T(); });
   int MaxDistance = *std::max_element(DM.begin(), DM.end());
   int MinEndDistance = MaxDistance * DistanceThres;
 
   std::vector<ymir::Point2d<U>> PossibleEnds;
   Map.forEach([&DM, MinEndDistance, &PossibleEnds, &Ctx](auto Pos, auto &Tile) {
-    if (Tile != T() || DM.getTile(Pos) < MinEndDistance ||
-        !Ctx.isInRoom(Pos) || Ctx.blocksDoor(Pos)) {
+    if (Tile != T() || DM.getTile(Pos) < MinEndDistance || !Ctx.isInRoom(Pos) ||
+        Ctx.blocksDoor(Pos)) {
       return;
     }
     PossibleEnds.push_back(Pos);
