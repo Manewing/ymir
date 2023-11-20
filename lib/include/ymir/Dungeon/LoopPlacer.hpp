@@ -117,6 +117,8 @@ void LoopPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
     Hallway.SrcDoor->Used = true;
     Hallway.DstDoor->Used = true;
     Ctx.Hallways.push_back(Hallway);
+  }
+  for (const auto &Hallway : Ctx.Hallways) {
     Ctx.Map.get(Layer).fillRect(T(), Hallway.Rect);
   }
 }
