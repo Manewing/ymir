@@ -101,9 +101,13 @@ public:
            getNeighborCount(P, Tile, DirProv);
   }
 
-  Rect2d<TileCord> rect() const { return Rect2d<TileCord>{{0, 0}, Size}; }
+  inline constexpr Rect2d<TileCord> rect() const {
+    return Rect2d<TileCord>{{0, 0}, Size};
+  }
 
-  bool contains(Point2d<TileCord> P) const { return rect().contains(P); }
+  inline constexpr bool contains(Point2d<TileCord> P) const {
+    return rect().contains(P);
+  }
 
   Rect2d<TileCord>
   getContained(std::optional<Rect2d<TileCord>> Rect = {}) const {

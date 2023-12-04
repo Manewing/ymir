@@ -13,35 +13,35 @@ template <typename T> struct _ymir_bitfield_enum {
 };
 
 template <typename T>
-typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type
+constexpr typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type
 operator|(T Lhs, T Rhs) {
   using U = typename std::underlying_type<T>::type;
   return static_cast<T>(static_cast<U>(Lhs) | static_cast<U>(Rhs));
 }
 
 template <typename T>
-typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type
+constexpr typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type
 operator&(T Lhs, T Rhs) {
   using U = typename std::underlying_type<T>::type;
   return static_cast<T>(static_cast<U>(Lhs) & static_cast<U>(Rhs));
 }
 
 template <typename T>
-typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type
+constexpr typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type
 operator^(T Lhs, T Rhs) {
   using U = typename std::underlying_type<T>::type;
   return static_cast<T>(static_cast<U>(Lhs) ^ static_cast<U>(Rhs));
 }
 
 template <typename T>
-typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type
+constexpr typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type
 operator~(T Rhs) {
   using U = typename std::underlying_type<T>::type;
   return static_cast<T>(~static_cast<U>(Rhs));
 }
 
 template <typename T>
-typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type &
+constexpr typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type &
 operator|=(T &Lhs, const T &Rhs) {
   using U = typename std::underlying_type<T>::type;
   Lhs = static_cast<T>(static_cast<U>(Lhs) | static_cast<U>(Rhs));
@@ -49,7 +49,7 @@ operator|=(T &Lhs, const T &Rhs) {
 }
 
 template <typename T>
-typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type &
+constexpr typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type &
 operator&=(T &Lhs, const T &Rhs) {
   using U = typename std::underlying_type<T>::type;
   Lhs = static_cast<T>(static_cast<U>(Lhs) & static_cast<U>(Rhs));
@@ -57,7 +57,7 @@ operator&=(T &Lhs, const T &Rhs) {
 }
 
 template <typename T>
-typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type &
+constexpr typename std::enable_if<_ymir_bitfield_enum<T>::enabled, T>::type &
 operator^=(T &Lhs, const T &Rhs) {
   using U = typename std::underlying_type<T>::type;
   Lhs = static_cast<T>(static_cast<U>(Lhs) ^ static_cast<U>(Rhs));

@@ -58,19 +58,19 @@ template <typename T> struct Point2d {
   constexpr Point2d() = default;
   constexpr Point2d(ValueType X, ValueType Y) : X(X), Y(Y) {}
 
-  inline Point2d &operator+=(const Point2d<T> &Rhs) {
+  inline constexpr Point2d &operator+=(const Point2d<T> &Rhs) {
     X += Rhs.X;
     Y += Rhs.Y;
     return *this;
   }
 
-  inline Point2d &operator-=(const Point2d<T> &Rhs) {
+  inline constexpr Point2d &operator-=(const Point2d<T> &Rhs) {
     X -= Rhs.X;
     Y -= Rhs.Y;
     return *this;
   }
 
-  template <typename U> Point2d<U> to() const {
+  template <typename U> inline constexpr Point2d<U> to() const {
     return {static_cast<U>(X), static_cast<U>(Y)};
   }
 
@@ -107,62 +107,68 @@ template <typename T> struct Point2d {
 };
 
 template <typename T>
-inline bool operator==(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
+inline constexpr bool operator==(const Point2d<T> &Lhs,
+                                 const Point2d<T> &Rhs) noexcept {
   return std::tie(Lhs.X, Lhs.Y) == std::tie(Rhs.X, Rhs.Y);
 }
 
 template <typename T>
-inline bool operator!=(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
+inline constexpr bool operator!=(const Point2d<T> &Lhs,
+                                 const Point2d<T> &Rhs) noexcept {
   return std::tie(Lhs.X, Lhs.Y) != std::tie(Rhs.X, Rhs.Y);
 }
 
 template <typename T>
-inline bool operator<(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
+inline constexpr bool operator<(const Point2d<T> &Lhs,
+                                const Point2d<T> &Rhs) noexcept {
   return std::tie(Lhs.X, Lhs.Y) < std::tie(Rhs.X, Rhs.Y);
 }
 
 template <typename T>
-inline bool operator<=(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
+inline constexpr bool operator<=(const Point2d<T> &Lhs,
+                                 const Point2d<T> &Rhs) noexcept {
   return std::tie(Lhs.X, Lhs.Y) <= std::tie(Rhs.X, Rhs.Y);
 }
 
 template <typename T>
-inline bool operator>(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
+inline constexpr bool operator>(const Point2d<T> &Lhs,
+                                const Point2d<T> &Rhs) noexcept {
   return std::tie(Lhs.X, Lhs.Y) > std::tie(Rhs.X, Rhs.Y);
 }
 
 template <typename T>
-inline bool operator>=(const Point2d<T> &Lhs, const Point2d<T> &Rhs) noexcept {
+inline constexpr bool operator>=(const Point2d<T> &Lhs,
+                                 const Point2d<T> &Rhs) noexcept {
   return std::tie(Lhs.X, Lhs.Y) >= std::tie(Rhs.X, Rhs.Y);
 }
 
 template <typename T>
-inline Point2d<T> operator+(const Point2d<T> &Lhs,
-                            const Point2d<T> &Rhs) noexcept {
+inline constexpr Point2d<T> operator+(const Point2d<T> &Lhs,
+                                      const Point2d<T> &Rhs) noexcept {
   return {Lhs.X + Rhs.X, Lhs.Y + Rhs.Y};
 }
 
 template <typename T>
-inline Point2d<T> operator-(const Point2d<T> &Lhs,
-                            const Point2d<T> &Rhs) noexcept {
+inline constexpr Point2d<T> operator-(const Point2d<T> &Lhs,
+                                      const Point2d<T> &Rhs) noexcept {
   return {Lhs.X - Rhs.X, Lhs.Y - Rhs.Y};
 }
 
 template <typename T>
-inline Point2d<T> operator+(const Point2d<T> &Lhs,
-                            const Size2d<T> &Rhs) noexcept {
+inline constexpr Point2d<T> operator+(const Point2d<T> &Lhs,
+                                      const Size2d<T> &Rhs) noexcept {
   return {Lhs.X + Rhs.W, Lhs.Y + Rhs.H};
 }
 
 template <typename T>
-inline Point2d<T> operator+(const Size2d<T> &Lhs,
-                            const Point2d<T> &Rhs) noexcept {
+inline constexpr Point2d<T> operator+(const Size2d<T> &Lhs,
+                                      const Point2d<T> &Rhs) noexcept {
   return Rhs + Lhs;
 }
 
 template <typename T>
-inline Point2d<T> operator-(const Point2d<T> &Lhs,
-                            const Size2d<T> &Rhs) noexcept {
+inline constexpr Point2d<T> operator-(const Point2d<T> &Lhs,
+                                      const Size2d<T> &Rhs) noexcept {
   return {Lhs.X - Rhs.W, Lhs.Y - Rhs.H};
 }
 
@@ -192,16 +198,16 @@ template <typename T> struct Rect2d {
   constexpr Rect2d(Point2d<T> Pos, Size2d<T> Size) : Pos(Pos), Size(Size) {}
   constexpr Rect2d(Size2d<T> Size) : Pos(0, 0), Size(Size) {}
 
-  bool empty() const { return Size.W <= 0 || Size.H <= 0; }
+  inline constexpr bool empty() const { return Size.W <= 0 || Size.H <= 0; }
 
   // Returns true if the given point is contained in the rect
-  bool contains(const Point2d<T> &P) const {
+  inline constexpr bool contains(const Point2d<T> &P) const {
     const auto Pos2 = Pos + Size;
     return Pos.X <= P.X && P.X < Pos2.X && Pos.Y <= P.Y && P.Y < Pos2.Y;
   }
 
   // Returns true if this rect completely contains the other rect
-  bool contains(const Rect2d<T> &Other) const {
+  inline constexpr bool contains(const Rect2d<T> &Other) const {
     const auto Pos2 = Pos + Size;
     const auto OtherPos2 = Other.Pos + Other.Size;
     return contains(Other.Pos) &&
@@ -210,14 +216,14 @@ template <typename T> struct Rect2d {
   }
 
   // Returns true if the other rect overlaps with this rect
-  bool overlaps(const Rect2d<T> &Other) const {
+  inline constexpr bool overlaps(const Rect2d<T> &Other) const {
     const auto ThisPos = Pos + Size;
     const auto OtherPos = Other.Pos + Other.Size;
     return (Pos.X < OtherPos.X && ThisPos.X > Other.Pos.X &&
             Pos.Y < OtherPos.Y && ThisPos.Y > Other.Pos.Y);
   }
 
-  static Rect2d<T> get(Point2d<T> Pos1, Point2d<T> Pos2) {
+  static inline constexpr Rect2d<T> get(Point2d<T> Pos1, Point2d<T> Pos2) {
     auto Pos = Point2d<T>(std::min(Pos1.X, Pos2.X), std::min(Pos1.Y, Pos2.Y));
     const auto BottomRight =
         Point2d<T>(std::max(Pos1.X, Pos2.X), std::max(Pos1.Y, Pos2.Y));
@@ -227,12 +233,14 @@ template <typename T> struct Rect2d {
 };
 
 template <typename T>
-inline bool operator==(const Rect2d<T> &Lhs, const Rect2d<T> &Rhs) noexcept {
+inline constexpr bool operator==(const Rect2d<T> &Lhs,
+                                 const Rect2d<T> &Rhs) noexcept {
   return std::tie(Lhs.Pos, Lhs.Size) == std::tie(Rhs.Pos, Rhs.Size);
 }
 
 template <typename T>
-inline bool operator!=(const Rect2d<T> &Lhs, const Rect2d<T> &Rhs) noexcept {
+inline constexpr bool operator!=(const Rect2d<T> &Lhs,
+                                 const Rect2d<T> &Rhs) noexcept {
   return std::tie(Lhs.Pos, Lhs.Size) != std::tie(Rhs.Pos, Rhs.Size);
 }
 
