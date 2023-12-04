@@ -12,7 +12,7 @@
 
 namespace {
 
-template <typename Type>[[maybe_unused]] std::string dump(const Type &T) {
+template <typename Type> [[maybe_unused]] std::string dump(const Type &T) {
   std::stringstream SS;
   SS << T;
   return SS.str();
@@ -31,6 +31,16 @@ getMarkerPos(ymir::Map<char, int> &Map, char Marker,
     }
   });
   return MarkerPos;
+}
+
+[[maybe_unused]] ymir::Point2d<int>
+getMarkerPosOrFail(ymir::Map<char, int> &Map, char Marker,
+                   std::optional<char> Replace = std::nullopt) {
+  if (auto MarkerPos = getMarkerPos(Map, Marker, Replace)) {
+    return *MarkerPos;
+  }
+  throw std::runtime_error("Marker '" + std::string(1, Marker) +
+                           "' not found found int Map:\n" + dump(Map));
 }
 
 [[maybe_unused]] void markPath(const std::vector<ymir::Point2d<int>> &Path,
