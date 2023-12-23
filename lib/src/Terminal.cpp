@@ -1,5 +1,4 @@
 #include <iostream>
-#include <unistd.h>
 #include <ymir/Terminal.hpp>
 #include <ymir/TypeHelpers.hpp>
 

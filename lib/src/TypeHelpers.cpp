@@ -1,17 +1,22 @@
-#include <cxxabi.h>
 #include <iostream>
 #include <ymir/TypeHelpers.hpp>
+
+#ifdef __GNUG__
+#include <cxxabi.h>
+#endif
 
 namespace ymir {
 
 std::string getTypeIdName(const std::type_info &TypeInfo) {
   int Status;
   std::string TypeName = TypeInfo.name();
+  #ifdef __GNUG__
   char *Demangled = abi::__cxa_demangle(TypeName.c_str(), NULL, NULL, &Status);
   if (Status == 0) {
     TypeName = Demangled;
     std::free(Demangled);
   }
+  #endif
   return TypeName;
 }
 
