@@ -62,14 +62,15 @@ set(SOURCE_FILES
   src/Utility.cpp
 )
 
-add_library(${TARGET} SHARED ${HEADER_FILES} ${SOURCE_FILES})
-add_library(${TARGET}_Static STATIC ${HEADER_FILES} ${SOURCE_FILES})
+add_library(${TARGET} STATIC ${HEADER_FILES} ${SOURCE_FILES})
+set_property(TARGET ${TARGET} PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-set_target_properties(${TARGET}_Static PROPERTIES OUTPUT_NAME ${TARGET})
-set_property(TARGET ${TARGET}_Static PROPERTY POSITION_INDEPENDENT_CODE 1)
+# Build static library and set same output name
+add_library(${TARGET}_Shared SHARED ${HEADER_FILES} ${SOURCE_FILES})
+set_target_properties(${TARGET}_Shared PROPERTIES OUTPUT_NAME ${TARGET})
 
 target_include_directories(${TARGET} PUBLIC include)
-target_include_directories(${TARGET}_Static PUBLIC include)
+target_include_directories(${TARGET}_Shared PUBLIC include)
 
 install(
   DIRECTORY include/
@@ -78,7 +79,6 @@ install(
   FILES_MATCHING PATTERN "*.hpp"
 )
 
-
 install(
-  TARGETS ${TARGET} ${TARGET}_Static
+  TARGETS ${TARGET} ${TARGET}_Shared
 )
