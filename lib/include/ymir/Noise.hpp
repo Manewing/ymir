@@ -11,26 +11,26 @@ namespace ymir {
 // From https://github.com/lemire/testingRNG/blob/master/source/wyhash.h
 class WyHashRndEng {
 public:
-  using result_type = uint64_t;
+  using result_type = Uint64;
 
-  inline uint64_t operator()() {
+  inline Uint64 operator()() {
     WyHash += 0x60bee2bee120fc15;
-    __uint128_t Tmp;
-    Tmp = (__uint128_t)WyHash * 0xa3b195354a39b70d;
-    uint64_t M1 = (Tmp >> 64) ^ Tmp;
-    Tmp = (__uint128_t)M1 * 0x1b03738712fad5c9;
-    uint64_t M2 = (Tmp >> 64) ^ Tmp;
+    Uint128 Tmp;
+    Tmp = (Uint128)WyHash * 0xa3b195354a39b70d;
+    Uint64 M1 = Uint64((Tmp >> 64) ^ Tmp);
+    Tmp = (Uint128)M1 * 0x1b03738712fad5c9;
+    Uint64 M2 = Uint64((Tmp >> 64) ^ Tmp);
     return M2;
   }
 
-  static constexpr inline uint64_t min() { return 0; }
+  static constexpr inline  Uint64 min() { return 0; }
 
-  static constexpr inline uint64_t max() { return static_cast<uint64_t>(-1); }
+  static constexpr inline Uint64 max() { return static_cast<Uint64>(-1); }
 
-  inline void seed(uint64_t Seed) { WyHash = Seed; }
+  inline void seed(Uint64 Seed) { WyHash = Seed; }
 
 private:
-  uint64_t WyHash = 0;
+  Uint64 WyHash = 0;
 };
 
 // REMOVE this just use std::uniform_real_distribution

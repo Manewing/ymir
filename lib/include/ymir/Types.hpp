@@ -7,10 +7,23 @@
 #include <optional>
 #include <string>
 #include <tuple>
+#include <cstdint>
 #include <type_traits>
 #include <ymir/Enum.hpp>
 
+#ifdef WIN32
+#include <__msvc_int128.hpp>
+#endif
+
 namespace ymir {
+
+using Uint64 = std::uint64_t;
+
+#ifdef WIN32
+using Uint128 = std::_Unsigned128;
+#else
+using Uint128 = __uint128_t;
+#endif
 
 template <typename T> struct nd { typedef T type; };
 

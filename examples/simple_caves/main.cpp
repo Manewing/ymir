@@ -1,7 +1,6 @@
 #include <cmath>
 #include <iostream>
 #include <string_view>
-#include <unistd.h>
 #include <ymir/CallularAutomata.hpp>
 #include <ymir/Map.hpp>
 #include <ymir/Noise.hpp>

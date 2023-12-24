@@ -21,7 +21,6 @@ target_link_libraries(${TARGET}
   gtest
   gmock
   gtest_main
-  pthread
   ymir
 )
 

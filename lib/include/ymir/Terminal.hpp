@@ -1,6 +1,7 @@
 #ifndef YMIR_TERMINAL_HPP
 #define YMIR_TERMINAL_HPP
 
+#include <array>
 #include <cstring>
 #include <iosfwd>
 #include <stdint.h>
