@@ -11,9 +11,9 @@ namespace ymir {
 // From https://github.com/lemire/testingRNG/blob/master/source/wyhash.h
 class WyHashRndEng {
 public:
-  using result_type = Uint128;
+  using result_type = Uint64;
 
-  inline uint64_t operator()() {
+  inline Uint64 operator()() {
     WyHash += 0x60bee2bee120fc15;
     Uint128 Tmp;
     Tmp = (Uint128)WyHash * 0xa3b195354a39b70d;
