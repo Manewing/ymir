@@ -1,3 +1,4 @@
+#include <cstring>
 #include <iostream>
 #include <ymir/Terminal.hpp>
 #include <ymir/TypeHelpers.hpp>
