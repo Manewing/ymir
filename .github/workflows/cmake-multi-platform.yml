@@ -65,7 +65,7 @@ jobs:
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DBUILD_TESTS=ON
-        -DBUILD_EXAMPLES=ON
+#        -DBUILD_EXAMPLES=ON # Need to be migrated to Windows
         -S ${{ github.workspace }}
 
     - name: Build
