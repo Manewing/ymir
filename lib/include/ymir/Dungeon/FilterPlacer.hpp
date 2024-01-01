@@ -105,7 +105,7 @@ void FilterPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
 
   std::uniform_real_distribution<float> Uni(0.0, 100);
   FM.forEach([&FM, &PM, this, &Uni](auto Pos, auto &Tile) {
-    if (Tile != T()) {
+    if (Tile != T() || PM.getTile(Pos) != T()) {
       return;
     }
 
