@@ -156,7 +156,7 @@ void shadowCasting(const SeePosPred &SeePos,
   }
 }
 
-template <typename IsPosBlockedPred, typename TileCord>
+template <typename TileCord, typename IsPosBlockedPred>
 bool isInLOS(const IsPosBlockedPred &IsBlocked, Point2d<TileCord> Start,
              Point2d<TileCord> Target, double Range,
              const Point2d<double> Offset = {0.5, 0.5}) {
