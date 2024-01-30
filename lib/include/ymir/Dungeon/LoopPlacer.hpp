@@ -11,6 +11,8 @@ class LoopPlacer : public RandomBuilder<RndEngType> {
 public:
   static const char *Type;
 
+  using BaseType = RandomBuilder<RndEngType>;
+
 public:
   using RandomBuilder<RndEngType>::RandomBuilder;
 
@@ -80,7 +82,7 @@ getLoopHallway(Context<T, U> &Ctx, RE &RndEng, Dungeon::Room<T, U> &Source,
 
 template <typename T, typename U, typename RE>
 void LoopPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::init(Pass, C);
+  BaseType::init(Pass, C);
   Layer = this->template getCfg<std::string>("layer");
   MaxLoops = this->template getCfg<unsigned>("max_loops");
   MaxUsedDoors = this->template getCfg<unsigned>("max_used_doors");
@@ -88,7 +90,7 @@ void LoopPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
 
 template <typename T, typename U, typename RE>
 void LoopPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::init(Pass, C);
+  BaseType::init(Pass, C);
   auto &Ctx = C.get<Context<T, U>>();
 
   // FIXME factor out into standalone func

@@ -87,7 +87,7 @@ void RoomPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
 
 template <typename T, typename U, typename RE>
 void RoomPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::run(Pass, C);
+  RandomBuilder<RE>::run(Pass, C);
   auto &Ctx = C.get<Context<T, U>>();
   auto &M = Ctx.Map.get(Layer);
 

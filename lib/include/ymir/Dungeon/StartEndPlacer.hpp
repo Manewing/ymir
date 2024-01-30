@@ -13,6 +13,8 @@ class StartEndPlacer : public RandomBuilder<RandomEngineType> {
 public:
   static const char *Type;
 
+  using BaseType = RandomBuilder<RandomEngineType>;
+
 public:
   using RandomBuilder<RandomEngineType>::RandomBuilder;
 
@@ -40,7 +42,7 @@ const char *StartEndPlacer<T, U, RE>::Type = "start_end_placer";
 
 template <typename T, typename U, typename RE>
 void StartEndPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::init(Pass, C);
+  BaseType::init(Pass, C);
   Layer = this->template getCfg<std::string>("layer");
   CheckLayer = this->template getCfgOr<std::string>("check_layer", Layer);
   StartTile = this->template getCfg<T>("start_tile");
@@ -99,7 +101,7 @@ StartEndPlacer<T, U, RE>::findFreeTilesForEnd(Point2d<U> StartPos) {
 
 template <typename T, typename U, typename RE>
 void StartEndPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::run(Pass, C);
+  BaseType::run(Pass, C);
   auto &Ctx = C.get<Context<T, U>>();
   auto &Map = Ctx.Map.get(Layer);
 

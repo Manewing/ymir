@@ -9,6 +9,7 @@ template <typename TileType, typename TileCord, typename RandomEngineType>
 class RoomEntityPlacer : public RandomBuilder<RandomEngineType> {
 public:
   static const char *Type;
+  using BaseType = RandomBuilder<RandomEngineType>;
 
 public:
   using RandomBuilder<RandomEngineType>::RandomBuilder;
@@ -93,7 +94,7 @@ void addRandomRoomEntitys(Map<T, U> &M, T RoomEntity,
 
 template <typename T, typename U, typename RE>
 void RoomEntityPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::init(Pass, C);
+  BaseType::init(Pass, C);
   Layer = this->template getCfg<std::string>("layer");
   RoomEntity = this->template getCfg<T>("entity");
   RoomPercentage = this->template getCfg<float>("room_percentage");
@@ -105,7 +106,7 @@ void RoomEntityPlacer<T, U, RE>::init(BuilderPass &Pass, BuilderContext &C) {
 
 template <typename T, typename U, typename RE>
 void RoomEntityPlacer<T, U, RE>::run(BuilderPass &Pass, BuilderContext &C) {
-  BuilderBase::run(Pass, C);
+  BaseType::run(Pass, C);
   auto &Ctx = C.get<Context<T, U>>();
   // TODO drop the map all together and add objects to rooms instead
   addRandomRoomEntitys(Ctx.Map.get(Layer), RoomEntity, Ctx.Rooms, this->RndEng,
